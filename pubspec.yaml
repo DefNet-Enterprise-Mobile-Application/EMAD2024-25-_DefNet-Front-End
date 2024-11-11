@@ -46,6 +46,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+  flutter_svg: any
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -54,6 +55,15 @@ dev_dependencies:
 flutter:
   assets:
   - lib/assets/logo animation.json
+  - lib/assets/logo.png
+  - lib/assets/ellipse2.png
+  - lib/assets/ellipse3.png
+  - lib/assets/button_image/star.png
+  - lib/assets/button_image/dashboard.png
+  - lib/assets/button_image/wifi.png
+  - lib/assets/button_image/profile.png
+  - lib/assets/icons/notification.png
+  - lib/assets/icons/logout.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
