@@ -77,6 +77,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         onPressed: () {
                           // Aggiungi qui la logica per le notifiche
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => SplashScreen()),
+                          );
                         },
                       ),
                     ],
