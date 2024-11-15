@@ -21,6 +21,7 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
       ),
       home: SplashScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
