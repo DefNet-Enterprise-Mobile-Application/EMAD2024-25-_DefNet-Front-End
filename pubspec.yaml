@@ -55,18 +55,24 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
+# The following section is specific to Flutter packages.
 flutter:
   assets:
-  - lib/assets/logo animation.json
-  - lib/assets/logo.png
-  - lib/assets/ellipse2.png
-  - lib/assets/ellipse3.png
-  - lib/assets/button_image/star.png
-  - lib/assets/button_image/dashboard.png
-  - lib/assets/button_image/wifi.png
-  - lib/assets/button_image/profile.png
-  - lib/assets/icons/notification.png
-  - lib/assets/icons/logout.png
+    - lib/assets/logo animation.json
+    - lib/assets/logo.png
+    - lib/assets/ellipse2.png
+    - lib/assets/ellipse3.png
+    - lib/assets/button_image/star.png
+    - lib/assets/button_image/dashboard.png
+    - lib/assets/button_image/wifi.png
+    - lib/assets/button_image/profile.png
+    - lib/assets/icons/notification.png
+    - lib/assets/icons/logout.png
+    - lib/assets/icons/home.png
+    - lib/assets/icons/wifi.png
+    - lib/assets/icons/service.png
+    - lib/assets/icons/profile.png
+    - lib/assets/avatar/avatar.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

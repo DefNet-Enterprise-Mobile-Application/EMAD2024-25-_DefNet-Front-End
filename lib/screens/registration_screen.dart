@@ -1,7 +1,8 @@
 import 'package:defnet_front_end/screens/login_screen.dart';
 import 'package:defnet_front_end/shared/components/shape_lines/ellipse_custom.dart';
 import 'package:flutter/material.dart';
-import 'package:defnet_front_end/shared/services/registration_service.dart';
+
+import 'Home/home_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -11,52 +12,21 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-
-  // Controller - text controller
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  // RegistrationService - service as register
-  final RegistrationService registrationService = RegistrationService();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-
-
-
   @override
   Widget build(BuildContext context) {
-
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
-
       body: SingleChildScrollView(
-
         child: Container(
           width: double.infinity,
           height: MediaQuery.of(context).size.height,
           child: Stack(
             children: <Widget>[
               // Wave Up
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: EllipseUp(rotateImage: false,), // Widget personalizzato per l'onda superiore
-              ),
-              // Wave Down
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: EllipseDown(), // Widget personalizzato per l'onda inferiore
-              ),
+              EllipseUp(), // Widget personalizzato per l'onda superiore
 
+              // Wave Down
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -93,8 +63,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               color: Colors.grey[700],
                             ),
                           ),
-                          TextField(
-                            controller : _usernameController,
+                          const TextField(
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
                               hintText: 'Inserisci il tuo username...',
@@ -108,8 +77,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               color: Colors.grey[700],
                             ),
                           ),
-                          TextField(
-                            controller: _passwordController,
+                          const TextField(
                             obscureText: true,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
@@ -120,18 +88,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           Container(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () async {
-                                // Registration Service
-                                await registrationService.registerUser(
-                                  context,
-                                    _usernameController.text,
-                                    _passwordController.text
-                                );
+                              onPressed: () {
                                 // Press Sign Up to reach the Home Page Dashboard
-                                //Navigator.pushReplacement(
-                                  //context,
-                                 // MaterialPageRoute(builder: (context) =>  HomeScreen()),
-                               // );
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) =>  HomeScreen()),
+                                );
 
                               },
                               child: const Text('Sign Up'),

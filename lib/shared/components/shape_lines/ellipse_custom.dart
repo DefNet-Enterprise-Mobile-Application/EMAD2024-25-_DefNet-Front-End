@@ -1,28 +1,65 @@
 import 'package:flutter/material.dart';
 
-class EllipseUp extends StatelessWidget {
-  final bool rotateImage; // Boolean to determine if the image should be rotated
+Color color = Colors.blue.shade900; // Definizione del colore
 
-  // Constructor with required boolean field
-  EllipseUp({required this.rotateImage});
+// Funzione per creare l'onda
+Widget EllipseUp() {
+  Color color = Colors.blue.shade900; // Definizione del colore
+  double height = 200; // Altezza dell'onda
+  return Positioned(
+    top: 0,
+    left: 0,
+    right: 0,
+    child: WaveWidget(
+      color: color,
+      height: height,
+    ),
+  );
+}
+
+// Widget che rappresenta l'onda
+class WaveWidget extends StatelessWidget {
+  final Color color;
+  final double height;
+
+  const WaveWidget({required this.color, required this.height});
 
   @override
   Widget build(BuildContext context) {
-    return Transform.rotate(
-      angle: rotateImage ? 3.14159 : 0, // 3.14159 radians is 180 degrees
-      child: Image.asset(
-        'lib/assets/ellipse2.png',  // Use the PNG file
+    return ClipPath(
+      clipper: WaveClipper(), // Definizione del clipper personalizzato
+      child: Container(
+        color: color,
+        height: height,
       ),
     );
   }
 }
 
-
-class EllipseDown extends StatelessWidget {
+// Clipper personalizzato per creare l'onda
+class WaveClipper extends CustomClipper<Path> {
   @override
-  Widget build(BuildContext context) {
-    return Image.asset(
-      'lib/assets/ellipse3.png',  // Use the PNG file
+  Path getClip(Size size) {
+    var path = Path();
+    path.lineTo(0, size.height * 0.7); // Partenza da un po' più in basso
+
+    // Prima curva: inizio basso a sinistra
+    path.quadraticBezierTo(
+        size.width * 0.25, size.height,       // Punto di controllo
+        size.width * 0.5, size.height * 0.85  // Punto finale
     );
+
+    // Seconda curva: salita verso destra
+    path.quadraticBezierTo(
+        size.width * 0.75, size.height * 0.7, // Punto di controllo
+        size.width, size.height * 0.9         // Punto finale
+    );
+
+    path.lineTo(size.width, 0); // Chiude il percorso
+    path.close();
+    return path;
   }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false; // Riclip obbligatorio
 }
