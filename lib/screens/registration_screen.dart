@@ -24,13 +24,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   }
 
-  // Funzione per registrare l'utente
+// Funzione per registrare l'utente
   Future<void> registerUser() async {
-    const String baseurl = 'http://192.168.1.161:8000/register';
+    const String baseurl = 'http://172.19.178.160:8000/register';
 
     try {
-      //print("[katia] Username inserito: ${_usernameController.text}");
-      //print("[katia] Password inserito: ${_passwordController.text}");
       final response = await http.post(
         Uri.parse(baseurl),
         headers: {'Content-Type': 'application/json'},
@@ -39,20 +37,41 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           'password': _passwordController.text,
         }),
       );
+
       // Stampa lo stato della risposta
       print("[katia] Stato della response: ${response.statusCode}");
-
       // Stampa anche il corpo della risposta per capire meglio il contenuto
       print("[katia] Corpo della response: ${response.body}");
 
       if (response.statusCode == 200) {
-        print("[katia] CIAO");
+        // Parse the response body to get the boolean value
+        bool isSuccess = json.decode(response.body);
 
-        // Registrazione riuscita, vai alla HomeScreen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-        );
+        if (isSuccess) {
+          print("[katia] Registrazione riuscita");
+          // Registrazione riuscita, vai alla HomeScreen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        } else {
+          // Gestione degli errori
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text("Errore"),
+              content: Text("Registrazione fallita"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            ),
+          );
+        }
       } else {
         // Gestione degli errori
         final errorMessage = json.decode(response.body)['detail'];
@@ -74,6 +93,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       }
     } catch (e) {
       print("Errore durante la registrazione: $e");
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text("Errore"),
+          content: Text("Si è verificato un errore durante la registrazione."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        ),
+      );
     }
   }
 
