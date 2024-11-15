@@ -5,7 +5,7 @@ class LoginService {
 
 
   // TODO : Inserire il proprio IPv4 del PC in maniera custom
-  static const String baseUrl = 'http://172.19.143.58:8000'; // IP del tuo computer locale
+  static const String baseUrl = 'http://172.19.178.160:8000'; // IP del tuo computer locale
 
   // Funzione per effettuare la login
   Future<bool> login(String username, String password) async {

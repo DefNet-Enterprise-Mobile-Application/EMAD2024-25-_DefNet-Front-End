@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (username.isEmpty || password.isEmpty) {
       // Mostra un messaggio di errore se i campi sono vuoti
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill in all fields')),
+        const SnackBar(content: Text('Please fill in all fields')),
       );
       return;
     }
@@ -45,16 +45,16 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success) {
       // Se la login è andata a buon fine, naviga alla HomeScreen
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login successful')),
+        const SnackBar(content: Text('Login successful')),
       );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
     } else {
       // Se la login fallisce, mostra un messaggio di errore
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed')),
+        const SnackBar(content: Text('Login failed')),
       );
     }
   }
@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(height: 20), // Spazio tra l'onda superiore e il logo
+                  const SizedBox(height: 20), // Spazio tra l'onda superiore e il logo
                   // Logo
                   Image.asset(
                     'lib/assets/logo.png', // Sostituisci con il percorso del tuo logo
@@ -97,12 +97,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32.0),
                     child: Container(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
-                          BoxShadow(
+                          const BoxShadow(
                             color: Colors.black12,
                             blurRadius: 10,
                             offset: Offset(0, 10),
@@ -121,12 +121,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           TextField(
                             controller: _usernameController, // Collega il controller
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                               hintText: 'Inserisci il tuo username...',
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'Password',
                             style: TextStyle(
@@ -137,22 +137,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextField(
                             controller: _passwordController, // Collega il controller
                             obscureText: true,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                               hintText: 'Inserisci la tua password...',
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           // Button SignIn
                           Container(
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _handleLogin, // Usa _handleLogin quando premuto
                               child: _isLoading
-                                  ? CircularProgressIndicator()
-                                  : Text('Sign In'),
+                                  ? const CircularProgressIndicator()
+                                  : const Text('Sign In'),
                               style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 backgroundColor: Colors.blue,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -160,17 +160,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Center(
                             child: TextButton(
                               onPressed: () {
                                 // Go to Registration Page
                                 Navigator.pushReplacement(
                                   context,
-                                  MaterialPageRoute(builder: (context) => RegistrationScreen()),
+                                  MaterialPageRoute(builder: (context) => const RegistrationScreen()),
                                 );
                               },
-                              child: Text(
+                              child: const Text(
                                 'Per registrarti clicca qui!',
                                 style: TextStyle(
                                   color: Colors.blue,
