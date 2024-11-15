@@ -1,10 +1,7 @@
 import 'package:defnet_front_end/screens/login_screen.dart';
 import 'package:defnet_front_end/shared/components/shape_lines/ellipse_custom.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
-import 'Home/home_screen.dart';
+import 'package:defnet_front_end/shared/services/registration_service.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -14,110 +11,32 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  //raccogliamo i dati inseriti
+
+  // Controller - text controller
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  // RegistrationService - service as register
+  final RegistrationService registrationService = RegistrationService();
 
   @override
   void initState() {
     super.initState();
-
   }
 
-// Funzione per registrare l'utente
-  Future<void> registerUser() async {
-    const String baseurl = 'http://172.19.178.160:8000/register';
 
-    try {
-      final response = await http.post(
-        Uri.parse(baseurl),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'username': _usernameController.text,
-          'password': _passwordController.text,
-        }),
-      );
-
-      // Stampa lo stato della risposta
-      print("[katia] Stato della response: ${response.statusCode}");
-      // Stampa anche il corpo della risposta per capire meglio il contenuto
-      print("[katia] Corpo della response: ${response.body}");
-
-      if (response.statusCode == 200) {
-        // Parse the response body to get the boolean value
-        bool isSuccess = json.decode(response.body);
-
-        if (isSuccess) {
-          print("[katia] Registrazione riuscita");
-          // Registrazione riuscita, vai alla HomeScreen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomeScreen()),
-          );
-        } else {
-          // Gestione degli errori
-          showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: Text("Errore"),
-              content: Text("Registrazione fallita"),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                  },
-                  child: Text("OK"),
-                ),
-              ],
-            ),
-          );
-        }
-      } else {
-        // Gestione degli errori
-        final errorMessage = json.decode(response.body)['detail'];
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text("Errore"),
-            content: Text(errorMessage),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                },
-                child: Text("OK"),
-              ),
-            ],
-          ),
-        );
-      }
-    } catch (e) {
-      print("Errore durante la registrazione: $e");
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text("Errore"),
-          content: Text("Si è verificato un errore durante la registrazione."),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-              },
-              child: Text("OK"),
-            ),
-          ],
-        ),
-      );
-    }
-  }
 
 
   @override
   Widget build(BuildContext context) {
+
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
+
       body: SingleChildScrollView(
+
         child: Container(
           width: double.infinity,
           height: MediaQuery.of(context).size.height,
@@ -201,8 +120,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           Container(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () {
-                                registerUser();
+                              onPressed: () async {
+                                // Registration Service
+                                await registrationService.registerUser(
+                                  context,
+                                    _usernameController.text,
+                                    _passwordController.text
+                                );
                                 // Press Sign Up to reach the Home Page Dashboard
                                 //Navigator.pushReplacement(
                                   //context,
