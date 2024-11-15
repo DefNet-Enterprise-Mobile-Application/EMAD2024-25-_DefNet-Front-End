@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 import '../shared/components/shape_lines/ellipse_custom.dart';
+import '../shared/services/login_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -11,6 +12,57 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  bool _isLoading = false;
+
+  // Funzione per gestire la login
+  Future<void> _handleLogin() async {
+    final String username = _usernameController.text;
+    final String password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      // Mostra un messaggio di errore se i campi sono vuoti
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true; // Mostra il loading durante la richiesta
+    });
+
+    // Chiama il servizio di login
+    final loginService = LoginService();
+    bool success = await loginService.login(username, password);
+
+    setState(() {
+      _isLoading = false; // Nasconde il loading
+    });
+
+    if (success) {
+      // Se la login è andata a buon fine, naviga alla HomeScreen
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login successful')),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      // Se la login fallisce, mostra un messaggio di errore
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login failed')),
+      );
+    }
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,20 +135,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           Container(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () {
-                                // Press Button to reach the home_page
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                                );
-                              },
-                              child: const Text('Sign In'),
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: Colors.blue,
-                                shape: RoundedRectangleBorder(
+                                onPressed: _isLoading ? null : _handleLogin, // Usa _handleLogin quando premuto
+                                child: _isLoading
+                                ? const CircularProgressIndicator()
+                                    :
+                                const Text('Sign In'),
+                                  style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: Colors.blue,
+                                  shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
+                                  ),
+                                  ),
                             ),
                           ),
                           const SizedBox(height: 16),
