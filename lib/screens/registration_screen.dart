@@ -1,6 +1,8 @@
 import 'package:defnet_front_end/screens/login_screen.dart';
 import 'package:defnet_front_end/shared/components/shape_lines/ellipse_custom.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'Home/home_screen.dart';
 
@@ -12,6 +14,70 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  //raccogliamo i dati inseriti
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
+
+  // Funzione per registrare l'utente
+  Future<void> registerUser() async {
+    const String baseurl = 'http://192.168.1.161:8000/register';
+
+    try {
+      //print("[katia] Username inserito: ${_usernameController.text}");
+      //print("[katia] Password inserito: ${_passwordController.text}");
+      final response = await http.post(
+        Uri.parse(baseurl),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'username': _usernameController.text,
+          'password': _passwordController.text,
+        }),
+      );
+      // Stampa lo stato della risposta
+      print("[katia] Stato della response: ${response.statusCode}");
+
+      // Stampa anche il corpo della risposta per capire meglio il contenuto
+      print("[katia] Corpo della response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        print("[katia] CIAO");
+
+        // Registrazione riuscita, vai alla HomeScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+      } else {
+        // Gestione degli errori
+        final errorMessage = json.decode(response.body)['detail'];
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text("Errore"),
+            content: Text(errorMessage),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      print("Errore durante la registrazione: $e");
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -74,7 +140,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               color: Colors.grey[700],
                             ),
                           ),
-                          const TextField(
+                          TextField(
+                            controller : _usernameController,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
                               hintText: 'Inserisci il tuo username...',
@@ -88,7 +155,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               color: Colors.grey[700],
                             ),
                           ),
-                          const TextField(
+                          TextField(
+                            controller: _passwordController,
                             obscureText: true,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
@@ -100,11 +168,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
+                                registerUser();
                                 // Press Sign Up to reach the Home Page Dashboard
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) =>  HomeScreen()),
-                                );
+                                //Navigator.pushReplacement(
+                                  //context,
+                                 // MaterialPageRoute(builder: (context) =>  HomeScreen()),
+                               // );
 
                               },
                               child: const Text('Sign Up'),
