@@ -1,28 +1,34 @@
-import 'package:defnet_front_end/screens/Home/home_screen.dart';
-import 'package:defnet_front_end/screens/registration_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
+import 'package:defnet_front_end/screens/Home/home_screen.dart';  // Importa la schermata Home
+import 'package:defnet_front_end/screens/registration_screen.dart'; // Importa la schermata di registrazione
+import 'package:flutter/material.dart';  // Importa il materiale Flutter per creare l'interfaccia
+import 'package:lottie/lottie.dart';  // Importa il pacchetto Lottie per animazioni
 
-import '../shared/components/shape_lines/ellipse_custom.dart';
-import '../shared/services/login_service.dart';
+import '../shared/components/shape_lines/ellipse_custom.dart';  // Importa il widget personalizzato per le forme
+import '../shared/services/login_service.dart';  // Importa il servizio di login
 
+// La schermata di login è un StatefulWidget, quindi consente di gestire stati dinamici come il loading
 class LoginScreen extends StatefulWidget {
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();  // Crea lo stato per la schermata di login
 }
 
 class _LoginScreenState extends State<LoginScreen> {
 
+  // Controller per raccogliere i dati di input dell'utente
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  // Variabile per gestire lo stato di caricamento (loading)
   bool _isLoading = false;
 
-  // Funzione per gestire la login
+  // Funzione che gestisce il processo di login
   Future<void> _handleLogin() async {
-    final String username = _usernameController.text;
-    final String password = _passwordController.text;
 
+    final String username = _usernameController.text;  // Ottieni il testo inserito per username
+    final String password = _passwordController.text;  // Ottieni il testo inserito per password
+
+
+    // Verifica che i campi non siano vuoti
     if (username.isEmpty || password.isEmpty) {
       // Mostra un messaggio di errore se i campi sono vuoti
       ScaffoldMessenger.of(context).showSnackBar(
@@ -31,20 +37,23 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    // Imposta lo stato di caricamento su true per mostrare l'indicatore di progressione
     setState(() {
-      _isLoading = true; // Mostra il loading durante la richiesta
+      _isLoading = true;
     });
 
-    // Chiama il servizio di login
+    // Chiamata al servizio di login per validare le credenziali
     final loginService = LoginService();
     bool success = await loginService.login(username, password);
 
+
+    // Dopo la chiamata al servizio, disabilita il loading
     setState(() {
-      _isLoading = false; // Nasconde il loading
+      _isLoading = false;
     });
 
+    // Se la login è riuscita, naviga alla HomeScreen
     if (success) {
-      // Se la login è andata a buon fine, naviga alla HomeScreen
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login successful')),
       );
@@ -60,102 +69,101 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
+      body: SingleChildScrollView(  // Rende la schermata scrollabile
         child: Container(
-          width: double.infinity,
-          height: MediaQuery.of(context).size.height,
-          child: Stack(
+          width: double.infinity,  // Imposta la larghezza del container al 100% della schermata
+          height: MediaQuery.of(context).size.height,  // Imposta l'altezza al 100% della schermata
+          child: Stack(  // Usa uno Stack per sovrapporre gli elementi (come il logo e le forme)
             children: <Widget>[
+              EllipseUp(),  // Widget personalizzato per l'onda superiore (background)
 
-              EllipseUp(), // Widget personalizzato per l'onda superiore
-
+              // Colonna principale che allinea gli elementi al centro
               Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,  // Allinea gli elementi al centro verticalmente
                 children: <Widget>[
-                  const SizedBox(height: 20), // Spazio tra l'onda superiore e il logo
+                  const SizedBox(height: 20),  // Aggiungi uno spazio sopra il logo
                   Image.asset(
-                    'lib/assets/logo.png', // Sostituisci con il percorso del tuo logo
+                    'lib/assets/logo.png',  // Mostra il logo
                     width: 150,
                     height: 150,
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 32.0),  // Padding orizzontale per i campi di input
                     child: Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),  // Padding interno del container
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.white,  // Sfondo bianco
+                        borderRadius: BorderRadius.circular(8),  // Angoli arrotondati
                         boxShadow: const [
                           BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 10,
-                            offset: Offset(0, 10),
+                            color: Colors.black12,  // Ombra del box
+                            blurRadius: 10,  // Raggio di sfocatura dell'ombra
+                            offset: Offset(0, 10),  // Posizione dell'ombra
                           ),
                         ],
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,  // Allinea a sinistra gli elementi nel form
                         children: <Widget>[
+                          // Campo per l'username
                           Text(
                             'Username',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.grey[700],
+                              color: Colors.grey[700],  // Colore del testo
                             ),
                           ),
-                          const TextField(
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              hintText: 'Inserisci il tuo username...',
+                          TextField(
+                            controller: _usernameController,  // Associa il controller all'input dell'username
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),  // Bordo del campo di testo
+                              hintText: 'Inserisci il tuo username...',  // Testo di suggerimento
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 16),  // Spazio tra i campi
+                          // Campo per la password
                           Text(
                             'Password',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.grey[700],
+                              color: Colors.grey[700],  // Colore del testo
                             ),
                           ),
-                          const TextField(
-                            obscureText: true,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              hintText: 'Inserisci la tua password...',
+                          TextField(
+                            controller: _passwordController,  // Associa il controller all'input della password
+                            obscureText: true,  // Nasconde il testo della password
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),  // Bordo del campo di testo
+                              hintText: 'Inserisci la tua password...',  // Testo di suggerimento
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          // Button SignIn
+                          const SizedBox(height: 16),  // Spazio tra i campi
+                          // Bottone di login
                           Container(
-                            width: double.infinity,
+                            width: double.infinity,  // Larghezza completa del bottone
                             child: ElevatedButton(
-                                onPressed: _isLoading ? null : _handleLogin, // Usa _handleLogin quando premuto
-                                child: _isLoading
-                                ? const CircularProgressIndicator()
-                                    :
-                                const Text('Sign In'),
-                                  style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  backgroundColor: Colors.blue,
-                                  shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  ),
+                              onPressed: _isLoading ? null : _handleLogin,  // Se in caricamento, disabilita il bottone
+                              child: _isLoading
+                                  ? const CircularProgressIndicator()  // Mostra l'indicatore di caricamento
+                                  : const Text('Sign In'),  // Testo del bottone
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),  // Padding verticale del bottone
+                                backgroundColor: Colors.blue,  // Colore di sfondo del bottone
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),  // Angoli arrotondati del bottone
+                                ),
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 16),  // Spazio sotto il bottone
+                          // Collegamento alla pagina di registrazione
                           Center(
-                            child:
-
-                            TextButton(
+                            child: TextButton(
                               onPressed: () {
-                                // Go to Registration Page
+                                // Naviga alla schermata di registrazione
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(builder: (context) => const RegistrationScreen()),
@@ -164,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: const Text(
                                 'Per registrarti clicca qui!',
                                 style: TextStyle(
-                                  color: Colors.blue,
+                                  color: Colors.blue,  // Colore del testo
                                 ),
                               ),
                             ),

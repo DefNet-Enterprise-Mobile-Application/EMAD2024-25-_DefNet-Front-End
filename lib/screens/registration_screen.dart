@@ -3,6 +3,7 @@ import 'package:defnet_front_end/shared/components/shape_lines/ellipse_custom.da
 import 'package:flutter/material.dart';
 
 import 'Home/home_screen.dart';
+import '../shared/services/registration_service.dart';  // Importa il RegistrationService
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -12,19 +13,53 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+
+  // Controller per raccogliere i dati di input dell'utente
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  bool _isLoading = false;  // Variabile per gestire il loading
+
+  // Funzione per gestire la registrazione
+  Future<void> _handleRegister() async {
+    final String username = _usernameController.text;
+    final String password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      // Mostra un messaggio di errore se i campi sono vuoti
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;  // Mostra il loading durante la registrazione
+    });
+
+    // Chiama il servizio di registrazione
+    final registrationService = RegistrationService();
+    await registrationService.registerUser(context, username, password);
+
+    setState(() {
+      _isLoading = false;  // Nasconde il loading
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
           width: double.infinity,
-          height: MediaQuery.of(context).size.height,
+          height: screenHeight,
           child: Stack(
             children: <Widget>[
               // Wave Up
-              EllipseUp(), // Widget personalizzato per l'onda superiore
+              EllipseUp(),  // Widget personalizzato per l'onda superiore
 
               // Wave Down
               Column(
@@ -63,7 +98,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               color: Colors.grey[700],
                             ),
                           ),
-                          const TextField(
+                          TextField(
+                            controller: _usernameController,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
                               hintText: 'Inserisci il tuo username...',
@@ -77,7 +113,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               color: Colors.grey[700],
                             ),
                           ),
-                          const TextField(
+                          TextField(
+                            controller: _passwordController,
                             obscureText: true,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
@@ -88,17 +125,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           Container(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () {
-                                // Press Sign Up to reach the Home Page Dashboard
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) =>  HomeScreen()),
-                                );
-
-                              },
-                              child: const Text('Sign Up'),
+                              onPressed: _isLoading ? null : _handleRegister, // Usa _handleRegister quando premuto
+                              child: _isLoading
+                                  ? const CircularProgressIndicator()
+                                  : const Text('Sign Up'),
                               style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: Colors.blue,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                backgroundColor: Colors.blue,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -109,7 +142,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           Center(
                             child: TextButton(
                               onPressed: () {
-                                // Go to Registration Screen
+                                // Vai alla schermata di login
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(builder: (context) => LoginScreen()),
