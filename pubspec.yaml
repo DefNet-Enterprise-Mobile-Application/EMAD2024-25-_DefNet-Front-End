@@ -73,6 +73,7 @@ flutter:
     - lib/assets/icons/service.png
     - lib/assets/icons/profile.png
     - lib/assets/avatar/avatar.png
+    - .env
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
