@@ -5,18 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../screens/Home/home_screen.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Importa flutter_dotenv
 
 class RegistrationService {
 
+  // TODO : Inserire il proprio IPv4 del PC in maniera custom
+  static const String port = '8000';
+  static const String url = 'http://';
+  static String? IP_RASP = dotenv.env['IP_RASP'];
+  static String baseUrl = url+IP_RASP!+':'+port+'/register';
 
   // Funzione per registrare l'utente
   Future<void> registerUser(BuildContext context , String username,String password) async {
-    const String baseurl = 'http://172.19.178.160:8000/register';
 
     try {
       final response = await http.post(
-        Uri.parse(baseurl),
+        Uri.parse(baseUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'username': username,

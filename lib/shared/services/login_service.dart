@@ -1,16 +1,22 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Importa flutter_dotenv
 
 class LoginService {
 
 
   // TODO : Inserire il proprio IPv4 del PC in maniera custom
-  static const String baseUrl = 'http://172.19.178.160:8000'; // IP del tuo computer locale
+  static const String port = '8000';
+  static const String url = 'http://';
+  static String? IP_RASP = dotenv.env['IP_RASP'];
+  static String baseUrl = url+IP_RASP!+':'+port+'/login';
+
+
 
   // Funzione per effettuare la login
   Future<bool> login(String username, String password) async {
     // Costruisci l'URL per l'endpoint della login
-    final Uri url = Uri.parse('$baseUrl/login'); // Modifica l'endpoint in base alla tua API
+    final Uri url = Uri.parse('$baseUrl'); // Modifica l'endpoint in base alla tua API
 
     // Crea il body della richiesta
     final Map<String, String> body = {
