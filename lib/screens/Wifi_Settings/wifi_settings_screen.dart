@@ -16,7 +16,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
       body: Stack(
         children: [
           // Onda in alto
-          EllipseUp(),
+
           // Contenuto della pagina
           Padding(
             padding: const EdgeInsets.only(top: 180.0),
@@ -59,7 +59,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const FloatingBottomNavBar(), // Navbar fissa in basso
+ // Navbar fissa in basso
     );
   }
 }

@@ -17,7 +17,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
       body: Stack(
         children: [
           // Onda in alto
-          EllipseUp(),
+
           // Contenuto della pagina
           Padding(
             padding: const EdgeInsets.only(top: 180.0),
@@ -47,7 +47,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const FloatingBottomNavBar(), // Navbar fissa in basso
+       // Navbar fissa in basso
     );
   }
 }

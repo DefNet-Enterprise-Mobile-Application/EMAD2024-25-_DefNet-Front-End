@@ -15,8 +15,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Onda in alto
-          EllipseUp(),
           // Contenuto della pagina
           Padding(
             padding: const EdgeInsets.only(top: 180.0),
@@ -75,7 +73,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const FloatingBottomNavBar(), // Navbar fissa in basso
     );
   }
 }
