@@ -126,7 +126,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const FloatingBottomNavBar(), // Navbar fissa in basso
     );
   }
 

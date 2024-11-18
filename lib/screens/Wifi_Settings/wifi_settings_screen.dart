@@ -190,6 +190,9 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
               ],
             ),
           ),
+        ],
+      ),
+ // Navbar fissa in basso
         );
       },
     );

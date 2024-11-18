@@ -98,7 +98,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const FloatingBottomNavBar(), // Navbar fissa in basso
+       // Navbar fissa in basso
     );
   }
 

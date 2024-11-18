@@ -1,4 +1,4 @@
-import 'package:defnet_front_end/shared/components/shape_lines/ellipse_custom.dart';
+/*import 'package:defnet_front_end/shared/components/shape_lines/ellipse_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:defnet_front_end/screens/Profile/profile_screen.dart';
 import 'package:defnet_front_end/screens/Service/service_screen.dart';
@@ -175,4 +175,4 @@ class _FloatingBottomNavBarState extends State<FloatingBottomNavBar> {
       ),
     );
   }
-}
+}*/
