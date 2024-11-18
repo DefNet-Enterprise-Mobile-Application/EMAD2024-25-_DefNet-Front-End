@@ -92,6 +92,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
+                ],
+                ),
+      ),
                 pinned: true, // Mantieni visibile l'ellisse anche dopo lo scroll
               ),
               // Contenuto dinamico in base alla pagina selezionata

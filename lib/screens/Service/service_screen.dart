@@ -18,53 +18,15 @@ class _ServiceScreenState extends State<ServiceScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Onda in alto
-          EllipseUp(),
-
           // Contenuto della pagina
           Padding(
-            padding: const EdgeInsets.only(top: 40.0), // Spazio per logo e icone
+            padding: const EdgeInsets.only(top: 10.0), // Spazio per logo e icone
             child: SingleChildScrollView(
               child: SizedBox(
                 width: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Logo e icone di notifica/logout
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Image.asset(
-                          'lib/assets/logo.png',
-                          width: 170,
-                          height: 150,
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          icon: Image.asset(
-                            'lib/assets/icons/notification.png',
-                            width: screenWidth * 0.10,
-                            height: screenWidth * 0.10,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            // Logica per le notifiche
-                          },
-                        ),
-                        SizedBox(width: screenWidth * 0.03),
-                        IconButton(
-                          icon: Image.asset(
-                            'lib/assets/icons/logout.png',
-                            width: screenWidth * 0.10,
-                            height: screenWidth * 0.10,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            _showLogoutDialog(context);
-                          },
-                        ),
-                      ],
-                    ),
 
                     // Spazio per il contenuto principale
                     Padding(
