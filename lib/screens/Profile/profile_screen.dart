@@ -17,7 +17,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           // Contenuto della pagina
           Padding(
-            padding: const EdgeInsets.only(top: 180.0),
+            padding: const EdgeInsets.only(top: 10.0),
             child: SingleChildScrollView(
               child: Padding(
 

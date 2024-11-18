@@ -19,7 +19,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
 
           // Contenuto della pagina
           Padding(
-            padding: const EdgeInsets.only(top: 180.0),
+            padding: const EdgeInsets.only(top: 20.0),
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
