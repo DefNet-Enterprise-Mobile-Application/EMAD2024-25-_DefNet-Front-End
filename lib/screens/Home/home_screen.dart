@@ -112,8 +112,8 @@ class _HomeScreenState extends State<HomeScreen> {
       // Barra di navigazione curva
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.white,
-        color: Colors.cyanAccent.shade700.withOpacity(0.9),
-        buttonBackgroundColor: Colors.blueAccent,
+        color: Colors.blueAccent,
+        buttonBackgroundColor: Colors.blueAccent.shade100,
         height: screenHeight * 0.08, // Altezza della barra di navigazione adattiva
         animationDuration: const Duration(milliseconds: 300),
         index: _currentIndex,
