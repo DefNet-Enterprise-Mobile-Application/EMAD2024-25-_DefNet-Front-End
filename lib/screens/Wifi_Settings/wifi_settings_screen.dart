@@ -14,13 +14,9 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       body: Stack(
         children: [
-          // Onda in alto
-          EllipseUp(),
-
           // Contenuto della pagina
           Padding(
             padding: const EdgeInsets.only(top: 40.0), // Spazio per logo e icone
@@ -30,42 +26,6 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Logo e icone di notifica/logout
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Image.asset(
-                          'lib/assets/logo.png',
-                          width: 170,
-                          height: 150,
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          icon: Image.asset(
-                            'lib/assets/icons/notification.png',
-                            width: screenWidth * 0.10,
-                            height: screenWidth * 0.10,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            // Logica per le notifiche
-                          },
-                        ),
-                        SizedBox(width: screenWidth * 0.03),
-                        IconButton(
-                          icon: Image.asset(
-                            'lib/assets/icons/logout.png',
-                            width: screenWidth * 0.10,
-                            height: screenWidth * 0.10,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            _showLogoutDialog(context);
-                          },
-                        ),
-                      ],
-                    ),
-
                     // Spazio per il contenuto principale
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0), // Spazio sotto il logo
@@ -111,7 +71,6 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const FloatingBottomNavBar(), // Navbar fissa in basso
     );
   }
 
@@ -190,9 +149,6 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
               ],
             ),
           ),
-        ],
-      ),
- // Navbar fissa in basso
         );
       },
     );
