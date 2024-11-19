@@ -1,9 +1,10 @@
 import 'package:defnet_front_end/screens/login_screen.dart';
 import 'package:defnet_front_end/shared/components/shape_lines/ellipse_custom.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // Importa il pacchetto per le icone
+import 'package:flutter_svg/flutter_svg.dart'; // Importa il pacchetto flutter_svg
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../shared/services/registration_service.dart'; // Importa il RegistrationService
+import '../shared/services/registration_service.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -13,44 +14,39 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  // Controller per raccogliere i dati di input dell'utente
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _isLoading = false; // Variabile per gestire il loading
-  bool _isPasswordVisible = false; // Variabile per la visibilità della password
-  String _passwordErrorMessage = ''; // Messaggio di errore per la password
+  bool _isLoading = false;
+  bool _isPasswordVisible = false;
+  String _passwordErrorMessage = '';
 
-  // Funzione che mostra un dialog personalizzato
   void _showMessageDialog(BuildContext context, String message, bool success) {
     showDialog(
       context: context,
-      barrierDismissible: false, // Impedisce di chiudere il dialog cliccando fuori
+      barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Colors.indigo[900], // Sfondo blu
+          backgroundColor: Colors.indigo[900],
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15), // Bordi arrotondati
+            borderRadius: BorderRadius.circular(15),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 20),
-              // Mostra l'icona solo in caso di errore
               if (!success)
                 Icon(
                   FontAwesomeIcons.timesCircle,
                   color: Colors.red,
-                  size: 50, // Aumentato per renderlo più visibile
+                  size: 50,
                 ),
               if (success) ...[
-                // Se la registrazione è riuscita, non mostrare l'icona
-                const SizedBox(height: 10), // Spazio per l'allineamento
+                const SizedBox(height: 10),
               ],
               const SizedBox(height: 10),
-              // Mostra solo il messaggio
               Text(
-                message, // Messaggio dinamico
+                message,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.white,
@@ -64,11 +60,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       },
     );
 
-    // Chiude il dialog dopo 2 secondi
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pop(); // Chiude il dialog
+      Navigator.of(context).pop();
       if (success) {
-        // Naviga alla schermata di login se la registrazione ha successo
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -77,7 +71,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     });
   }
 
-  // Funzione per verificare la validità della password
   void _validatePassword(String password) {
     String errorMessage = '';
     final hasUppercase = RegExp(r'[A-Z]');
@@ -103,30 +96,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     });
   }
 
-  // Funzione per gestire la registrazione
   Future<void> _handleRegister() async {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
     if (username.isEmpty || password.isEmpty) {
-      // Mostra un messaggio di errore se i campi sono vuoti
       _showMessageDialog(context, 'Please fill in all fields', false);
       return;
     }
 
     setState(() {
-      _isLoading = true; // Mostra il loading durante la registrazione
+      _isLoading = true;
     });
 
-    // Chiama il servizio di registrazione
     final registrationService = RegistrationService();
     bool success = await registrationService.registerUser(context, username, password);
 
     setState(() {
-      _isLoading = false; // Nasconde il loading
+      _isLoading = false;
     });
 
-    // Mostra il messaggio in base al risultato della registrazione
     if (success) {
       _showMessageDialog(context, 'Registration successful', true);
     } else {
@@ -139,54 +128,45 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white, // Sfondo bianco
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
           width: double.infinity,
           height: screenHeight,
           child: Stack(
             children: <Widget>[
-              // Onda Superiore
               EllipseUp(),
-
-              // Contenuto Centrale
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  const SizedBox(height: 20), // Spazio tra l'onda superiore e il logo
-
-                  // Logo
+                  const SizedBox(height: 20),
                   Image.asset(
-                    'lib/assets/logo.png', // Sostituisci con il percorso del tuo logo
+                    'lib/assets/logo.png',
                     width: 150,
                     height: 150,
                   ),
-
-                  // Scritta "Registration"
                   Text(
                     'Registration',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: Colors.indigo[800], // Colore scuro per il testo
+                      color: Colors.indigo[800],
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32.0),
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.blue[50], // Colore di sfondo del form
-                        borderRadius: BorderRadius.circular(12), // Bordi arrotondati
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.blue.withOpacity(0.3), // Ombra blu chiara
+                            color: Colors.blue.withOpacity(0.3),
                             spreadRadius: 2,
                             blurRadius: 15,
-                            offset: const Offset(0, 10), // Posizione ombra
+                            offset: const Offset(0, 10),
                           ),
                         ],
                       ),
@@ -197,14 +177,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             'Username',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.indigo[700], // Colore del testo dei campi
+                              color: Colors.indigo[700],
                             ),
                           ),
                           TextField(
                             controller: _usernameController,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue[800]!), // Bordo blu
+                                borderSide: BorderSide(color: Colors.blue[800]!),
                               ),
                               hintText: 'Enter your username...',
                             ),
@@ -214,19 +194,32 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             'Password',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.indigo[700], // Colore del testo dei campi
+                              color: Colors.indigo[700],
                             ),
                           ),
-                          // Campo della password senza icona per la visibilità
                           TextField(
                             controller: _passwordController,
-                            obscureText: !_isPasswordVisible, // Mostra o nasconde la password
-                            onChanged: _validatePassword, // Verifica la password ad ogni cambiamento
+                            obscureText: !_isPasswordVisible,
+                            onChanged: _validatePassword,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue[800]!), // Bordo blu
+                                borderSide: BorderSide(color: Colors.blue[800]!),
                               ),
                               hintText: 'Enter your password...',
+                              suffixIcon: IconButton(
+                                icon: _isPasswordVisible
+                                    ? SvgPicture.asset(
+                                        'lib/assets/icons/eye-password-see-view.svg',
+                                      )
+                                    : SvgPicture.asset(
+                                        'lib/assets/icons/eye-password-hide.svg',
+                                      ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isPasswordVisible = !_isPasswordVisible;
+                                  });
+                                },
+                              ),
                             ),
                           ),
                           if (_passwordErrorMessage.isNotEmpty) ...[
@@ -243,13 +236,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           Container(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: _isLoading ? null : _handleRegister, // Usa _handleRegister quando premuto
+                              onPressed: _isLoading ? null : _handleRegister,
                               child: _isLoading
                                   ? const CircularProgressIndicator()
                                   : const Text('Sign Up'),
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(vertical: 16),
-                                backgroundColor: Colors.blue[700], // Colore blu per il pulsante
+                                backgroundColor: Colors.blue[700],
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -260,7 +253,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           Center(
                             child: TextButton(
                               onPressed: () {
-                                // Vai alla schermata di login
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(builder: (context) => LoginScreen()),

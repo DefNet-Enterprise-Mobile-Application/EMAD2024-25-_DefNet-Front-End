@@ -4,6 +4,10 @@ import 'package:flutter/material.dart'; // Importa il materiale Flutter per crea
 
 import '../shared/components/shape_lines/ellipse_custom.dart'; // Importa il widget personalizzato per le forme
 import '../shared/services/login_service.dart'; // Importa il servizio di login
+import 'package:flutter_svg/flutter_svg.dart'; // Importa il pacchetto flutter_svg
+
+
+
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -17,6 +21,36 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Variabile per gestire lo stato di caricamento (loading)
   bool _isLoading = false;
+
+  bool _isPasswordVisible = false;
+  String _passwordErrorMessage = '';
+
+    void _validatePassword(String password) {
+    String errorMessage = '';
+    final hasUppercase = RegExp(r'[A-Z]');
+    final hasLowercase = RegExp(r'[a-z]');
+    final hasDigits = RegExp(r'[0-9]');
+    final hasMinLength = password.length >= 8;
+
+    if (!hasUppercase.hasMatch(password)) {
+      errorMessage += 'Password must contain at least one uppercase letter.\n';
+    }
+    if (!hasLowercase.hasMatch(password)) {
+      errorMessage += 'Password must contain at least one lowercase letter.\n';
+    }
+    if (!hasDigits.hasMatch(password)) {
+      errorMessage += 'Password must contain at least one number.\n';
+    }
+    if (!hasMinLength) {
+      errorMessage += 'Password must be at least 8 characters long.\n';
+    }
+
+    setState(() {
+      _passwordErrorMessage = errorMessage;
+    });
+  }
+
+
 
   // Funzione che mostra un dialog personalizzato
   void _showMessageDialog(BuildContext context, String message, bool success) {
@@ -164,12 +198,39 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           TextField(
                             controller: _passwordController,
-                            obscureText: true,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
+                            obscureText: !_isPasswordVisible,
+                            onChanged: _validatePassword,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.blue[800]!),
+                              ),
                               hintText: 'Enter your password...',
+                              suffixIcon: IconButton(
+                                icon: _isPasswordVisible
+                                    ? SvgPicture.asset(
+                                        'lib/assets/icons/eye-password-see-view.svg',
+                                      )
+                                    : SvgPicture.asset(
+                                        'lib/assets/icons/eye-password-hide.svg',
+                                      ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isPasswordVisible = !_isPasswordVisible;
+                                  });
+                                },
+                              ),
                             ),
                           ),
+                          if (_passwordErrorMessage.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              _passwordErrorMessage,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: 16),
                           Container(
                             width: double.infinity,
