@@ -1,13 +1,14 @@
-import 'package:defnet_front_end/screens/Home/home_screen.dart'; // Importa la schermata Home
+import 'package:defnet_front_end/screens/Home/home_screen.dart';  // Importa la schermata Home
 import 'package:defnet_front_end/screens/registration_screen.dart'; // Importa la schermata di registrazione
-import 'package:flutter/material.dart'; // Importa il materiale Flutter per creare l'interfaccia
-
-import '../shared/components/shape_lines/ellipse_custom.dart'; // Importa il widget personalizzato per le forme
-import '../shared/services/login_service.dart'; // Importa il servizio di login
-import 'package:flutter_svg/flutter_svg.dart'; // Importa il pacchetto flutter_svg
-
-
-
+import 'package:flutter/material.dart';  // Importa il materiale Flutter per creare l'interfaccia
+import 'package:flutter_svg/svg.dart';
+import 'package:get_it/get_it.dart';
+import 'package:defnet_front_end/Models/User.dart';
+import '../shared/components/shape_lines/ellipse_custom.dart';  // Importa il widget personalizzato per le forme
+import '../shared/services/login_service.dart';  // Importa il servizio di login
+// Per memorizzare i dati in modo sicuro
+import '../screens/Service/SecureStorageService.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -19,13 +20,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  final SecureStorageService _secureStorage = GetIt.I.get<SecureStorageService>();
+
   // Variabile per gestire lo stato di caricamento (loading)
   bool _isLoading = false;
-
   bool _isPasswordVisible = false;
   String _passwordErrorMessage = '';
 
-    void _validatePassword(String password) {
+  void _validatePassword(String password) {
     String errorMessage = '';
     final hasUppercase = RegExp(r'[A-Z]');
     final hasLowercase = RegExp(r'[a-z]');
@@ -51,12 +53,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
 
-
   // Funzione che mostra un dialog personalizzato
   void _showMessageDialog(BuildContext context, String message, bool success) {
     showDialog(
       context: context,
-      barrierDismissible: false, // Impedisce di chiudere il dialog cliccando fuori
+      barrierDismissible: false,
+      // Impedisce di chiudere il dialog cliccando fuori
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.indigo[900], // Sfondo blu
@@ -95,8 +97,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Funzione che gestisce il processo di login
   Future<void> _handleLogin() async {
-    final String username = _usernameController.text; // Ottieni il testo inserito per username
-    final String password = _passwordController.text; // Ottieni il testo inserito per password
+
+    String username = _usernameController.text.trim(); // Ottieni il testo inserito per username
+    String password = _passwordController.text.trim(); // Ottieni il testo inserito per password
 
     // Verifica che i campi non siano vuoti
     if (username.isEmpty || password.isEmpty) {
@@ -109,20 +112,74 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    // Chiamata al servizio di login per validare le credenziali
-    final loginService = LoginService();
-    bool success = await loginService.login(username, password);
+    FocusScope.of(context).unfocus();
 
-    // Dopo la chiamata al servizio, disabilita il loading
-    setState(() {
-      _isLoading = false;
-    });
+    try {
+      final loginService = LoginService();
+      Map<String, dynamic> response = await loginService.login(username, password);
 
-    // Mostra il dialog in base al risultato del login
-    if (success) {
-      _showMessageDialog(context, 'Login successful', true);
-    } else {
-      _showMessageDialog(context, 'Login failed. Please check your credentials and try again.', false);
+      print("Response data: $response");
+
+      if (response['success'] == true && response['access_token'] != null) {
+        String token = response['access_token'];
+
+        // Decodifica l'access token
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+        int userId = decodedToken['user_id']; // Estrarre l'ID
+        String usernameFromToken = decodedToken['sub'];
+
+        // Salva l'username o usalo per sessione
+        print("Logged in as: $usernameFromToken");
+
+        // Salva l'utente in modo sicuro usando GetIt e il servizio SecureStorage
+        final user = User(id: userId, username: usernameFromToken, passwordHash: "");
+        await _secureStorage.save(user);
+
+        String? storedToken = await _secureStorage.getToken();
+        print("Stored Token: $storedToken");  // Aggiungi questa riga per verificare
+        print('Navigating to HomeScreen...');
+        try {
+          // Controlla se l'utente è già registrato
+          if (GetIt.I.isRegistered<User>()) {
+            print('User already registered in GetIt');
+          } else {
+            print('Registering user in GetIt');
+            GetIt.I.registerSingleton<User>(user);
+          }
+        } catch (e) {
+          print('Error registering user in GetIt: $e');
+        }
+
+        //GetIt.I.registerSingleton<User>(user);
+        print('Navigating to HomeScreen... KATIA');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login successful')),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+
+      } else {
+        // Se la login fallisce, mostra un messaggio di errore
+        String errorMessage = response['message'] ?? 'Login failed';
+        _showMessageDialog(context, response['message'], false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+
+        //ScaffoldMessenger.of(context).showSnackBar(
+         // const SnackBar(content: Text('Login failed')),
+        //);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login failed')),
+      );
+    } finally {
+      // Dopo la chiamata al servizio, disabilita il loading
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
