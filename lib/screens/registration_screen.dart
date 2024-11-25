@@ -147,7 +147,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           child: Stack(
             children: <Widget>[
               // Onda Superiore
-              EllipseUp(),
+              //EllipseUp(),
 
               // Contenuto Centrale
               Column(

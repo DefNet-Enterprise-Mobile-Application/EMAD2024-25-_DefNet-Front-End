@@ -31,13 +31,14 @@ dependencies:
   flutter:
     sdk: flutter
   lottie: ^2.2.0
-  http: ^0.13.3
+  http: ^1.1.2
   curved_navigation_bar: any
   font_awesome_flutter: ^10.0.0  # Aggiungi questa dipendenza per FontAwesome
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_dotenv: any # Controlla su pub.dev per la versione più recente
+
 
 
 dev_dependencies:
@@ -51,6 +52,9 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
   flutter_svg: any
+  syncfusion_flutter_gauges: ^27.2.2
+  speed_test_dart: any
+  flutter_internet_speed_test: any
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -62,39 +62,39 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: screenHeight * 0.25, // Altezza adattiva per il logo
                             ),
                             const Spacer(),
-                      IconButton(
-                        icon: Image.asset(
-                          'lib/assets/icons/notification.png',
-                          width: screenWidth * 0.10,
-                          height: screenWidth * 0.10,
-                          color: Colors.white,
+                            IconButton(
+                              icon: Image.asset(
+                                'lib/assets/icons/notification.png',
+                                width: screenWidth * 0.10,
+                                height: screenWidth * 0.10,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                // Naviga alla schermata delle notifiche
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                                );
+                              },
+                            ),
+                            SizedBox(width: screenWidth * 0.03),
+                            IconButton(
+                              icon: Image.asset(
+                                'lib/assets/icons/logout.png',
+                                width: screenWidth * 0.10,
+                                height: screenWidth * 0.10,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                _showLogoutDialog(context);
+                              },
+                            ),
+                          ],
                         ),
-                        onPressed: () {
-                          // Naviga alla schermata delle notifiche
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const NotificationScreen()),
-                          );
-                        },
-                      ),
-                      SizedBox(width: screenWidth * 0.03),
-                      IconButton(
-                        icon: Image.asset(
-                          'lib/assets/icons/logout.png',
-                          width: screenWidth * 0.10,
-                          height: screenWidth * 0.10,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          _showLogoutDialog(context);
-                        },
                       ),
                     ],
                   ),
                 ),
-                ],
-                ),
-      ),
                 pinned: true, // Mantieni visibile l'ellisse anche dopo lo scroll
               ),
               // Contenuto dinamico in base alla pagina selezionata

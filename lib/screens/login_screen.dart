@@ -101,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
           height: MediaQuery.of(context).size.height,
           child: Stack(
             children: <Widget>[
-              EllipseUp(),
+              //EllipseUp(),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[

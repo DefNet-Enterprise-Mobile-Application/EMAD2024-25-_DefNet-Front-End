@@ -1,46 +1,8 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../shared/components/shape_lines/ellipse_custom.dart';
+import 'package:defnet_front_end/screens/Home/speed_test_screen.dart'; // Assicurati che il percorso sia corretto
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
-
-  @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  // Variabili per lo stato dello speed test
-  bool _isTesting = false;
-  String _downloadSpeed = "--";
-  String _uploadSpeed = "--";
-  String _latency = "--";
-
-  // Lista di dispositivi connessi
-  final List<Map<String, String>> _connectedDevices = [
-    {"name": "Laptop", "ip": "192.168.0.101"},
-    {"name": "Smartphone", "ip": "192.168.0.102"},
-    {"name": "Smart TV", "ip": "192.168.0.103"},
-  ];
-
-  // Simula lo speed test
-  Future<void> _startSpeedTest() async {
-    setState(() {
-      _isTesting = true;
-      _downloadSpeed = "--";
-      _uploadSpeed = "--";
-      _latency = "--";
-    });
-
-    await Future.delayed(const Duration(seconds: 2)); // Simula il tempo del test
-
-    setState(() {
-      _isTesting = false;
-      _downloadSpeed = "85 Mbps"; // Valore simulato
-      _uploadSpeed = "30 Mbps";  // Valore simulato
-      _latency = "12 ms";       // Valore simulato
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,36 +32,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: _isTesting ? null : _startSpeedTest,
+                      onPressed: () {
+                        // Naviga verso la schermata SpeedTestScreen quando il bottone è premuto
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SpeedTestScreen(),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.cyanAccent.shade700,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 12,
-                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
                       ),
-                      child: _isTesting
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text("Avvia Speed Test"),
-                    ),
-                    const SizedBox(height: 20),
-                    _isTesting
-                        ? const Text(
-                      "Esecuzione in corso...",
-                      style: TextStyle(fontSize: 16),
-                    )
-                        : Column(
-                      children: [
-                        Text("Download: $_downloadSpeed",
-                            style: const TextStyle(fontSize: 16)),
-                        Text("Upload: $_uploadSpeed",
-                            style: const TextStyle(fontSize: 16)),
-                        Text("Latenza: $_latency",
-                            style: const TextStyle(fontSize: 16)),
-                      ],
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.9, // Larghezza quasi piena
+                        height: 60, // Altezza fissa del bottone
+                        child: const Center(
+                          child: Text(
+                            "Avvia Speed Test",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -117,25 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _connectedDevices.length,
-              itemBuilder: (context, index) {
-                final device = _connectedDevices[index];
-                return Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ListTile(
-                    leading: const Icon(Icons.device_hub, color: Colors.cyan),
-                    title: Text(device["name"] ?? "Unknown Device"),
-                    subtitle: Text("IP: ${device["ip"]}"),
-                  ),
-                );
-              },
-            ),
+            // Aggiungi la logica per visualizzare i dispositivi connessi se necessario
           ],
         ),
       ),
