@@ -43,7 +43,7 @@ dependencies:
   google_fonts: ^6.2.1
   provider: any
   flutter_speedtest: any
-
+  syncfusion_flutter_gauges: any
 
 
 dev_dependencies:
