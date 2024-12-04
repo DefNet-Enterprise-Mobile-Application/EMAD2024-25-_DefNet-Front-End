@@ -1,44 +1,39 @@
-import 'package:defnet_front_end/screens/Home/speed_test_component.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'screens/splash_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Importa flutter_dotenv
+import 'package:defnet_front_end/screens/Service/SecureStorageService.dart';
+// Importa flutter_dotenv
+import 'package:get_it/get_it.dart';
 
-Future<void> main() async {
-  await dotenv.load(fileName: ".env");
+void main() async {
+  await dotenv.load();
+
+  setupDependencies();
+
   runApp(const MyApp());
 }
 
+void setupDependencies() {
+  GetIt.I.registerSingleton<SecureStorageService>(SecureStorageService.instance);
+}
+
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'DefNet',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Flutter Speedtest'),
-      ),
-      body: const Center(
-        child: SpeedTestWidget(),
-      ),
+      home: SplashScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
