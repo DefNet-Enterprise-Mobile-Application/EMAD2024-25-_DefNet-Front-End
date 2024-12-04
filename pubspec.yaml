@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.5.4
+  sdk: '>=3.4.3 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,10 +30,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  lottie: ^3.1.3
+  http: ^1.2.2
   flutter_secure_storage: any
   get_it: any
-  lottie: ^2.2.0
-  http: ^0.13.3
   jwt_decoder: ^2.0.1
   curved_navigation_bar: any
   font_awesome_flutter: ^10.0.0  # Aggiungi questa dipendenza per FontAwesome
@@ -43,7 +44,11 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_dotenv: any # Controlla su pub.dev per la versione più recente
   flutter_svg: any
-
+  path_provider: any 
+  google_fonts: ^6.2.1
+  provider: any
+  flutter_speedtest: any
+  syncfusion_flutter_gauges: any
 
 
 dev_dependencies:
@@ -55,7 +60,14 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
+  flutter_lints: ^5.0.0
+  dio: any
+  get_it: any
+
+
+
   flutter_lints: ^4.0.0
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -120,3 +132,4 @@ uses-material-design: true
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
