@@ -82,7 +82,7 @@ packages:
     source: hosted
     version: "1.0.6"
   dio:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: dio
       sha256: "7d328c4d898a61efc3cd93655a0955858e29a0aa647f0f9e02d59b3bb275e2e8"
@@ -119,21 +119,13 @@ packages:
     source: hosted
     version: "5.2.1"
   flutter_lints:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: flutter_lints
       sha256: "5398f14efa795ffb7a33e9b6a08798b26a180edac4ad7db3f231e40f82ce11e1"
       url: "https://pub.dev"
     source: hosted
     version: "5.0.0"
-  flutter_speedtest:
-    dependency: "direct main"
-    description:
-      name: flutter_speedtest
-      sha256: "4ba9f8bc30bd546b5a368a7d0bcb6a2e635dc0da8e0cf47c08f75f17cbc49aab"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.0"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -182,20 +174,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  flutter_speedtest:
+    dependency: "direct main"
+    description:
+      name: flutter_speedtest
+      sha256: "4ba9f8bc30bd546b5a368a7d0bcb6a2e635dc0da8e0cf47c08f75f17cbc49aab"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   flutter_svg:
     dependency: "direct main"
     description:
       name: flutter_svg
-
       sha256: "936d9c1c010d3e234d1672574636f3352b4941ca3decaddd3cafaeb9ad49c471"
       url: "https://pub.dev"
     source: hosted
     version: "2.0.15"
-      sha256: d39e7f95621fc84376bc0f7d504f05c3a41488c562f4a8ad410569127507402c
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.9"
-
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -215,7 +209,6 @@ packages:
     source: hosted
     version: "10.8.0"
   get_it:
-    dependency: "direct dev"
     dependency: "direct main"
     description:
       name: get_it
@@ -231,7 +224,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.2.1"
-
   http:
     dependency: "direct main"
     description:
@@ -362,8 +354,6 @@ packages:
     version: "1.1.0"
   path_provider:
     dependency: "direct main"
-
-    dependency: transitive
     description:
       name: path_provider
       sha256: "50c5dd5b6e1aaf6fb3a78b33f6aa3afca52bf903a8a5298f53101fdaee55bbcd"
@@ -442,7 +432,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.2"
-
   sky_engine:
     dependency: transitive
     description: flutter
@@ -536,7 +525,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
-
   vector_graphics:
     dependency: transitive
     description:
@@ -545,11 +533,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.15"
-
-      sha256: "4ac59808bbfca6da38c99f415ff2d3a5d7ca0a6b4809c71d9cf30fba5daf9752"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.10+1"
   vector_graphics_codec:
     dependency: transitive
     description:
@@ -558,11 +541,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.12"
-
-      sha256: f3247e7ab0ec77dc759263e68394990edc608fb2b480b80db8aa86ed09279e33
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.10+1"
   vector_graphics_compiler:
     dependency: transitive
     description:
@@ -571,11 +549,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.16"
-
-      sha256: "18489bdd8850de3dd7ca8a34e0c446f719ec63e2bab2e7a8cc66a9028dd76c5a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.10+1"
   vector_math:
     dependency: transitive
     description:
@@ -600,7 +573,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
-
   win32:
     dependency: transitive
     description:
@@ -626,5 +598,5 @@ packages:
     source: hosted
     version: "6.5.0"
 sdks:
-  dart: ">=3.5.4 <4.0.0"
+  dart: ">=3.5.0 <4.0.0"
   flutter: ">=3.24.0"
