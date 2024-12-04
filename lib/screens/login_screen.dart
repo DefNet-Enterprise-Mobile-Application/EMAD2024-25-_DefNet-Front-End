@@ -127,12 +127,13 @@ class _LoginScreenState extends State<LoginScreen> {
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
         int userId = decodedToken['user_id']; // Estrarre l'ID
         String usernameFromToken = decodedToken['sub'];
+        String emailFromToken = decodedToken['email'];
 
         // Salva l'username o usalo per sessione
         print("Logged in as: $usernameFromToken");
 
         // Salva l'utente in modo sicuro usando GetIt e il servizio SecureStorage
-        final user = User(id: userId, username: usernameFromToken, passwordHash: "");
+        final user = User(id: userId, username: usernameFromToken, passwordHash: "", email: emailFromToken );
         await _secureStorage.save(user);
 
         String? storedToken = await _secureStorage.getToken();
@@ -166,10 +167,6 @@ class _LoginScreenState extends State<LoginScreen> {
         String errorMessage = response['message'] ?? 'Login failed';
         _showMessageDialog(context, response['message'], false);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
-
-        //ScaffoldMessenger.of(context).showSnackBar(
-         // const SnackBar(content: Text('Login failed')),
-        //);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

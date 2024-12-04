@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import '../../screens/Service/SecureStorageService.dart';
+
 class ProfileService {
   static const String port = '8000';
   static const String url = 'http://';
@@ -29,12 +31,23 @@ class ProfileService {
     }
   }
 
-  // Funzione per aggiornare i dati del profilo
-  Future<bool> updateProfile(int userId, String? username, String? currentPassword, String? newPassword) async {
-    final Uri endpoint = Uri.parse('$baseUrl/$userId/profile');
-    final headers = {'Content-Type': 'application/json'};
+  // Funzione per aggiornare la password del profilo
+  Future<bool> changePassword({required int userId, required String currentPassword,required String newPassword}) async {
+    final Uri endpoint = Uri.parse('$baseUrl/$userId/change-password');
+
+    // Recupera il token dall'archiviazione sicura
+    final token = await SecureStorageService().getToken();
+    if (token == null) {
+      print("User is not authenticated.");
+      return false;
+    }
+
+    final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // Aggiungi il token di autenticazione
+      };
+
     final body = json.encode({
-      'username': username,
       'current_password': currentPassword,
       'new_password': newPassword,
     });

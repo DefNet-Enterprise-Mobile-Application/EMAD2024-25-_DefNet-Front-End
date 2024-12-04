@@ -195,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       // Mostra il nome dell'utente dopo il caricamento, o un caricamento se non è ancora stato caricato
-                                      if (_userName != null) // Verifica se l'username è caricato
+                                      if (_userName != null && _currentIndex == 0) // Verifica se l'username è caricato
                                       Padding(
                                         padding: const EdgeInsets.fromLTRB(30.0, 25.0, 20.0, 0.0),
                                         child: Row(

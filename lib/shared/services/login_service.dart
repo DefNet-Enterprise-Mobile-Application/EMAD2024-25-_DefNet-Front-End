@@ -45,8 +45,6 @@ class LoginService {
         }
 
         // Se la login è riuscita, salva l'username, password e userId
-        //final Map<String, dynamic> responseData = json.decode(response.body);
-
         final accessToken = responseData['access_token'];
         final tokenType = responseData['token_type'];
         final expiresIn = responseData['expires_in'];
@@ -55,8 +53,10 @@ class LoginService {
         final Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
         final int id = decodedToken['user_id']; // Chiave specifica per l'ID
         final String extractedUsername = decodedToken['sub']; // Chiave per l'username
+        final String extractedEmail = decodedToken['email']; // Aggiungi l'email estratta dal token
 
-        print('Login response: ${response.body}');
+        //print('email : ${response.body}');
+        print('email: $extractedEmail');
 
         // Puoi usare questi dati per salvare il token in un servizio sicuro
         final secureStorageService = GetIt.I<SecureStorageService>();
@@ -71,7 +71,7 @@ class LoginService {
         }
 
         // Crea l'oggetto User
-        final loggedUser = User(id: id,username: username,  passwordHash: responseData['passwordHash'] ?? '',);
+        final loggedUser = User(id: id,username: username,  passwordHash: responseData['passwordHash'] ?? '', email : extractedEmail);
 
         // Salva l'utente in SecureStorage
         await secureStorageService.save(loggedUser);
@@ -86,6 +86,7 @@ class LoginService {
           'access_token': accessToken,
           'token_type': tokenType,
           'expires_in': expiresIn,
+          'email': extractedEmail,
           //'user': responseData['user'],
         };
       } else {
@@ -116,11 +117,10 @@ class LoginService {
     return user.getUsername;  // Restituisce l'username dell'utente loggato
   }
 
-  // Funzione per effettuare il logout
-  static void logout() async {
-    // Rimuoviamo l'utente da SecureStorageService e GetIt
-    final secureStorageService = GetIt.I<SecureStorageService>();
-    await secureStorageService.delete();  // Rimuove i dati memorizzati in memoria sicura
-    GetIt.I.unregister<User>();  // Rimuove l'utente da GetIt
+  // Funzione per ottenere l'email dell'utente loggato
+  static String? getUserEmail() {
+    final user = GetIt.I<User>();
+    return user.getEmail;  // Restituisce l'email dell'utente loggato
   }
+
 }

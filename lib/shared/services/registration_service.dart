@@ -11,7 +11,7 @@ class RegistrationService {
   static String baseUrl = url + IP_RASP! + ':' + port + '/register';
 
   // Funzione per registrare l'utente
-  Future<bool> registerUser(BuildContext context, String username, String password) async {
+  Future<bool> registerUser(BuildContext context, String username, String password, String email) async {
     try {
       final response = await http.post(
         Uri.parse(baseUrl),
@@ -19,13 +19,9 @@ class RegistrationService {
         body: json.encode({
           'username': username,
           'password': password,
+          'email' : email,
         }),
       );
-
-      // Stampa lo stato della risposta
-      print("[katia] Stato della response: ${response.statusCode}");
-      // Stampa anche il corpo della risposta per capire meglio il contenuto
-      print("[katia] Corpo della response: ${response.body}");
 
       if (response.statusCode == 200) {
         // Parse the response body to get the boolean value
@@ -35,39 +31,17 @@ class RegistrationService {
           return true; // Registrazione avvenuta con successo
         } else {
           // Registrazione fallita
-          //_showErrorDialog(context, "Registrazione fallita. Riprova.");
-          return false;
+           return false;
         }
       } else {
         // Gestione degli errori generali
         final errorMessage = json.decode(response.body)['detail'] ?? 'Errore sconosciuto';
         print("Error: $errorMessage");
-        //_showErrorDialog(context, errorMessage);
         return false;
       }
     } catch (e) {
       print("Errore durante la registrazione: $e");
-      //_showErrorDialog(context, "Si è verificato un errore durante la registrazione.");
       return false; // In caso di errore durante la chiamata
     }
   }
-
-  // Funzione per mostrare un dialogo di errore
-  /*void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text("Error"),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop(); // Chiude il dialogo
-            },
-            child: Text("OK"),
-          ),
-        ],
-      ),
-    );
-  }*/
 }
