@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import '../../shared/services/login_service.dart';
-import '../../shared/services/profile_service.dart';  // Importa il ProfileService per aggiornare il profilo
+import '../../shared/services/profile_service.dart';
+import '../Service/SecureStorageService.dart';  // Importa il ProfileService per aggiornare il profilo
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -9,8 +11,12 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _isEditing = false;  // Flag per sapere se l'utente sta modificando
+  final _currentPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+
+  // Variabili per gestire la visibilità delle password
+  bool _isCurrentPasswordVisible = false;
+  bool _isNewPasswordVisible = false;
 
   @override
   void initState() {
@@ -23,45 +29,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // Funzione per salvare le modifiche
-  Future<void> _saveProfileChanges() async {
-    String newUsername = _usernameController.text;
-    String newPassword = _passwordController.text;
+  // Funzione per aggiornare la password
+  Future<void> _changePassword() async {
+    String currentPassword = _currentPasswordController.text;
+    String newPassword = _newPasswordController.text;
 
     // Ottieni l'ID dell'utente loggato
     String? userId = LoginService.getUserId();  // Utilizza il LoginService per ottenere l'ID dell'utente
     if (userId == null) {
       // Se l'ID utente è null, non possiamo aggiornare il profilo
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User is not logged in")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("User is not logged in")));
       return;
     }
 
-    // Passa null per la password se è vuota
-    String? passwordToUpdate = newPassword.isEmpty ? null : newPassword;
+    // Recupera il token dal SecureStorageService
+    /*String? token = await SecureStorageService().getToken();
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("User is not authenticated")),
+      );
+      return;
+    }*/
 
-    // Chiama il servizio per aggiornare il profilo
-    bool success = await _updateProfile(int.parse(userId), newUsername, passwordToUpdate);
-
-    if (success) {
-      // Visualizza un messaggio di successo e torna indietro
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile updated successfully!")));
-      setState(() {
-        _isEditing = false;  // Esci dalla modalità di modifica
-      });
-    } else {
-      // Visualizza un messaggio di errore
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to update profile")));
+    // Controlla che i campi non siano vuoti
+    if (currentPassword.isEmpty || newPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please fill in both password fields.")),
+      );
+      return;
     }
-  }
 
-  Future<bool> _updateProfile(int userId, String username, String? password) async {
-    // Usa il ProfileService per aggiornare il profilo
-    return await ProfileService().updateProfile(
-      userId,  // Passa l'ID dell'utente
-      username, // Passa il nuovo username
-      null,     // Current password (nel caso non serva)
-      password, // Nuova password, oppure null se non modificata
-    );
+    try {
+      // Chiama il servizio per aggiornare la password
+      bool success = await ProfileService().changePassword(
+        userId: int.parse(userId),
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+
+      if (success) {
+        // Visualizza un messaggio di successo e torna indietro
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Profile updated successfully!"))
+        );
+
+        // Svuota i campi e aggiorna lo stato
+        setState(() {
+          _currentPasswordController.clear();
+          _newPasswordController.clear();
+        });
+      } else {
+        // Visualizza un messaggio di errore
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to update profile"))
+        );
+      }
+    }catch(error){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${error.toString()}")),
+      );
+    }
   }
 
   @override
@@ -92,20 +120,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 20),
                             TextFormField(
+                              controller: _usernameController,
                               decoration: const InputDecoration(
                                 labelText: 'Username',
                                 border: OutlineInputBorder(),
                               ),
+                              enabled: false, // Rende il campo non modificabile
                             ),
                             const SizedBox(height: 20),
                             TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Password',
+                              controller: _currentPasswordController,
+                              decoration: InputDecoration(
+                                labelText: 'Current Password',
                                 border: OutlineInputBorder(),
+                                suffixIcon: IconButton(
+                                  icon: _isCurrentPasswordVisible
+                                      ? SvgPicture.asset(
+                                    'lib/assets/icons/eye-password-see-view.svg',
+                                  )
+                                      : SvgPicture.asset(
+                                    'lib/assets/icons/eye-password-hide.svg',
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isCurrentPasswordVisible = !_isCurrentPasswordVisible;
+                                    });
+                                  },
+                                ),
+
                               ),
-                              obscureText: true,
+                              obscureText: !_isCurrentPasswordVisible,
                             ),
                             const SizedBox(height: 20),
+                            // Campo per la nuova password
+                            Text("New Password", style: TextStyle(fontSize: 16)),
+                            TextFormField(
+                              controller: _newPasswordController,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                suffixIcon: IconButton(
+                                  icon: _isNewPasswordVisible
+                                      ? SvgPicture.asset(
+                                    'lib/assets/icons/eye-password-see-view.svg',
+                                  )
+                                      : SvgPicture.asset(
+                                    'lib/assets/icons/eye-password-hide.svg',
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isNewPasswordVisible = !_isNewPasswordVisible;
+                                    });
+                                  },
+                                ),
+                              ),
+                              obscureText: !_isNewPasswordVisible,
+                            ),
+                            const SizedBox(height: 30),
+                            // Bottone per salvare le modifiche
+                            ElevatedButton(
+                              onPressed: _changePassword,
+                              child: Text("Change Password"),
+                            ),
                             Row(
                               children: [
                                 const CircleAvatar(

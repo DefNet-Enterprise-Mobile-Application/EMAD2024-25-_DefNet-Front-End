@@ -16,10 +16,12 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _emailController = TextEditingController();
 
   bool _isLoading = false;
   bool _isPasswordVisible = false;
   String _passwordErrorMessage = '';
+  String _emailErrorMessage = '';
 
   void _showMessageDialog(BuildContext context, String message, bool success) {
     showDialog(
@@ -90,18 +92,31 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     if (!hasMinLength) {
       errorMessage += 'Password must be at least 8 characters long.\n';
     }
-
     setState(() {
       _passwordErrorMessage = errorMessage;
+    });
+  }
+
+  void _validateEmail(String email) {
+    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+    setState(() {
+      _emailErrorMessage =
+      emailRegex.hasMatch(email) ? '' : 'Please enter a valid email address.';
     });
   }
 
   Future<void> _handleRegister() async {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
+    final String email = _emailController.text;
 
-    if (username.isEmpty || password.isEmpty) {
+    if (username.isEmpty || password.isEmpty || email.isEmpty) {
       _showMessageDialog(context, 'Please fill in all fields', false);
+      return;
+    }
+
+    if (_emailErrorMessage.isNotEmpty || _passwordErrorMessage.isNotEmpty) {
+      _showMessageDialog(context, 'Please fix the errors before submitting', false);
       return;
     }
 
@@ -110,7 +125,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     });
 
     final registrationService = RegistrationService();
-    bool success = await registrationService.registerUser(context, username, password);
+    bool success = await registrationService.registerUser(context, username, password, email);
 
     setState(() {
       _isLoading = false;
@@ -189,6 +204,34 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               hintText: 'Enter your username...',
                             ),
                           ),
+                          const SizedBox(height: 16),
+                          Text(
+                              'Email',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.indigo[700],
+                              ),
+                          ),
+                          TextField(
+                              controller: _emailController,
+                              onChanged: _validateEmail,
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.blue[800]!),
+                                  ),
+                                  hintText: 'Enter your email...',
+                              ),
+                          ),
+                          if (_emailErrorMessage.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              _emailErrorMessage,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: 16),
                           Text(
                             'Password',
