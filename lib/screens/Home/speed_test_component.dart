@@ -1,8 +1,8 @@
-import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_speedtest/flutter_speedtest.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:math';
 
 class SpeedTestWidget extends StatefulWidget {
   const SpeedTestWidget({Key? key}) : super(key: key);
@@ -11,128 +11,194 @@ class SpeedTestWidget extends StatefulWidget {
   _SpeedTestWidgetState createState() => _SpeedTestWidgetState();
 }
 
-class _SpeedTestWidgetState extends State<SpeedTestWidget> {
-  final _speedtest = FlutterSpeedtest(
-    baseUrl: 'https://speedtest.globalxtreme.net:8080',
-    pathDownload: '/download',
-    pathUpload: '/upload',
-    pathResponseTime: '/ping',
-  );
+class _SpeedTestWidgetState extends State<SpeedTestWidget>
+    with SingleTickerProviderStateMixin {
+  static const String port = '8000';
+  static const String url = 'http://';
+  static String? ipRasp = dotenv.env['IP_RASP'];
+  static String baseUrl = '$url$ipRasp:$port/speed-test';
 
-  double currentSpeed = 0; // Velocità corrente in MB/s
   double downloadSpeed = 0;
   double uploadSpeed = 0;
   int ping = 0;
-  int jitter = 0;
-  bool isDownload = true;
+  bool isLoading = true;
+  bool isTestRunning = false;  // Aggiunta per tracciare lo stato del test
+  String errorMessage = '';
 
-  Timer? uploadTimeout;
+  late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    // Avvia automaticamente il test quando il widget viene creato
-    startSpeedTest();
+    _animationController =
+    AnimationController(vsync: this, duration: const Duration(seconds: 6))
+      ..repeat();
   }
 
   @override
   void dispose() {
-    uploadTimeout?.cancel();
+    _animationController.dispose();
     super.dispose();
   }
 
-  void startSpeedTest() {
-    List<double> uploadSpeeds = []; // Per calcolare la media in caso di timeout
+  Future<void> fetchSpeedTestData() async {
+    if (isTestRunning) {
+      // Se il test è in corso, fermalo
+      setState(() {
+        isTestRunning = false;
+        isLoading = false;
+      });
+      return;
+    }
 
-    _speedtest.getDataspeedtest(
-      downloadOnProgress: (percent, transferRate) {
-        setState(() {
-          currentSpeed = transferRate / 8; // Converti Mbps in MB/s
-          downloadSpeed = currentSpeed;
-        });
-      },
-      uploadOnProgress: (percent, transferRate) {
-        setState(() {
-          currentSpeed = transferRate / 8; // Converti Mbps in MB/s
-          uploadSpeeds.add(currentSpeed);
-        });
-      },
-      progressResponse: (responseTime, jitterValue) {
-        setState(() {
-          ping = responseTime;
-          jitter = jitterValue;
-        });
-      },
-      onError: (errorMessage) {
-        debugPrint('Errore: $errorMessage');
-      },
-      onDone: () async {
-        // Passaggio all'upload dopo il download
-        setState(() {
-          currentSpeed = 0; // Resetta il contatore
-          isDownload = false; // Passa a "upload"
-        });
+    setState(() {
+      isLoading = true;
+      errorMessage = '';
+      isTestRunning = true; // Imposta il test come in corso
+    });
 
-        await Future.delayed(const Duration(seconds: 1));
+    try {
+      final response = await http.get(Uri.parse(baseUrl));
 
-        // Timeout per l'upload
-        uploadTimeout = Timer(const Duration(seconds: 20), () {
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        if (responseData['success'] == true) {
+          final data = responseData['data'];
           setState(() {
-            uploadSpeed = uploadSpeeds.isNotEmpty
-                ? uploadSpeeds.reduce((a, b) => a + b) / uploadSpeeds.length
-                : 0; // Media delle velocità o 0
-            currentSpeed = 0; // Resetta il contatore
+            downloadSpeed = (data['download_speed'] ?? 0).toDouble();
+            uploadSpeed = (data['upload_speed'] ?? 0).toDouble();
+            ping = (data['latency'] ?? 0).toDouble().round(); // Converte a double e arrotonda a int
+            isLoading = false;
           });
+        } else {
+          setState(() {
+            errorMessage = 'Errore nei dati ricevuti dal server';
+            isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          errorMessage =
+          'Errore del server: ${response.statusCode} - ${response.body}';
+          isLoading = false;
         });
-      },
-    );
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Errore durante la richiesta: $e';
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          isDownload ? 'Download Test' : 'Upload Test',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 20),
-        // Centralizzare il contatore
-        Center(
-          child: SpeedometerGauge(currentSpeed: currentSpeed),
-        ),
-        const SizedBox(height: 20),
-        // Bottone centrato e grande
-        Center(
-          child: ElevatedButton(
-            onPressed: startSpeedTest,
-            child: const Text(
-              'Inizia SpeedTest',
-              style: TextStyle(fontSize: 24), // Dimensione del testo aumentata
-            ),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40), backgroundColor: Colors.teal, // Aumenta le dimensioni del bottone
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12), // Rende il bottone più arrotondato
-              ), // Colore di sfondo
+    return Scaffold(
+      backgroundColor: Colors.blue.shade900,
+      body: Stack(
+        children: [
+          // Background animato con onda
+          AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              return CustomPaint(
+                painter: WavePainter(_animationController.value),
+                child: Container(),
+              );
+            },
+          ),
+          // Contenuto della schermata
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Box semi-trasparente per il testo
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.3), // Colore semi-trasparente
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Text(
+                    isLoading
+                        ? 'Effettuando il Test...'
+                        : errorMessage.isEmpty
+                        ? 'Test completato!'
+                        : 'Errore!',
+                    style: const TextStyle(
+                        fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (isLoading) _buildLoadingAnimation(),
+                if (!isLoading && errorMessage.isEmpty) _buildResults(),
+                if (!isLoading && errorMessage.isNotEmpty) _buildErrorMessage(),
+                const SizedBox(height: 20),
+                _buildTestControlButton(),
+              ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingAnimation() {
+    return Center(
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade900),
+      ),
+    );
+  }
+
+  Widget _buildResults() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Column(
+        children: [
+          InfoCard(
+              title: 'Download Speed',
+              value: '${downloadSpeed.toStringAsFixed(2)} MB/s'),
+          InfoCard(
+              title: 'Upload Speed',
+              value: '${uploadSpeed.toStringAsFixed(2)} MB/s'),
+          InfoCard(title: 'Ping', value: '$ping ms'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorMessage() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Text(
+        errorMessage,
+        style: const TextStyle(
+          color: Colors.red,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
         ),
-        const SizedBox(height: 20),
-        // Card per visualizzare i risultati
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-          child: Column(
-            children: [
-              InfoCard(title: 'Download Speed', value: '${downloadSpeed.toStringAsFixed(2)} MB/s'),
-              InfoCard(title: 'Upload Speed', value: '${uploadSpeed.toStringAsFixed(2)} MB/s'),
-              InfoCard(title: 'Ping', value: '$ping ms'),
-              InfoCard(title: 'Jitter', value: '$jitter ms'),
-            ],
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _buildTestControlButton() {
+    return Center(
+      child: ElevatedButton(
+        onPressed: fetchSpeedTestData,
+        child: Text(
+          isTestRunning ? 'Stop Speed Test' : 'Riavvia Test',
+          style: const TextStyle(fontSize: 18, color: Colors.white),
+        ),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+          backgroundColor: Colors.blue.shade900,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -168,7 +234,7 @@ class InfoCard extends StatelessWidget {
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
-                color: Colors.teal,
+                color: Colors.blue,
               ),
             ),
           ],
@@ -178,62 +244,52 @@ class InfoCard extends StatelessWidget {
   }
 }
 
-class SpeedometerGauge extends StatelessWidget {
-  final double currentSpeed;
+class WavePainter extends CustomPainter {
+  final double animationValue;
 
-  const SpeedometerGauge({Key? key, required this.currentSpeed}) : super(key: key);
+  WavePainter(this.animationValue);
 
   @override
-  Widget build(BuildContext context) {
-    return SfRadialGauge(
-      axes: <RadialAxis>[
-        RadialAxis(
-          minimum: 0,
-          maximum: 100,
-          startAngle: 180,
-          endAngle: 0,
-          showTicks: false,
-          showLabels: false,
-          axisLineStyle: const AxisLineStyle(
-            thickness: 0.2,
-            thicknessUnit: GaugeSizeUnit.factor,
-          ),
-          pointers: <GaugePointer>[
-            RangePointer(
-              value: currentSpeed.clamp(0, 100),
-              color: Colors.teal,
-              width: 0.2,
-              sizeUnit: GaugeSizeUnit.factor,
-              enableAnimation: true,
-              animationType: AnimationType.ease,
-            ),
-            NeedlePointer(
-              value: currentSpeed.clamp(0, 100),
-              needleColor: Colors.orange, // Nuovo colore per la lancetta
-              needleLength: 0.8,
-              lengthUnit: GaugeSizeUnit.factor,
-              needleEndWidth: 6, // Larghezza maggiore della lancetta
-              enableAnimation: true,
-              animationType: AnimationType.easeOutBack,
-              animationDuration: 500,
-            ),
-          ],
-          annotations: <GaugeAnnotation>[
-            GaugeAnnotation(
-              widget: Text(
-                '${currentSpeed.toStringAsFixed(1)} MB/s',
-                style: const TextStyle(
-                  fontSize: 22, // Aumentato per rendere il testo più visibile
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              positionFactor: 0.15, // Maggiore distanza dalla lancetta
-              angle: 90,
-            ),
-          ],
-        ),
-      ],
-    );
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          Colors.blue, // Blu
+          Colors.lightBlueAccent, // Celeste
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    const waveHeight = 100.0; // Altezza dell'onda
+    final waveLength = size.width; // L'onda si estende per tutta la larghezza
+
+    // Traslazione dell'onda di 10 cm (circa 378px)
+    const translateY = 60.0;
+
+    // Partenza in alto a sinistra, spostata di 378 px in basso
+    path.moveTo(0, waveHeight + translateY);
+
+    // Disegniamo l'onda come mezza sinusoide
+    for (double x = 0; x <= size.width; x++) {
+      // La funzione sinusoide per creare l'onda (da sin(0) a sin(pi) che dà una curva a "S")
+      final y = sin((x / waveLength * pi) + (animationValue * 2 * pi)) * waveHeight;
+      path.lineTo(x, waveHeight + y + translateY);
+    }
+
+    // Abbassiamo l'onda alla fine per creare la parte inferiore della "S"
+    path.lineTo(size.width, size.height - 10+ translateY); // Abbassiamo la fine
+    path.lineTo(0, size.height - 10 + translateY); // Abbassiamo anche l'inizio
+    path.close();
+
+    // Disegniamo il path
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true; // Ricalcola ad ogni frame
   }
 }
