@@ -84,6 +84,7 @@ flutter:
     - lib/assets/button_image/dashboard.png
     - lib/assets/button_image/wifi.png
     - lib/assets/button_image/profile.png
+    - lib/assets/button_image/speedtest.png
     - lib/assets/icons/notification.png
     - lib/assets/icons/logout.png
     - lib/assets/icons/home.png
