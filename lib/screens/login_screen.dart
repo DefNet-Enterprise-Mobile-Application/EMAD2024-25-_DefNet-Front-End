@@ -2,6 +2,7 @@ import 'package:defnet_front_end/screens/Home/home_screen.dart';  // Importa la 
 import 'package:defnet_front_end/screens/registration_screen.dart'; // Importa la schermata di registrazione
 import 'package:flutter/material.dart';  // Importa il materiale Flutter per creare l'interfaccia
 import 'package:flutter_svg/svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:defnet_front_end/Models/User.dart';
 import '../shared/components/shape_lines/ellipse_custom.dart';  // Importa il widget personalizzato per le forme
@@ -22,41 +23,26 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+
   // Controller per raccogliere i dati di input dell'utente
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
   final SecureStorageService _secureStorage = GetIt.I.get<SecureStorageService>();
 
+
+  final LoginService _loginService = LoginService();
+
   // Variabile per gestire lo stato di caricamento (loading)
   bool _isLoading = false;
+
   bool _isPasswordVisible = false;
+  
   String _passwordErrorMessage = '';
 
-  void _validatePassword(String password) {
-    String errorMessage = '';
-    final hasUppercase = RegExp(r'[A-Z]');
-    final hasLowercase = RegExp(r'[a-z]');
-    final hasDigits = RegExp(r'[0-9]');
-    final hasMinLength = password.length >= 8;
 
-    if (!hasUppercase.hasMatch(password)) {
-      errorMessage += 'Password must contain at least one uppercase letter.\n';
-    }
-    if (!hasLowercase.hasMatch(password)) {
-      errorMessage += 'Password must contain at least one lowercase letter.\n';
-    }
-    if (!hasDigits.hasMatch(password)) {
-      errorMessage += 'Password must contain at least one number.\n';
-    }
-    if (!hasMinLength) {
-      errorMessage += 'Password must be at least 8 characters long.\n';
-    }
-
-    setState(() {
-      _passwordErrorMessage = errorMessage;
-    });
-  }
+  
 
 
   // Funzione che mostra un dialog personalizzato
@@ -67,27 +53,53 @@ class _LoginScreenState extends State<LoginScreen> {
       // Impedisce di chiudere il dialog cliccando fuori
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Colors.indigo[900], // Sfondo blu
+          backgroundColor: Colors.indigo[700], // Sfondo blu
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15), // Bordi arrotondati
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 20),
-              Text(
-                message, // Messaggio dinamico
+              
+              if (!success)
+                Icon(
+                  FontAwesomeIcons.timesCircle,
+                  color: Colors.red,
+                  size: 50,
+                ),
+
+              if (success) ...[
+
+              Icon(
+
+                FontAwesomeIcons.check,
+                color: Colors.green,
+                size: 50,
+              
+              ),
+              
+              const SizedBox(height: 10),
+                
+              ],
+
+               Text(
+                message,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                 ),
               ),
+              
             ],
           ),
         );
       },
     );
+
+
+
+
 
     // Chiudi il dialog dopo 3 secondi
     Future.delayed(const Duration(seconds: 2), () { // Cambiato da 1 a 3 secondi
@@ -100,6 +112,9 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     });
   }
+
+
+
 
   // Funzione che gestisce il processo di login
   Future<void> _handleLogin() async {
@@ -121,8 +136,9 @@ class _LoginScreenState extends State<LoginScreen> {
     FocusScope.of(context).unfocus();
 
     try {
-      final loginService = LoginService();
-      Map<String, dynamic> response = await loginService.login(username, password);
+
+      
+      Map<String, dynamic> response = await _loginService.login(username, password);
 
       print("Response data: $response");
 
@@ -131,6 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // Decodifica l'access token
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+
         int userId = decodedToken['user_id']; // Estrarre l'ID
         String usernameFromToken = decodedToken['sub'];
         String emailFromToken = decodedToken['email'];
@@ -141,10 +158,13 @@ class _LoginScreenState extends State<LoginScreen> {
         // Salva l'utente in modo sicuro usando GetIt e il servizio SecureStorage
         final user = User(id: userId, username: usernameFromToken, passwordHash: "", email: emailFromToken );
         await _secureStorage.save(user);
-
+        
+        /// Return value of Token from SecureStorage of Device  
         String? storedToken = await _secureStorage.getToken();
         print("Stored Token: $storedToken");  // Aggiungi questa riga per verificare
         print('Navigating to HomeScreen...');
+        
+        
         try {
           // Controlla se l'utente è già registrato
           if (GetIt.I.isRegistered<User>()) {
@@ -157,27 +177,24 @@ class _LoginScreenState extends State<LoginScreen> {
           print('Error registering user in GetIt: $e');
         }
 
-        //GetIt.I.registerSingleton<User>(user);
-        print('Navigating to HomeScreen... KATIA');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login successful')),
-        );
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+        /// Login Successful : Message of Success
+        _showMessageDialog(context, "Login Successful ", true);
 
       } else {
+        
+        
         // Se la login fallisce, mostra un messaggio di errore
         String errorMessage = response['message'] ?? 'Login failed';
+        
+        /// Login Failed Dialog : Message of Error !  
         _showMessageDialog(context, response['message'], false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login failed')),
-      );
+
+      /// Login Failed Dialog 
+      _showMessageDialog(context, "Login Failed!", false);
+
     } finally {
       // Dopo la chiamata al servizio, disabilita il loading
       setState(() {
@@ -185,6 +202,9 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -256,10 +276,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: Colors.grey[700],
                             ),
                           ),
+
+                          /// Password Controller - Form to control the password 
                           TextField(
                             controller: _passwordController,
                             obscureText: !_isPasswordVisible,
-                            onChanged: _validatePassword,
+                            onChanged: _onValidatePassword,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.blue[800]!),
@@ -338,4 +360,38 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+
+  // validatePassword() - method to validate the password that we have setted 
+  void _onValidatePassword(String password) {
+    
+    String errorMessage = '';
+    final hasUppercase = RegExp(r'[A-Z]');
+    final hasLowercase = RegExp(r'[a-z]');
+    final hasDigits = RegExp(r'[0-9]');
+    final hasMinLength = password.length >= 8;
+
+    if (!hasUppercase.hasMatch(password)) {
+      errorMessage += 'Password must contain at least one uppercase letter.\n';
+    }
+    if (!hasLowercase.hasMatch(password)) {
+      errorMessage += 'Password must contain at least one lowercase letter.\n';
+    }
+    if (!hasDigits.hasMatch(password)) {
+      errorMessage += 'Password must contain at least one number.\n';
+    }
+    if (!hasMinLength) {
+      errorMessage += 'Password must be at least 8 characters long.\n';
+    }
+
+    setState(() {
+      _passwordErrorMessage = errorMessage;
+    });
+  }
+
+
+
+
+
 }
+

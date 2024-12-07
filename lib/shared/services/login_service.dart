@@ -51,6 +51,7 @@ class LoginService {
 
         // Decodifica il token per estrarre i dati
         final Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+        
         final int id = decodedToken['user_id']; // Chiave specifica per l'ID
         final String extractedUsername = decodedToken['sub']; // Chiave per l'username
         final String extractedEmail = decodedToken['email']; // Aggiungi l'email estratta dal token
@@ -97,7 +98,9 @@ class LoginService {
         };
       }
     } catch (e) {
+
       print('Error during login: $e');
+      
       return {
         'success': false,
         'message': e.toString(),
@@ -122,5 +125,9 @@ class LoginService {
     final user = GetIt.I<User>();
     return user.getEmail;  // Restituisce l'email dell'utente loggato
   }
+
+
+
+
 
 }

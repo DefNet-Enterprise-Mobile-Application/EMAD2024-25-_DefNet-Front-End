@@ -21,7 +21,7 @@ class ConfigurationService {
   /// getPortMicroservice() - obtain the IP address of raspberry pi from the environment file 
   String? getPortMicroservice(){
 
-    return dotenv.env['PORT'];
+    return dotenv.env['PORT_MICROSERVICE'];
     
   }
 

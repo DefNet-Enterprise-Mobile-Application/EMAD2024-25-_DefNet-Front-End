@@ -3,9 +3,11 @@ import 'package:defnet_front_end/screens/Profile/profile_screen.dart';
 import 'package:defnet_front_end/screens/Service/service_screen.dart';
 import 'package:defnet_front_end/screens/Wifi_Settings/wifi_settings_screen.dart';
 import 'package:defnet_front_end/screens/Home/dash_board.dart';
+import 'package:defnet_front_end/shared/services/logout_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:defnet_front_end/shared/components/navigation_menu.dart'; // Aggiungi il file NavigationMenu
 import 'package:defnet_front_end/screens/Notifications/notification_screen.dart'; // Aggiorna l'importazione
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../shared/components/shape_lines/ellipse_custom.dart';
 import '../splash_screen.dart'; // Update the Ellipse widget as needed
 
@@ -22,8 +24,15 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0; // Indice corrente della pagina visualizzata
 
+  
   String? _userName; // Variabile che conterrà il nome utente (inizialmente null)
   final SecureStorageService _storageService = SecureStorageService.instance;
+
+
+  final LogoutService _logoutService = LogoutService();
+
+
+
 
   final List<Widget> _pages = [
     DashboardScreen(),
@@ -155,6 +164,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ),
                                                 onPressed: () {
                                                   // Logica per le notifiche
+                                                  Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) => NotificationScreen()),
+                                                  );
+
                                                 },
                                               ),
                                               SizedBox(width: screenWidth * 0.03),
@@ -178,15 +193,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ),
                                                 ),
                                                 onPressed: () async {
-                                                  // Rimuove il nome utente dal Secure Storage
-                                                  await _storageService.delete(); // Elimina i dati dell'utente
+                                                  
+                                                  bool responseLogout = await _logoutService.logout(_storageService);
 
-                                                  // Logica per il logout
-                                                  Navigator.pushReplacement(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) => SplashScreen()),
-                                                  );
+                                                  if(responseLogout){
+
+                                                    _showMessageDialog(context,"Logout Successful!",true);
+                                                  
+                                                  }else{
+                                                  
+                                                    _showMessageDialog(context, "Logout Error!", false);
+                                                  
+                                                  }
+
+                                                  
                                                 },
                                               ),
                                             ],
@@ -245,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Barra di navigazione curva
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.white,
-        color: Colors.blueAccent,
+        color: Colors.blue.shade900,
         buttonBackgroundColor: Colors.blueAccent.shade100,
         height: screenHeight * 0.08, // Altezza della barra di navigazione adattiva
         animationDuration: const Duration(milliseconds: 300),
@@ -284,4 +304,77 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+
+    // Funzione che mostra un dialog personalizzato
+  void _showMessageDialog(BuildContext context, String message, bool success) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      // Impedisce di chiudere il dialog cliccando fuori
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.indigo[700], // Sfondo blu
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15), // Bordi arrotondati
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              
+              if (!success)
+                Icon(
+                  FontAwesomeIcons.timesCircle,
+                  color: Colors.red,
+                  size: 50,
+                ),
+
+              if (success) ...[
+
+              Icon(
+
+                FontAwesomeIcons.check,
+                color: Colors.green,
+                size: 50,
+              
+              ),
+              
+              const SizedBox(height: 10),
+                
+              ],
+
+               Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+              
+            ],
+          ),
+        );
+      },
+    );
+
+
+
+
+
+    // Chiudi il dialog dopo 3 secondi
+    Future.delayed(const Duration(seconds: 2), () { // Cambiato da 1 a 3 secondi
+      Navigator.of(context).pop(); // Chiude il dialog
+      if (success) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SplashScreen()),
+        ); // Naviga alla schermata Home se il login ha successo
+      }
+    });
+  }
+
+
+
+
 }

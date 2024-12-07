@@ -95,6 +95,7 @@ class _SpeedTestWidgetState extends State<SpeedTestWidget> with SingleTickerProv
             errorMessage = 'Errore nei dati ricevuti dal server';
             isLoading = false;
             isStart = false;
+            
           });
         }
       } else {

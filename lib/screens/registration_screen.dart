@@ -24,29 +24,43 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String _emailErrorMessage = '';
 
   void _showMessageDialog(BuildContext context, String message, bool success) {
+    
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
+
+
         return AlertDialog(
           backgroundColor: Colors.indigo[900],
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
+
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 20),
               if (!success)
                 Icon(
                   FontAwesomeIcons.timesCircle,
                   color: Colors.red,
                   size: 50,
                 ),
+
               if (success) ...[
-                const SizedBox(height: 10),
+
+              Icon(
+
+                FontAwesomeIcons.check,
+                color: Colors.green,
+                size: 50,
+              
+              ),
+              
+
+                
               ],
-              const SizedBox(height: 10),
+              
               Text(
                 message,
                 textAlign: TextAlign.center,
@@ -55,7 +69,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   fontSize: 18,
                 ),
               ),
-              const SizedBox(height: 20),
+              
             ],
           ),
         );
@@ -73,8 +87,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     });
   }
 
+
+
+
+
   void _validatePassword(String password) {
+    
     String errorMessage = '';
+    
     final hasUppercase = RegExp(r'[A-Z]');
     final hasLowercase = RegExp(r'[a-z]');
     final hasDigits = RegExp(r'[0-9]');
@@ -137,6 +157,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       _showMessageDialog(context, 'Registration failed. Please try again.', false);
     }
   }
+
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
