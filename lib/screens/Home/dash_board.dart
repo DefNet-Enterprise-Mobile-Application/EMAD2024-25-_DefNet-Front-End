@@ -1,5 +1,5 @@
-import 'dart:async';
-import 'package:defnet_front_end/screens/Home/speed_test_component.dart';
+import 'package:defnet_front_end/screens/Home/speed_test_screen.dart';
+
 import 'package:flutter/material.dart';
 
 class DashboardScreen extends StatefulWidget {

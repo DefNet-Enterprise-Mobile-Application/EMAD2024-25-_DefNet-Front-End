@@ -3,15 +3,16 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../Models/User.dart';
 
 
 class SecureStorageService{
 
-  static const String port = '8000';
-  static const String url = 'http://';
+  static  String? port = dotenv.env['PORT_MICROSERVICE'];
+  static  String? url = dotenv.env['URL'];
   static String? IP_RASP = dotenv.env['IP_RASP'];
-  static String baseUrl = url + IP_RASP! + ':' + port + '/logout';
+  static String baseUrl = '$url${IP_RASP!}:$port/logout';
 
   SecureStorageService._internal();
 

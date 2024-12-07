@@ -5,7 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 import '../../Models/User.dart';
-import '../../screens/Service/SecureStorageService.dart'; // Importa flutter_dotenv
+import '../../shared/services/secure_storage_service.dart'; // Importa flutter_dotenv
 
 class LoginService {
 

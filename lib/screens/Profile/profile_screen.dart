@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../shared/services/login_service.dart';
 import '../../shared/services/profile_service.dart';
-import '../Service/SecureStorageService.dart';  // Importa il ProfileService per aggiornare il profilo
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   @override

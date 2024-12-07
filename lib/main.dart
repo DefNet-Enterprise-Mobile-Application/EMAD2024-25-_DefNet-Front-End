@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Importa flutter_dotenv
-import 'package:defnet_front_end/screens/Service/SecureStorageService.dart';
+import 'package:defnet_front_end/shared/services/secure_storage_service.dart';
 // Importa flutter_dotenv
 import 'package:get_it/get_it.dart';
 

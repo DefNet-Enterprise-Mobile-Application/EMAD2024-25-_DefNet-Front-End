@@ -11,8 +11,8 @@ class SpeedTestWidget extends StatefulWidget {
   _SpeedTestWidgetState createState() => _SpeedTestWidgetState();
 }
 
-class _SpeedTestWidgetState extends State<SpeedTestWidget>
-    with SingleTickerProviderStateMixin {
+class _SpeedTestWidgetState extends State<SpeedTestWidget> with SingleTickerProviderStateMixin {
+  
   static const String port = '8000';
   static const String url = 'http://';
   static String? ipRasp = dotenv.env['IP_RASP'];
@@ -21,8 +21,13 @@ class _SpeedTestWidgetState extends State<SpeedTestWidget>
   double downloadSpeed = 0;
   double uploadSpeed = 0;
   int ping = 0;
-  bool isLoading = true;
-  bool isTestRunning = false;  // Aggiunta per tracciare lo stato del test
+  
+  bool isStart = true; // Flag to indicate to start 
+  
+  bool isLoading = false; // Flag to indicate of loading value 
+
+  bool isTestRunning = false;  // Flag to indicate Running of Speedtest 
+
   String errorMessage = '';
 
   late AnimationController _animationController;
@@ -42,57 +47,79 @@ class _SpeedTestWidgetState extends State<SpeedTestWidget>
   }
 
   Future<void> fetchSpeedTestData() async {
+
     if (isTestRunning) {
       // Se il test è in corso, fermalo
       setState(() {
+        
         isTestRunning = false;
         isLoading = false;
+
       });
       return;
     }
 
     setState(() {
+      
       isLoading = true;
       errorMessage = '';
       isTestRunning = true; // Imposta il test come in corso
+
     });
 
     try {
+
       final response = await http.get(Uri.parse(baseUrl));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
         if (responseData['success'] == true) {
           final data = responseData['data'];
+          
           setState(() {
+            
             downloadSpeed = (data['download_speed'] ?? 0).toDouble();
+            
             uploadSpeed = (data['upload_speed'] ?? 0).toDouble();
+            
             ping = (data['latency'] ?? 0).toDouble().round(); // Converte a double e arrotonda a int
+            
             isLoading = false;
+
+            isStart = false;
+
           });
         } else {
           setState(() {
+
             errorMessage = 'Errore nei dati ricevuti dal server';
             isLoading = false;
+            isStart = false;
           });
         }
       } else {
         setState(() {
-          errorMessage =
-          'Errore del server: ${response.statusCode} - ${response.body}';
+
+          errorMessage = 'Errore del server: ${response.statusCode} - ${response.body}';
           isLoading = false;
+          isStart = false;
+        
         });
       }
     } catch (e) {
       setState(() {
+
         errorMessage = 'Errore durante la richiesta: $e';
         isLoading = false;
+        isStart = false;
+     
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.blue.shade900,
       body: Stack(
@@ -107,6 +134,7 @@ class _SpeedTestWidgetState extends State<SpeedTestWidget>
               );
             },
           ),
+          
           // Contenuto della schermata
           Center(
             child: Column(
@@ -120,21 +148,26 @@ class _SpeedTestWidgetState extends State<SpeedTestWidget>
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Text(
-                    isLoading
-                        ? 'Effettuando il Test...'
-                        : errorMessage.isEmpty
-                        ? 'Test completato!'
-                        : 'Errore!',
+                    
+                    isStart ? 'Inizia lo SpeedTest' : errorMessage.isEmpty ? 'Test completato!' : 'Errore!',
                     style: const TextStyle(
                         fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
                 const SizedBox(height: 20),
-                if (isLoading) _buildLoadingAnimation(),
-                if (!isLoading && errorMessage.isEmpty) _buildResults(),
-                if (!isLoading && errorMessage.isNotEmpty) _buildErrorMessage(),
+
+                if (isLoading) 
+                    _buildLoadingAnimation(),
+                
+                if (!isLoading && errorMessage.isEmpty) 
+                    _buildResults(),
+                
+                if (!isLoading && errorMessage.isNotEmpty) 
+                    _buildErrorMessage(),
+                
                 const SizedBox(height: 20),
-                _buildTestControlButton(),
+                
+                _buildTestControlButton(), // 
               ],
             ),
           ),
@@ -184,13 +217,15 @@ class _SpeedTestWidgetState extends State<SpeedTestWidget>
   }
 
   Widget _buildTestControlButton() {
+    
     return Center(
       child: ElevatedButton(
         onPressed: fetchSpeedTestData,
         child: Text(
-          isTestRunning ? 'Stop Speed Test' : 'Riavvia Test',
+          isStart ? 'Inizia il Test' : 'Riavvia Test',
           style: const TextStyle(fontSize: 18, color: Colors.white),
         ),
+
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
           backgroundColor: Colors.blue.shade900,

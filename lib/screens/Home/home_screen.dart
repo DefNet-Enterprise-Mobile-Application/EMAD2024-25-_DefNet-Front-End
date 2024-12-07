@@ -8,7 +8,8 @@ import 'package:defnet_front_end/shared/components/navigation_menu.dart'; // Agg
 import 'package:defnet_front_end/screens/Notifications/notification_screen.dart'; // Aggiorna l'importazione
 import '../../shared/components/shape_lines/ellipse_custom.dart';
 import '../splash_screen.dart'; // Update the Ellipse widget as needed
-import '../Service/SecureStorageService.dart';
+
+import 'package:defnet_front_end/shared/services/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {

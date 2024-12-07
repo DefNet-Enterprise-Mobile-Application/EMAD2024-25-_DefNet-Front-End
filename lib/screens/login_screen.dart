@@ -6,9 +6,15 @@ import 'package:get_it/get_it.dart';
 import 'package:defnet_front_end/Models/User.dart';
 import '../shared/components/shape_lines/ellipse_custom.dart';  // Importa il widget personalizzato per le forme
 import '../shared/services/login_service.dart';  // Importa il servizio di login
-// Per memorizzare i dati in modo sicuro
-import '../screens/Service/SecureStorageService.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+
+
+// Per memorizzare i dati in modo sicuro
+import 'package:defnet_front_end/shared/services/secure_storage_service.dart'; 
+
+
+
+
 
 class LoginScreen extends StatefulWidget {
   @override

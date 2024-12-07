@@ -35,16 +35,24 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
+
         child: Lottie.asset(
+        
           'lib/assets/logo animation.json',
           controller: _controller,
+        
           onLoaded: (composition) {
+        
             _controller.duration = composition.duration;
+        
             _controller.forward();
+        
           },
+        
           width: MediaQuery.of(context).size.width, // Fill the screen width
           height: MediaQuery.of(context).size.height, // Fill the screen height
           fit: BoxFit.fitWidth , // Ensure it covers the full container
+        
         ),
       ),
     );
