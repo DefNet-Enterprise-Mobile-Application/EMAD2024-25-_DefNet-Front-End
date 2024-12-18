@@ -219,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 130),
                   Image.asset(
                     'lib/assets/logo.png',
                     width: 150,

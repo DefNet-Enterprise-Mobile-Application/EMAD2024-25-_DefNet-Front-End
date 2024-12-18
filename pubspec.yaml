@@ -51,7 +51,9 @@ dependencies:
   syncfusion_flutter_gauges: any
   flutter_lints: ^5.0.0
   dio: any
-
+  wave: any
+  ping_discover_network_forked: ^0.0.1
+  network_info_plus: ^6.1.2
 
 dev_dependencies:
   flutter_test:
@@ -92,6 +94,8 @@ flutter:
     - lib/assets/icons/service.png
     - lib/assets/icons/profile.png
     - lib/assets/avatar/avatar.png
+    - lib/assets/button_image/dispositivi.png
+    - lib/assets/button_image/aggiorna.png
     - .env
 
     - lib/assets/icons/eye-password-hide.svg
