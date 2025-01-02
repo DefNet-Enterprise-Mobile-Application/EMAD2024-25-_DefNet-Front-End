@@ -180,7 +180,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 100),
                   Image.asset(
                     'lib/assets/logo.png',
                     width: 150,

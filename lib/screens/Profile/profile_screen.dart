@@ -44,15 +44,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
-    // Recupera il token dal SecureStorageService
-    /*String? token = await SecureStorageService().getToken();
-    if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("User is not authenticated")),
-      );
-      return;
-    }*/
-
     // Controlla che i campi non siano vuoti
     if (currentPassword.isEmpty || newPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -6,7 +6,7 @@ import 'package:defnet_front_end/screens/Home/dash_board.dart';
 import 'package:defnet_front_end/shared/services/logout_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:defnet_front_end/shared/components/navigation_menu.dart'; // Aggiungi il file NavigationMenu
-import 'package:defnet_front_end/screens/Notifications/notification_screen.dart'; // Aggiorna l'importazione
+import 'package:defnet_front_end/screens/Notifications/notification_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../shared/components/shape_lines/ellipse_custom.dart';
 import '../splash_screen.dart'; // Update the Ellipse widget as needed
@@ -167,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   Navigator.pushReplacement(
                                                     context,
                                                     MaterialPageRoute(
-                                                        builder: (context) => NotificationScreen()),
+                                                        builder: (context) => NotificationsScreen()),
                                                   );
 
                                                 },

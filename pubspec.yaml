@@ -38,6 +38,7 @@ dependencies:
   jwt_decoder: ^2.0.1
   curved_navigation_bar: any
   font_awesome_flutter: ^10.0.0  # Aggiungi questa dipendenza per FontAwesome
+  web_socket_channel: ^2.3.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -91,11 +92,13 @@ flutter:
     - lib/assets/icons/wifi.png
     - lib/assets/icons/service.png
     - lib/assets/icons/profile.png
+    - lib/assets/icons/iconaCasa.png
     - lib/assets/avatar/avatar.png
     - .env
 
     - lib/assets/icons/eye-password-hide.svg
     - lib/assets/icons/eye-password-see-view.svg
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
