@@ -8,11 +8,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:defnet_front_end/shared/components/navigation_menu.dart'; // Aggiungi il file NavigationMenu
 import 'package:defnet_front_end/screens/Notifications/notification_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
 import '../../shared/components/shape_lines/ellipse_custom.dart';
+import '../../shared/services/NotificationState.dart';
+import '../../shared/services/websocket_service.dart';
 import '../splash_screen.dart'; // Update the Ellipse widget as needed
-
 import 'package:defnet_front_end/shared/services/secure_storage_service.dart';
 import 'package:flutter/material.dart';
+import 'package:defnet_front_end/shared/services/NotificationState.dart';// Importa NotificationState
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,17 +26,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0; // Indice corrente della pagina visualizzata
+  late WebSocketService _webSocketService;
 
-  
+  int _currentIndex = 0; // Indice corrente della pagina visualizzata
+  int? _previousIndex; // Variabile per memorizzare la pagina precedente
+
   String? _userName; // Variabile che conterrà il nome utente (inizialmente null)
   final SecureStorageService _storageService = SecureStorageService.instance;
-
-
   final LogoutService _logoutService = LogoutService();
-
-
-
 
   final List<Widget> _pages = [
     DashboardScreen(),
@@ -54,13 +55,24 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       // Se il token esiste, carica il nome utente
       _loadUserName();
+      _webSocketService.connect(); // Connetti al WebSocket dopo aver caricato il nome utente
     }
   }
 
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus(); // Controlla se l'utente è loggato
+
+    _webSocketService = GetIt.I<WebSocketService>();
+
+    // ascolta i messaggi
+    _webSocketService.notificationsStream.listen((message) {
+      setState(() {
+        print('mettiamo Pallino rosso a true: $message');
+      });
+    });
+
+    _checkLoginStatus(); // Controlla// se l'utente è loggato
   }
 
   // Funzione per caricare il nome dell'utente da SecureStorageService
@@ -82,6 +94,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final notificationState = Provider.of<NotificationState>(context);
+
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -143,33 +157,71 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                               const Spacer(),
 
-                                              IconButton(
-                                                icon: Container(
-                                                    decoration: BoxDecoration(
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: Colors.black.withOpacity(0.3), // Colore dell'ombra
-                                                          spreadRadius: 1, // Distanza dell'ombra
-                                                          blurRadius: 30, // Sfocatura dell'ombra
-                                                          offset: Offset(0, 4), // Spostamento dell'ombra
+
+                                              // Aggiungi il Consumer per gestire le notifiche
+                                              Consumer<NotificationState>(
+                                                builder: (context, notificationState, child) {
+                                                  return IconButton(
+                                                    icon: Stack(
+                                                      children: [
+                                                        Container(
+                                                            decoration: BoxDecoration(
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withOpacity(
+                                                                      0.3), // Colore dell'ombra
+                                                                  spreadRadius: 1, // Distanza dell'ombra
+                                                                  blurRadius: 30, // Sfocatura dell'ombra
+                                                                  offset: Offset(
+                                                                      0,
+                                                                      4), // Spostamento dell'ombra
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            child: Image.asset(
+                                                              'lib/assets/icons/notification.png',
+                                                              width: screenWidth *
+                                                                  0.10,
+                                                              height: screenWidth *
+                                                                  0.10,
+                                                              color: Colors
+                                                                  .white,
+                                                            )
                                                         ),
+                                                        if (notificationState.hasNewNotifications)
+                                                          Positioned(
+                                                            top: 0,
+                                                            right: 0,
+                                                            child: Container(
+                                                              width: 12,
+                                                              height: 12,
+                                                              decoration: BoxDecoration(
+                                                                color: Colors
+                                                                    .red,
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                              ),
+                                                            ),
+                                                          ),
                                                       ],
                                                     ),
-                                                    child: Image.asset(
-                                                      'lib/assets/icons/notification.png',
-                                                      width: screenWidth * 0.10,
-                                                      height: screenWidth * 0.10,
-                                                      color: Colors.white,
-                                                    )
-                                                ),
-                                                onPressed: () {
-                                                  // Logica per le notifiche
-                                                  Navigator.pushReplacement(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) => NotificationsScreen()),
-                                                  );
+                                                    onPressed: () {
+                                                      //_previousIndex = _currentIndex;
+                                                      notificationState.resetNotifications(); // Rimuovi il pallino rosso
 
+                                                      // Logica per le notifiche
+                                                      //Navigator.push(
+                                                      Navigator.pushReplacement(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (
+                                                                context) =>
+                                                                NotificationsScreen()),
+                                                      );
+                                                    },
+                                                  );
                                                 },
                                               ),
                                               SizedBox(width: screenWidth * 0.03),
@@ -192,21 +244,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     color: Colors.white,
                                                   ),
                                                 ),
+
                                                 onPressed: () async {
-                                                  
                                                   bool responseLogout = await _logoutService.logout(_storageService);
 
                                                   if(responseLogout){
-
+                                                    _webSocketService.disconnect(); // Disconnetti il WebSocket
                                                     _showMessageDialog(context,"Logout Successful!",true);
-                                                  
                                                   }else{
-                                                  
                                                     _showMessageDialog(context, "Logout Error!", false);
-                                                  
                                                   }
-
-                                                  
                                                 },
                                               ),
                                             ],
@@ -358,10 +405,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
 
-
-
-
-
     // Chiudi il dialog dopo 3 secondi
     Future.delayed(const Duration(seconds: 2), () { // Cambiato da 1 a 3 secondi
       Navigator.of(context).pop(); // Chiude il dialog
@@ -373,8 +416,4 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
   }
-
-
-
-
 }
