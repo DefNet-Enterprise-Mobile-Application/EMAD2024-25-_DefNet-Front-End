@@ -1,5 +1,6 @@
 import 'package:defnet_front_end/shared/services/configuration_service.dart';
 import 'package:defnet_front_end/shared/services/secure_storage_service.dart';
+import 'package:defnet_front_end/shared/services/websocket_service.dart';
 import 'package:http/http.dart' as http;
 
 class LogoutService {
@@ -38,9 +39,10 @@ class LogoutService {
         print("Logged out successfully");
         // Gestisci la navigazione o lo stato del logout
         bool response = await secure_storage_service.delete();
+         
 
         if(response){
-        
+          /// Disconnect Service 
           return true;
         
         }else{

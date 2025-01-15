@@ -1,76 +1,134 @@
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get_it/get_it.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as status;
+import 'package:http/http.dart' as http;
+
+import 'secure_storage_service.dart';
 
 class WebSocketService {
-  bool hasNewNotifications = false;// Variabile per gestire lo stato delle notifiche
+  WebSocketChannel? _channel;
+  StreamController<String>? _controller;
 
-  static final String? port = dotenv.env['PORT_MICROSERVICE'];
-  static final String? IP_RASP = dotenv.env['IP_RASP'];
-  static final String baseUrl = 'ws://${IP_RASP!}:$port';
+  String? ip_service_socket = dotenv.env['IP_RASP'];
+  String? protocol_web_socket = dotenv.env['PROTOCOL_WEB_SOCKET'];
+  String? port_web_socket = dotenv.env['PORT_MICROSERVICE'];
 
-  WebSocketChannel? _channel; // Aggiunta la variabile per il WebSocketChannel
+  final SecureStorageService _secureStorageService = GetIt.I<SecureStorageService>();
 
-  StreamController<String> _notificationController = StreamController<String>.broadcast();
+  WebSocketService() {
+    _controller = StreamController<String>.broadcast();
+  }
 
-  // ValueNotifier per aggiornare lo stato delle notifiche
-  ValueNotifier<bool> notificationNotifier = ValueNotifier(false);
+  Stream<String> get notificationsStream => _controller!.stream;
 
-  Stream<String> get notificationsStream => _notificationController.stream;
+  /// Avvia la connessione al WebSocket con l'ID dell'utente
+  Future<void> connect(int userId) async {
+    try {
+      if (kDebugMode) {
+        print("Sono qui !");
+      }
+      // Recupera l'ID dell'utente (se necessario anche altre informazioni utente)
+      final user_id = userId;
 
-  WebSocketService();
-
-  // Inizializza la connessione WebSocket
-  void connect() {
-
-      // Evita di creare un nuovo StreamController se già esiste
-      if (_channel != null) {
-        print('WebSocket già connesso, nessuna nuova connessione');
-        return;
+      if (user_id == null) {
+        throw Exception("User ID non valido. Non è possibile avviare la connessione WebSocket.");
       }
 
-      try{
-      _channel =
-          WebSocketChannel.connect(Uri.parse('$baseUrl/ws/notifications'));
-      print('Connesso al WebSocket');
+      // Costruisci l'URL del WebSocket con l'ID utente
+      String webSocketFinalUrl = "$protocol_web_socket$ip_service_socket:$port_web_socket/ws/$user_id/alerts";
 
-      _channel!.stream.listen((message) {
-        print('Messaggio ricevuto: $message'); // Debug
-        if (!_notificationController.isClosed) {
-          _notificationController.add(message); // Invia il messaggio al controller
-        }
-        // Aggiorna lo stato delle notifiche
-        hasNewNotifications = true;
-        notificationNotifier.value = true; // Notifica il cambiamento
-      },
-        onDone: () {
-            print('Connessione WebSocket chiusa, tentativo di riconnessione...');
-            // Tentativo di riconnessione
-            connect();
-          },
+      if (kDebugMode) {
+        print("WEB-SOCKET URL : $webSocketFinalUrl");
+      }
+
+      // Crea la connessione WebSocket
+      _channel = WebSocketChannel.connect(Uri.parse(webSocketFinalUrl));
+
+      // Ascolta i messaggi in arrivo
+      _channel!.stream.listen(
+        (message) {
+          _controller?.add(message);
+        },
         onError: (error) {
-          print('Errore nella connessione WebSocket: $error');
-          // Tentativo di riconnessione in caso di errore
-          connect();
+          if (kDebugMode) {
+            print("Errore WebSocket: $error");
+          }
+        },
+        onDone: () {
+          if (kDebugMode) {
+            print("Connessione WebSocket chiusa.");
+          }
         },
       );
-    }catch(e){
-      print('Errore durante la connessione al WebSocket: $e');
+    } catch (e) {
+      if (kDebugMode) {
+        print("Errore durante la connessione al WebSocket: $e");
+      }
     }
   }
 
-  // Chiudi la connessione
-  void disconnect() {
-    _notificationController.close();
-    _channel?.sink.close(); // Chiudi il canale WebSocket
-    _channel = null; // Nullifica il canale per evitare riconnessioni multiple
-    print('Connessione WebSocket chiusa');
+  /// Invia un messaggio tramite il WebSocket
+  void sendMessage(String message) {
+    if (_channel != null) {
+      _channel!.sink.add(message);
+    } else {
+      if (kDebugMode) {
+        print("Connessione WebSocket non disponibile.");
+      }
+    }
   }
 
-  // Resetta lo stato delle notifiche
-  void resetNotifications() {
-    hasNewNotifications = false;
-    notificationNotifier.value = false; // Resetta il ValueNotifier
+  /// Chiudi la connessione WebSocket e invia una richiesta di disconnessione al backend
+  Future<void> disconnect(int userId) async {
+    try {
+      // Invoca il backend per disconnettere l'utente
+      final response = await _sendDisconnectRequest(userId);
+
+      if (response.statusCode == 200) {
+        // Se la risposta è positiva, chiudi la connessione WebSocket
+        _channel?.sink.close(status.goingAway);
+        _channel = null;
+        if (kDebugMode) {
+          print("Connessione WebSocket chiusa correttamente.");
+        }
+      } else {
+        if (kDebugMode) {
+          print("Errore nella disconnessione lato server: ${response.body}");
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Errore durante la disconnessione: $e");
+      }
+    }
+  }
+
+  /// Invia una richiesta di disconnessione al backend
+  Future<http.Response> _sendDisconnectRequest(int userId) async {
+    final url = Uri.parse("http://$ip_service_socket:$port_web_socket/ws/$userId/disconnect");
+
+    try {
+      // Recupera il token JWT per l'autenticazione (se necessario)
+      final token = await _secureStorageService.getToken();
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      };
+
+      final response = await http.post(url, headers: headers);
+
+      return response;
+    } catch (e) {
+      throw Exception("Errore nella richiesta di disconnessione: $e");
+    }
+  }
+
+  /// Libera le risorse
+  void dispose() {
+    _controller?.close();
+    _channel?.sink.close();
   }
 }

@@ -1,4 +1,8 @@
-import 'package:defnet_front_end/shared/services/NotificationState.dart';
+import 'package:defnet_front_end/screens/Home/home_screen.dart';
+import 'package:defnet_front_end/screens/Notifications/notification_screen.dart';
+import 'package:defnet_front_end/screens/Notifications/notification_state.dart';
+import 'package:defnet_front_end/screens/login_screen.dart';
+import 'package:defnet_front_end/screens/registration_screen.dart';
 import 'package:defnet_front_end/shared/services/websocket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +11,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart'; // Importa flutter_dotenv
 import 'package:defnet_front_end/shared/services/secure_storage_service.dart';
 import 'package:get_it/get_it.dart';
 
-
 void main() async {
   await dotenv.load();
 
@@ -15,13 +18,14 @@ void main() async {
 
   // Connetti il WebSocket quando l'app si avvia
   //final webSocketService = GetIt.I<WebSocketService>();
- // webSocketService.connect();
+  // webSocketService.connect();
 
   runApp(const MyApp());
 }
 
 void setupDependencies() {
-  GetIt.I.registerSingleton<SecureStorageService>(SecureStorageService.instance);
+  GetIt.I
+      .registerSingleton<SecureStorageService>(SecureStorageService.instance);
   // Registrazione del servizio WebSocket, senza la necessità di NotificationManager
   GetIt.I.registerSingleton<WebSocketService>(WebSocketService());
 }
@@ -39,12 +43,12 @@ class _MyAppState extends State<MyApp> {
     return ChangeNotifierProvider(
       create: (_) => NotificationState(), // Fornisci NotificationState
       child: MaterialApp(
-      title: 'DefNet',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: SplashScreen(),
-      debugShowCheckedModeBanner: false,
+        title: 'DefNet',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: SplashScreen(),
+        debugShowCheckedModeBanner: false,
       ),
     );
   }

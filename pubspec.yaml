@@ -52,6 +52,7 @@ dependencies:
   syncfusion_flutter_gauges: any
   flutter_lints: ^5.0.0
   dio: any
+  flutter_font_icons: ^2.2.7
 
 
 dev_dependencies:
@@ -95,6 +96,10 @@ flutter:
     - lib/assets/icons/iconaCasa.png
     - lib/assets/avatar/avatar.png
     - .env
+    
+    - lib/assets/fonts/NotoSans-Bold.ttf
+    - lib/assets/fonts/NotoSans-Italic.ttf
+    - lib/assets/fonts/NotoSans-Regular.ttf
 
     - lib/assets/icons/eye-password-hide.svg
     - lib/assets/icons/eye-password-see-view.svg
@@ -121,17 +126,14 @@ uses-material-design: true
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+fonts:
+    - family: NotoSans
+      fonts:
+        - asset: lib/assets/fonts/NotoSans-Regular.ttf
+        - asset: lib/assets/fonts/NotoSans-Bold.ttf
+          weight: 700
+        - asset: lib/assets/fonts/NotoSans-Italic.ttf
+          style: italic
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
