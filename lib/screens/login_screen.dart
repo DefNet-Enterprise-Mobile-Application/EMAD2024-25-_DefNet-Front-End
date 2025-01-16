@@ -5,6 +5,7 @@ import 'package:defnet_front_end/screens/registration_screen.dart';
 // Importa la schermata di registrazione
 import 'package:defnet_front_end/shared/components/password_field.dart';
 import 'package:defnet_front_end/shared/components/username_field.dart';
+import 'package:defnet_front_end/shared/services/websocket_service.dart';
 import 'package:flutter/material.dart'; // Importa il materiale Flutter per creare l'interfaccia
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
@@ -320,9 +321,11 @@ class _LoginScreenState extends State<LoginScreen> {
           GetIt.I.registerSingleton<User>(user);
         }
 
-        if(notificationState.notifications.isEmpty){
-        // Inizializza il NotificationState
-        await notificationState.initialize(userId);
+        if(notificationState.webSocketService.isConnected==false){
+
+          notificationState.webSocketService = WebSocketService();
+          // Inizializza il NotificationState
+          await notificationState.initialize(userId);
         }
 
         _showMessageDialog(context, "Login Successful ", true);

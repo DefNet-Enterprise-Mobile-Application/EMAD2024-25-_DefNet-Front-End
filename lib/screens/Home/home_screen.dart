@@ -26,7 +26,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late WebSocketService _webSocketService;
 
   int _currentIndex = 0; // Indice corrente della pagina visualizzata
   int? _previousIndex; // Variabile per memorizzare la pagina precedente
@@ -70,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    _webSocketService = GetIt.I<WebSocketService>();
 
     _checkLoginStatus(); // Controlla// se l'utente è loggato
   }

@@ -18,27 +18,26 @@ class WebSocketService {
 
   final SecureStorageService _secureStorageService = GetIt.I<SecureStorageService>();
 
+  bool isConnected = false;  // Variabile per tracciare lo stato della connessione
+
   WebSocketService() {
     _controller = StreamController<String>.broadcast();
   }
 
   Stream<String> get notificationsStream => _controller!.stream;
 
+  /// Getter per ottenere lo stato di connessione
+  bool get connectionStatus => isConnected;
+
   /// Avvia la connessione al WebSocket con l'ID dell'utente
   Future<void> connect(int userId) async {
     try {
       if (kDebugMode) {
-        print("Sono qui !");
-      }
-      // Recupera l'ID dell'utente (se necessario anche altre informazioni utente)
-      final user_id = userId;
-
-      if (user_id == null) {
-        throw Exception("User ID non valido. Non è possibile avviare la connessione WebSocket.");
+        print("Sono qui!");
       }
 
       // Costruisci l'URL del WebSocket con l'ID utente
-      String webSocketFinalUrl = "$protocol_web_socket$ip_service_socket:$port_web_socket/ws/$user_id/alerts";
+      String webSocketFinalUrl = "$protocol_web_socket$ip_service_socket:$port_web_socket/ws/$userId/notifications";
 
       if (kDebugMode) {
         print("WEB-SOCKET URL : $webSocketFinalUrl");
@@ -58,21 +57,30 @@ class WebSocketService {
           }
         },
         onDone: () {
+          // Connessione chiusa
           if (kDebugMode) {
             print("Connessione WebSocket chiusa.");
           }
+          isConnected = false;  // Imposta la variabile di stato
         },
       );
+
+      // Imposta la connessione come attiva
+      isConnected = true;
+      if (kDebugMode) {
+        print("Connessione WebSocket stabilita.");
+      }
     } catch (e) {
       if (kDebugMode) {
         print("Errore durante la connessione al WebSocket: $e");
       }
+      isConnected = false;
     }
   }
 
   /// Invia un messaggio tramite il WebSocket
   void sendMessage(String message) {
-    if (_channel != null) {
+    if (_channel != null && isConnected) {
       _channel!.sink.add(message);
     } else {
       if (kDebugMode) {
@@ -81,54 +89,10 @@ class WebSocketService {
     }
   }
 
-  /// Chiudi la connessione WebSocket e invia una richiesta di disconnessione al backend
-  Future<void> disconnect(int userId) async {
-    try {
-      // Invoca il backend per disconnettere l'utente
-      final response = await _sendDisconnectRequest(userId);
-
-      if (response.statusCode == 200) {
-        // Se la risposta è positiva, chiudi la connessione WebSocket
-        _channel?.sink.close(status.goingAway);
-        _channel = null;
-        if (kDebugMode) {
-          print("Connessione WebSocket chiusa correttamente.");
-        }
-      } else {
-        if (kDebugMode) {
-          print("Errore nella disconnessione lato server: ${response.body}");
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Errore durante la disconnessione: $e");
-      }
-    }
-  }
-
-  /// Invia una richiesta di disconnessione al backend
-  Future<http.Response> _sendDisconnectRequest(int userId) async {
-    final url = Uri.parse("http://$ip_service_socket:$port_web_socket/ws/$userId/disconnect");
-
-    try {
-      // Recupera il token JWT per l'autenticazione (se necessario)
-      final token = await _secureStorageService.getToken();
-      final headers = {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      };
-
-      final response = await http.post(url, headers: headers);
-
-      return response;
-    } catch (e) {
-      throw Exception("Errore nella richiesta di disconnessione: $e");
-    }
-  }
-
   /// Libera le risorse
   void dispose() {
     _controller?.close();
     _channel?.sink.close();
+    isConnected = false;  // Imposta la connessione come chiusa
   }
 }

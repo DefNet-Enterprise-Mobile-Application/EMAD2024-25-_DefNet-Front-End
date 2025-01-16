@@ -16,10 +16,6 @@ void main() async {
 
   setupDependencies();
 
-  // Connetti il WebSocket quando l'app si avvia
-  //final webSocketService = GetIt.I<WebSocketService>();
-  // webSocketService.connect();
-
   runApp(const MyApp());
 }
 
@@ -27,7 +23,6 @@ void setupDependencies() {
   GetIt.I
       .registerSingleton<SecureStorageService>(SecureStorageService.instance);
   // Registrazione del servizio WebSocket, senza la necessità di NotificationManager
-  GetIt.I.registerSingleton<WebSocketService>(WebSocketService());
 }
 
 class MyApp extends StatefulWidget {
