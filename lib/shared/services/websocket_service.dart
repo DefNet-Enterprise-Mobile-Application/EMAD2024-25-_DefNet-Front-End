@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
@@ -10,7 +11,7 @@ import 'secure_storage_service.dart';
 
 class WebSocketService {
   WebSocketChannel? _channel;
-  StreamController<String>? _controller;
+  StreamController<Map<String, dynamic>>? _controller;
 
   String? ip_service_socket = dotenv.env['IP_RASP'];
   String? protocol_web_socket = dotenv.env['PROTOCOL_WEB_SOCKET'];
@@ -21,10 +22,10 @@ class WebSocketService {
   bool isConnected = false;  // Variabile per tracciare lo stato della connessione
 
   WebSocketService() {
-    _controller = StreamController<String>.broadcast();
+    _controller = StreamController<Map<String, dynamic>>.broadcast();
   }
 
-  Stream<String> get notificationsStream => _controller!.stream;
+  Stream<Map<String, dynamic>> get notificationsStream => _controller!.stream;
 
   /// Getter per ottenere lo stato di connessione
   bool get connectionStatus => isConnected;
@@ -49,7 +50,15 @@ class WebSocketService {
       // Ascolta i messaggi in arrivo
       _channel!.stream.listen(
         (message) {
-          _controller?.add(message);
+          try {
+            // Parse del messaggio JSON
+            var data = jsonDecode(message);
+            _controller?.add(data);
+          } catch (e) {
+            if (kDebugMode) {
+              print("Errore durante il parsing del messaggio WebSocket: $e");
+            }
+          }
         },
         onError: (error) {
           if (kDebugMode) {

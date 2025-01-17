@@ -460,10 +460,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           onPressed: () {
-            //_previousIndex = _currentIndex;
-            //notificationState.clearNotifications(); // Rimuovi il pallino rosso
-            notificationState
-                .markNotificationsAsRead(); // Resetta il pallino rosso
+            //notificationState
+                //.markNotificationsAsRead(); // Resetta il pallino rosso
             Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => NotificationsScreen(userId: userId!,)),

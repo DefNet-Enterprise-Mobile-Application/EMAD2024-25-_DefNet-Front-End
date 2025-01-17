@@ -19,12 +19,45 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
 
-
   final LogoutService _logoutService = LogoutService();
   final SecureStorageService _storageService = SecureStorageService.instance;
 
-
   late NotificationState _notificationState;
+
+  @override
+  void initState(){
+    super.initState();
+
+    // Usa Provider per ottenere l'istanza di NotificationState
+
+    _notificationState = Provider.of<NotificationState>(context, listen: false);
+
+    // Usa WidgetsBinding.addPostFrameCallback per evitare il conflitto con il ciclo di rendering
+    //WidgetsBinding.instance.addPostFrameCallback((_) {
+      _markUnreadNotificationsAsRead(); //Marca automaticamente come lette le notifiche non lette
+    //});
+  }
+
+  void _markUnreadNotificationsAsRead() async {
+    // Ottieni tutte le notifiche con `letto == false`
+    final unreadNotifications = _notificationState.notifications
+        .where((notification) => notification['letto'] == false)
+        .toList();
+    if (unreadNotifications.isNotEmpty) {
+      for (var notification in unreadNotifications) {
+        try {
+          // Chiama il metodo per aggiornare lo stato della notifica nel backend
+           _notificationState.markNotificationAsRead(notification['id']);
+        } catch (e) {
+          print(
+              "Errore durante l'aggiornamento della notifica con id ${notification['id']}: $e");
+        }
+      }
+      print("Tutte le notifiche non lette sono state marcate come lette.");
+    } else {
+      print("Nessuna notifica non letta trovata.");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +74,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               icon: const Icon(
                   FontAwesomeIcons.house), // Usa l'icona di FontAwesome
               onPressed: () {
-                _notificationState.markNotificationsAsRead();
+                //_notificationState.markNotificationsAsRead();
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -54,7 +87,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             bool response =  await _logoutService.logout(_storageService);
 
             if(response){
-            
               _notificationState
                   .disposeService(widget.userId); // Chiudi WebSocket
               _notificationState.clearNotifications(); // Resetta notifiche
@@ -137,72 +169,98 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildNotificationCard(Map<String, String> notification) {
+  Widget _buildNotificationCard(Map<String, dynamic> notification) {
     // Determina il tipo di notifica, ad esempio "error", "warning", "info"
-    String topic = notification['Topic'] ?? '';
+    String tipo = notification['Tipo'] ?? 'Sconosciuto';
+    String descrizione = notification['Descrizione'] ?? 'Descrizione non disponibile';
+    String timestamp = notification['Timestamp'] ?? DateTime.now().toIso8601String();
+    bool letto = notification['letto'] ?? false;
+
     IconData notificationIcon;
     Color iconColor;
+    Color containerColor;
 
     // Imposta l'icona e il colore in base al tipo di notifica
-    if (topic.toLowerCase() == 'warning') {
+    if (tipo.toLowerCase() == 'alert-system') {
       notificationIcon =
           FontAwesomeIcons.exclamationTriangle; // Icona di avviso
-      iconColor = Colors.amber.shade700; // Colore per le notifiche di avviso
-    } else if (topic.toLowerCase() == 'error') {
+      iconColor = Colors.green; // Colore per le notifiche di avviso
+      containerColor = Colors.green.shade100; // Colore verde per il contenitore
+    } else if (tipo.toLowerCase() == 'WarningSystem') {
       notificationIcon = FontAwesomeIcons.timesCircle; // Icona di errore
       iconColor = Colors.red.shade700; // Colore per le notifiche di errore
+      containerColor = Colors.red.shade100; // Colore rosso per il contenitore
     } else {
       notificationIcon = FontAwesomeIcons.bell; // Icona di notifica generica
       iconColor = Colors.blue.shade700; // Colore standard
+      containerColor = Colors.blue.shade100; // Colore blu per il contenitore
     }
 
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          children: [
-            // Icona all'interno di un container
-            Container(
-              decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.2), // Colore di sfondo iconico
-                shape: BoxShape.circle,
+    return GestureDetector(
+       /* onTap: () {
+      // Marcare la notifica come letta quando l'utente la seleziona
+      int notificationId = notification['id'];
+      _notificationState.markNotificationAsRead(notificationId);
+      },*/
+      child: Card(
+        elevation: 4,
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: containerColor, // Applica il colore al contenitore
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: [
+              // Icona all'interno di un container
+              Container(
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.2), // Colore di sfondo iconico
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(10),
+                child: Icon(
+                  notificationIcon,
+                  color: iconColor,
+                  size: 28,
+                ),
               ),
-              padding: const EdgeInsets.all(10),
-              child: Icon(
-                notificationIcon,
-                color: iconColor,
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Dettagli notifica
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    notification['Topic'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+              const SizedBox(width: 12),
+              // Dettagli notifica
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tipo,
+                      //notification['Topic'] ?? '',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    notification['Message'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
+                    const SizedBox(height: 4),
+                    Text(
+                      descrizione,
+                      //notification['Message'] ?? '',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      timestamp,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
