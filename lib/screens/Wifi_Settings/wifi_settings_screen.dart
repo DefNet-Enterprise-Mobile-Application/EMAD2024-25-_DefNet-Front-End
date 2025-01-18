@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:defnet_front_end/screens/splash_screen.dart'; // Per la logica di logout
-import 'package:defnet_front_end/shared/components/navigation_menu.dart'; // FloatingBottomNavBar
-import 'package:defnet_front_end/shared/components/shape_lines/ellipse_custom.dart'; // EllipseUp
+import 'package:flutter_svg/flutter_svg.dart';
 
 class WifiSettingsScreen extends StatefulWidget {
   const WifiSettingsScreen({Key? key}) : super(key: key);
@@ -11,146 +9,305 @@ class WifiSettingsScreen extends StatefulWidget {
 }
 
 class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Contenuto della pagina
-          Padding(
-            padding: const EdgeInsets.only(top: 40.0), // Spazio per logo e icone
-            child: SingleChildScrollView(
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Spazio per il contenuto principale
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0), // Spazio sotto il logo
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Impostazioni Wi-Fi',
-                              style: Theme.of(context).textTheme.headlineLarge,
-                            ),
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Nome Wi-Fi',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Password',
-                                border: OutlineInputBorder(),
-                              ),
-                              obscureText: true,
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: () {
-                                // Azione per salvare le impostazioni
-                              },
-                              child: const Text('Salva Impostazioni'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  final _wifiNameController = TextEditingController(text: 'Defnet-Network'); // Nome predefinito
+  final _newWifiNameController = TextEditingController();
+  final _ipGatewayController = TextEditingController(text: '10.71.71.1'); // IP Gateway fisso
+  final _wifiPasswordController = TextEditingController();
+  List<String> passwordErrors = [];
+  bool _isPasswordVisible = false;
+  String selectedEncryption = 'WPA2'; // Valore iniziale per la crittografia
+
+  final List<String> encryptionTypes = ['WEP', 'WPA', 'WPA2', 'WPA3'];
+
+  void _validatePassword(String password) {
+    List<String> errors = [];
+    final hasUppercase = RegExp(r'[A-Z]');
+    final hasLowercase = RegExp(r'[a-z]');
+    final hasDigits = RegExp(r'[0-9]');
+    final hasSpecialChar = RegExp(r'[@$!%*?&]');
+    final hasMinLength = password.length >= 8;
+
+    if (!hasUppercase.hasMatch(password)) {
+      errors.add('Password must contain at least one uppercase letter.');
+    }
+    if (!hasLowercase.hasMatch(password)) {
+      errors.add('Password must contain at least one lowercase letter.');
+    }
+    if (!hasDigits.hasMatch(password)) {
+      errors.add('Password must contain at least one number.');
+    }
+    if (!hasSpecialChar.hasMatch(password)) {
+      errors.add('Password must contain at least one special character.');
+    }
+    if (!hasMinLength) {
+      errors.add('Password must be at least 8 characters long.');
+    }
+
+    setState(() {
+      passwordErrors = errors;
+    });
   }
 
-  // Metodo per mostrare la finestra di dialogo di logout
-  void _showLogoutDialog(BuildContext context) {
+  void _showInfoDialog(String title, String content) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0), // Bordi arrotondati
+            borderRadius: BorderRadius.circular(20.0),
           ),
           child: Container(
             padding: const EdgeInsets.all(20.0),
             decoration: BoxDecoration(
-              color: Colors.indigo[900], // Sfondo blu scuro
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20.0),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  "Are you sure you want to leave?",
-                  textAlign: TextAlign.center,
+                Text(
+                  title,
                   style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade800,
                   ),
                 ),
                 const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white, // Sfondo bianco
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Text(
-                        "NO",
-                        style: TextStyle(
-                          color: Colors.indigo, // Testo blu scuro
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Chiude il dialog
-                      },
+                Text(
+                  content,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade700,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade800,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white, // Sfondo bianco
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Text(
-                        "YES",
-                        style: TextStyle(
-                          color: Colors.indigo, // Testo blu scuro
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Chiude il dialog
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => SplashScreen()),
-                        ); // Naviga alla pagina iniziale
-                      },
+                  ),
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Chiude il dialogo
+                  },
                 ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final inputDecoration = InputDecoration(
+      labelStyle: const TextStyle(color: Colors.blue),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Colors.blue),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Colors.blue),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Colors.blue, width: 2),
+      ),
+    );
+
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'lib/assets/icons/settingswifi.png',
+                    height: 60, // Ridurre l'immagine
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Settings Wi-Fi',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontSize: 30, // Ridurre la dimensione del testo
+                      color: Colors.blue.shade800,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              //const SizedBox(height: 0), // Distanza tra il titolo e la box
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 8,
+                color: Colors.grey.shade100,  // Imposta il colore della card a grigio chiaro
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _wifiNameController,
+                        decoration: inputDecoration.copyWith(
+                          labelText: 'Current Wi-Fi Name',
+                        ),
+                        enabled: false, // Campo non modificabile
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: _newWifiNameController,
+                        decoration: inputDecoration.copyWith(
+                          labelText: 'New Wi-Fi Name',
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _ipGatewayController,
+                              decoration: inputDecoration.copyWith(
+                                labelText: 'IP Gateway',
+                              ),
+                              enabled: false, // Campo non modificabile
+                            ),
+                          ),
+                          IconButton(
+                            icon: Image.asset(
+                              'lib/assets/icons/info.png', // Percorso della tua immagine
+                              height: 20,
+                              fit: BoxFit.contain,
+                            ),
+                            onPressed: () {
+                              _showInfoDialog(
+                                'IP Gateway',
+                                'The IP Gateway is the IP address of your router. This is where your network connects to the internet. You can modify it if needed.',
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              value: selectedEncryption,
+                              items: encryptionTypes
+                                  .map((type) => DropdownMenuItem<String>(value: type, child: Text(type)))
+                                  .toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedEncryption = value!;
+                                });
+                              },
+                              decoration: inputDecoration.copyWith(
+                                labelText: 'Encryption Type',
+                              ),
+                              icon: Image.asset(
+                                'lib/assets/icons/freccia.png', // Percorso della tua immagine per la freccia
+                                height: 20,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Image.asset(
+                              'lib/assets/icons/info.png', // Percorso della tua immagine
+                              height: 20,
+                              fit: BoxFit.contain,
+                            ),
+                            onPressed: () {
+                              _showInfoDialog(
+                                'Encryption Type',
+                                'Encryption types such as WPA2 or WPA3 ensure the security of your Wi-Fi network. Choose the one that suits your router.',
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: _wifiPasswordController,
+                        obscureText: !_isPasswordVisible,
+                        decoration: inputDecoration.copyWith(
+                          labelText: 'Password',
+                          suffixIcon: IconButton(
+                            icon: _isPasswordVisible
+                                ? SvgPicture.asset('lib/assets/icons/eye-password-see-view.svg')
+                                : SvgPicture.asset('lib/assets/icons/eye-password-hide.svg'),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                          ),
+                        ),
+                        onChanged: _validatePassword,
+                      ),
+                      if (passwordErrors.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: passwordErrors.map((error) {
+                            return Text(
+                              error,
+                              style: const TextStyle(color: Colors.red, fontSize: 10),
+                            );
+                          }).toList(),
+                        ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (passwordErrors.isEmpty) {
+                            print('Current Wi-Fi Name: ${_wifiNameController.text}');
+                            print('New Wi-Fi Name: ${_newWifiNameController.text}');
+                            print('IP Gateway: ${_ipGatewayController.text}');
+                            print('Encryption: $selectedEncryption');
+                            print('Password: ${_wifiPasswordController.text}');
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          backgroundColor: Colors.blue.shade600,
+                        ),
+                        child: const Text(
+                          'Save Settings',
+                          style: TextStyle(
+                            fontSize: 15, // Ridurre la dimensione del testo
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

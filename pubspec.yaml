@@ -54,10 +54,12 @@ dependencies:
   wave: any
   ping_discover_network_forked: ^0.0.1
   network_info_plus: ^6.1.2
+  image_picker: ^0.8.5+3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -65,6 +67,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   
+
+  image_picker: ^0.8.5+3
 
 
 
@@ -93,6 +97,13 @@ flutter:
     - lib/assets/icons/wifi.png
     - lib/assets/icons/service.png
     - lib/assets/icons/profile.png
+    - lib/assets/icons/settingswifi.png
+    - lib/assets/icons/scudo.png
+    - lib/assets/icons/info.png
+    - lib/assets/icons/edit.png
+    - lib/assets/icons/foto.png
+    - lib/assets/icons/freccia.png
+    - lib/assets/icons/report.png
     - lib/assets/avatar/avatar.png
     - lib/assets/button_image/dispositivi.png
     - lib/assets/button_image/aggiorna.png

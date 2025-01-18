@@ -44,6 +44,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     // Avvia la scansione all'avvio
     _scanNetwork();
   }
+
   void _editDeviceName(int index) {
     final TextEditingController nameController = TextEditingController(
       text: _connectedDevices[index]["name"], // Precompila il campo con il nome corrente
@@ -81,7 +82,6 @@ class _DashboardScreenState extends State<DashboardScreen>
       },
     );
   }
-
 
   @override
   void dispose() {
@@ -139,122 +139,119 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Sfondo trasparente
-          Container(
-            color: Colors.transparent,
-          ),
-
-          // Contenuto principale
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 20),
-                  // Pulsante animato con immagine
-                  Center(
-                    child: ScaleTransition(
-                      scale: _pulseAnimation,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SpeedTestWidget(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.cyanAccent.shade700,
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(40),
-                          elevation: 10,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Logo personalizzato al posto dell'icona
-                            Image.asset(
-                              "lib/assets/button_image/speedtest.png", // Percorso del logo
-                              width: 50, // Dimensione del logo
-                              height: 50, // Dimensione del logo
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // Titolo dei dispositivi connessi
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Dispositivi Connessi",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.cyanAccent.shade700,
-                        ),
-                      ),
-                      if (isScanning)
-                        const CircularProgressIndicator()
-                      else
-                        IconButton(
-                          onPressed: _scanNetwork,
-                          icon:  Image.asset(
-                            "lib/assets/button_image/aggiorna.png", // Percorso del logo
-                            width: 50, // Dimensione del logo
-                            height: 50, // Dimensione del logo
-                          ),
-                          color: Colors.cyan,
-                        ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // Lista dei dispositivi connessi
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _connectedDevices.length,
-                    itemBuilder: (context, index) {
-                      final device = _connectedDevices[index];
-                      return Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          leading:  Image.asset(
-                            "lib/assets/button_image/dispositivi.png", // Percorso del logo
-                            width: 50, // Dimensione del logo
-                            height: 50, // Dimensione del logo
-                          ),
-                          title: Text(device["name"] ?? "Unknown Device"),
-                          subtitle: Text("IP: ${device["ip"]}"),
-                          onLongPress: () => _editDeviceName(index), // Rileva la pressione prolungata
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              // Pulsante animato con immagine
+              Center(
+                child: ScaleTransition(
+                  scale: _pulseAnimation,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SpeedTestWidget(),
                         ),
                       );
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.cyanAccent.shade700,
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(40),
+                      elevation: 10,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Logo personalizzato al posto dell'icona
+                        Image.asset(
+                          "lib/assets/button_image/speedtest.png", // Percorso del logo
+                          width: 50, // Dimensione del logo
+                          height: 50, // Dimensione del logo
+                        ),
+                      ],
+                    ),
                   ),
+                ),
+              ),
 
-                  if (_connectedDevices.isEmpty && !isScanning)
-                    const Text(
-                      'Nessun dispositivo trovato.',
-                      style: TextStyle(color: Colors.red),
+              const SizedBox(height: 30),
+
+              // Titolo dei dispositivi connessi
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Connected Devices",
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.cyanAccent.shade700,
+                      shadows: [
+                        Shadow(
+                        blurRadius: 5.0,
+                        color: Colors.blue.shade500.withOpacity(0.4),
+                        offset: Offset(3.0, 3.0),
+                        ),
+                      ]
+                    ),
+                  ),
+                  if (isScanning)
+                    const CircularProgressIndicator()
+                  else
+                    IconButton(
+                      onPressed: _scanNetwork,
+                      icon: Image.asset(
+                        "lib/assets/button_image/aggiorna.png", // Percorso del logo
+                        width: 50, // Dimensione del logo
+                        height: 50, // Dimensione del logo
+                      ),
+                      color: Colors.cyan,
                     ),
                 ],
               ),
-            ),
+
+              const SizedBox(height: 10),
+
+              // Lista dei dispositivi connessi
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _connectedDevices.length,
+                itemBuilder: (context, index) {
+                  final device = _connectedDevices[index];
+                  return Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListTile(
+                      leading: Image.asset(
+                        "lib/assets/button_image/dispositivi.png", // Percorso del logo
+                        width: 50, // Dimensione del logo
+                        height: 50, // Dimensione del logo
+                      ),
+                      title: Text(device["name"] ?? "Unknown Device"),
+                      subtitle: Text("IP: ${device["ip"]}"),
+                      onLongPress: () => _editDeviceName(index), // Rileva la pressione prolungata
+                    ),
+                  );
+                },
+              ),
+
+              if (_connectedDevices.isEmpty && !isScanning)
+                const Text(
+                  'Nessun dispositivo trovato.',
+                  style: TextStyle(color: Colors.red),
+                ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
