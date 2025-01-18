@@ -20,9 +20,7 @@ void main() async {
 }
 
 void setupDependencies() {
-  GetIt.I
-      .registerSingleton<SecureStorageService>(SecureStorageService.instance);
-  // Registrazione del servizio WebSocket, senza la necessità di NotificationManager
+  GetIt.I.registerSingleton<SecureStorageService>(SecureStorageService.instance);
 }
 
 class MyApp extends StatefulWidget {

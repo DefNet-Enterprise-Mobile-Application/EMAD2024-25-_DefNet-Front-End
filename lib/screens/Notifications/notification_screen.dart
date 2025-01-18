@@ -2,6 +2,7 @@ import 'package:defnet_front_end/screens/Home/home_screen.dart';
 import 'package:defnet_front_end/screens/splash_screen.dart';
 import 'package:defnet_front_end/shared/services/logout_service.dart';
 import 'package:defnet_front_end/shared/services/secure_storage_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -32,10 +33,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     _notificationState = Provider.of<NotificationState>(context, listen: false);
 
-    // Usa WidgetsBinding.addPostFrameCallback per evitare il conflitto con il ciclo di rendering
-    //WidgetsBinding.instance.addPostFrameCallback((_) {
       _markUnreadNotificationsAsRead(); //Marca automaticamente come lette le notifiche non lette
-    //});
   }
 
   void _markUnreadNotificationsAsRead() async {
@@ -49,13 +47,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           // Chiama il metodo per aggiornare lo stato della notifica nel backend
            _notificationState.markNotificationAsRead(notification['id']);
         } catch (e) {
-          print(
+          if (kDebugMode) {
+            print(
               "Errore durante l'aggiornamento della notifica con id ${notification['id']}: $e");
+          }
         }
       }
-      print("Tutte le notifiche non lette sono state marcate come lette.");
+      if (kDebugMode) {
+        print("Tutte le notifiche non lette sono state marcate come lette.");
+      }
     } else {
-      print("Nessuna notifica non letta trovata.");
+      if (kDebugMode) {
+        print("Nessuna notifica non letta trovata.");
+      }
     }
   }
 
@@ -181,18 +185,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     Color containerColor;
 
     // Imposta l'icona e il colore in base al tipo di notifica
-    if (tipo.toLowerCase() == 'alert-system') {
+    if (tipo.toLowerCase() == 'system') {
       notificationIcon =
-          FontAwesomeIcons.exclamationTriangle; // Icona di avviso
+          FontAwesomeIcons.bell; // Icona di avviso
       iconColor = Colors.green; // Colore per le notifiche di avviso
       containerColor = Colors.green.shade100; // Colore verde per il contenitore
-    } else if (tipo.toLowerCase() == 'WarningSystem') {
+    } else if (tipo.toLowerCase() == 'block') {
       notificationIcon = FontAwesomeIcons.timesCircle; // Icona di errore
       iconColor = Colors.red.shade700; // Colore per le notifiche di errore
       containerColor = Colors.red.shade100; // Colore rosso per il contenitore
     } else {
-      notificationIcon = FontAwesomeIcons.bell; // Icona di notifica generica
-      iconColor = Colors.blue.shade700; // Colore standard
+      /// Info System
+      notificationIcon = FontAwesomeIcons.timesCircle; // Icona di notifica generica
+      iconColor = Colors.orange;
       containerColor = Colors.blue.shade100; // Colore blu per il contenitore
     }
 
@@ -231,7 +236,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      tipo,
+                      "${tipo.toUpperCase()} Message !",
                       //notification['Topic'] ?? '',
                       style: const TextStyle(
                         fontSize: 16,

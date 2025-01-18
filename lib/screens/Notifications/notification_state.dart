@@ -129,14 +129,6 @@ class NotificationState extends ChangeNotifier {
     }
   }
 
- /* void markNotificationsAsRead() {
-    _notifications.forEach((notification) {
-      notification['letto'] = true; // Segna ogni notifica come letta
-    });
-    _hasNewNotification = false;
-    notifyListeners();
-  }*/
-
   void disposeService(int userId) async {
     _hasNewNotification = false;
     webSocketService.dispose();

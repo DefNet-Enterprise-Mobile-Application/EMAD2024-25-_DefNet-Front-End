@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'secure_storage_service.dart';
 
 class WebSocketService {
+  
   WebSocketChannel? _channel;
   StreamController<Map<String, dynamic>>? _controller;
 
