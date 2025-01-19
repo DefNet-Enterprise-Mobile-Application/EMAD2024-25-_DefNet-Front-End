@@ -52,12 +52,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (token == null) {
       // Se il token non esiste, significa che l'utente non è loggato
-      Navigator.pushReplacement(
+      /*Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) =>
                 SplashScreen()), // Torna alla SplashScreen o LoginScreen
-      );
+      );*/
+      _userName = "Guest";
     } else {
       // Se il token esiste, carica il nome utente
       await _loadUserName();

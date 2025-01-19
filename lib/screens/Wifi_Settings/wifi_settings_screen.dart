@@ -1,3 +1,4 @@
+import 'package:defnet_front_end/shared/services/wifi_settings_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -9,15 +10,47 @@ class WifiSettingsScreen extends StatefulWidget {
 }
 
 class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
-  final _wifiNameController = TextEditingController(text: 'Defnet-Network'); // Nome predefinito
+
+  final _wifiNameController = TextEditingController();
   final _newWifiNameController = TextEditingController();
-  final _ipGatewayController = TextEditingController(text: '10.71.71.1'); // IP Gateway fisso
+  final _ipGatewayController = TextEditingController();
   final _wifiPasswordController = TextEditingController();
+
   List<String> passwordErrors = [];
   bool _isPasswordVisible = false;
   String selectedEncryption = 'WPA2'; // Valore iniziale per la crittografia
+  bool _isLoading = true;
+  String? _error;
 
   final List<String> encryptionTypes = ['WEP', 'WPA', 'WPA2', 'WPA3'];
+
+  final WifiSettingsService _wifiService = WifiSettingsService();
+
+
+  Future<void> _loadWifiSettings() async {
+    try {
+      final settings = await _wifiService.getWifiSettings();
+      setState(() {
+        _wifiNameController.text = settings['ssid'] ?? '';
+        _ipGatewayController.text = settings['lan_ip'] ?? ''; // Popola il campo del gateway
+        selectedEncryption = settings['encryption'] ?? 'WPA2';
+        _wifiPasswordController.text = settings['password'] ?? '';
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWifiSettings();
+  }
 
   void _validatePassword(String password) {
     List<String> errors = [];
