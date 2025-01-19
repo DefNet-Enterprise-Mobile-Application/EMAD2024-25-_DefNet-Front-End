@@ -114,9 +114,9 @@ class _LoginScreenState extends State<LoginScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+
                   /// Build Logo and Title
                   const SizedBox(height: 130),
-
                   _buildHeader('Login'),
                   const SizedBox(height: 10),
                   Padding(
@@ -142,7 +142,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               usernameController: _usernameController),
 
                           const SizedBox(height: 16),
-
                           // Password Field
                           PasswordField(
                             passwordController: _passwordController,
@@ -199,7 +198,35 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /// Crea un pulsante che permette di eseguire il login.
+    
+  // validatePassword() - method to validate the password that we have setted
+  void _onValidatePassword(String password) {
+    String errorMessage = '';
+    final hasUppercase = RegExp(r'[A-Z]');
+    final hasLowercase = RegExp(r'[a-z]');
+    final hasDigits = RegExp(r'[0-9]');
+    final hasMinLength = password.length >= 8;
+
+    if (!hasUppercase.hasMatch(password)) {
+      errorMessage += 'Password must contain at least one uppercase letter.\n';
+    }
+    if (!hasLowercase.hasMatch(password)) {
+      errorMessage += 'Password must contain at least one lowercase letter.\n';
+    }
+    if (!hasDigits.hasMatch(password)) {
+      errorMessage += 'Password must contain at least one number.\n';
+    }
+    if (!hasMinLength) {
+      errorMessage += 'Password must be at least 8 characters long.\n';
+    }
+
+    setState(() {
+      _passwordErrorMessage = errorMessage;
+    });
+  }
+
+                  
+                 /// Crea un pulsante che permette di eseguire il login.
   /// Il pulsante si adatta dinamicamente alla larghezza dello schermo ed è reattivo a
   /// cambiamenti di stato (ad esempio, quando l'operazione di login è in corso).
   Container _buildLoginButton(NotificationState notificationState) {
@@ -242,9 +269,6 @@ class _LoginScreenState extends State<LoginScreen> {
           width: 150,
           height: 150,
         ),
-
-        // Testo "Registration"
-        const SizedBox(height: 5), // Aggiunge spazio tra l'immagine e il testo
         Text(
           screenPage,
           style: TextStyle(
@@ -256,33 +280,10 @@ class _LoginScreenState extends State<LoginScreen> {
       ],
     );
   }
-
-  // validatePassword() - method to validate the password that we have setted
-  void _onValidatePassword(String password) {
-    String errorMessage = '';
-    final hasUppercase = RegExp(r'[A-Z]');
-    final hasLowercase = RegExp(r'[a-z]');
-    final hasDigits = RegExp(r'[0-9]');
-    final hasMinLength = password.length >= 8;
-
-    if (!hasUppercase.hasMatch(password)) {
-      errorMessage += 'Password must contain at least one uppercase letter.\n';
-    }
-    if (!hasLowercase.hasMatch(password)) {
-      errorMessage += 'Password must contain at least one lowercase letter.\n';
-    }
-    if (!hasDigits.hasMatch(password)) {
-      errorMessage += 'Password must contain at least one number.\n';
-    }
-    if (!hasMinLength) {
-      errorMessage += 'Password must be at least 8 characters long.\n';
-    }
-
-    setState(() {
-      _passwordErrorMessage = errorMessage;
-    });
-  }
-
+                  
+                  
+                  
+                  
   Future<void> _handleLogin(NotificationState notificationState) async {
     String username = _usernameController.text.trim();
     String password = _passwordController.text.trim();
@@ -309,6 +310,7 @@ class _LoginScreenState extends State<LoginScreen> {
         int userId = decodedToken['user_id'];
         String usernameFromToken = decodedToken['sub'];
         String emailFromToken = decodedToken['email'];
+
 
         final user = User(
             id: userId,
