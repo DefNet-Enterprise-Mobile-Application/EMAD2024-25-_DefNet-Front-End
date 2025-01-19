@@ -38,6 +38,7 @@ dependencies:
   jwt_decoder: ^2.0.1
   curved_navigation_bar: any
   font_awesome_flutter: ^10.0.0  # Aggiungi questa dipendenza per FontAwesome
+  web_socket_channel: ^2.3.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -55,6 +56,8 @@ dependencies:
   ping_discover_network_forked: ^0.0.1
   network_info_plus: ^6.1.2
   image_picker: ^0.8.5+3
+  flutter_font_icons: ^2.2.7
+
 
 dev_dependencies:
   flutter_test:
@@ -104,13 +107,19 @@ flutter:
     - lib/assets/icons/foto.png
     - lib/assets/icons/freccia.png
     - lib/assets/icons/report.png
+    - lib/assets/icons/iconaCasa.png
     - lib/assets/avatar/avatar.png
     - lib/assets/button_image/dispositivi.png
     - lib/assets/button_image/aggiorna.png
     - .env
+    
+    - lib/assets/fonts/NotoSans-Bold.ttf
+    - lib/assets/fonts/NotoSans-Italic.ttf
+    - lib/assets/fonts/NotoSans-Regular.ttf
 
     - lib/assets/icons/eye-password-hide.svg
     - lib/assets/icons/eye-password-see-view.svg
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -133,17 +142,14 @@ uses-material-design: true
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+fonts:
+    - family: NotoSans
+      fonts:
+        - asset: lib/assets/fonts/NotoSans-Regular.ttf
+        - asset: lib/assets/fonts/NotoSans-Bold.ttf
+          weight: 700
+        - asset: lib/assets/fonts/NotoSans-Italic.ttf
+          style: italic
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

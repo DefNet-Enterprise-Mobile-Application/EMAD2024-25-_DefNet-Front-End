@@ -14,7 +14,7 @@ class User {
 
   factory User.buildUser(String id, String? username, String? passwordHash, String? email) {
     return User(
-      id: int.tryParse(id ?? '0') ?? 0, // Conversione sicura.
+      id: int.tryParse(id) ?? 0, // Conversione sicura.
       username: username ?? '',
       passwordHash: passwordHash ?? '',
       email: email ?? '',

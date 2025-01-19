@@ -71,17 +71,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User is not logged in")));
       return;
     }
-
+    // Controlla che i campi non siano vuoti
     if (currentPassword.isEmpty || newPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please fill in both password fields.")));
-      return;
-    }
-
-    _validatePassword(currentPassword, false);
-    _validatePassword(newPassword, true);
-
-    if (_currentPasswordErrorMessage.isNotEmpty || _newPasswordErrorMessage.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please fix password errors before proceeding.")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please fill in both password fields.")),
+      );
       return;
     }
 
