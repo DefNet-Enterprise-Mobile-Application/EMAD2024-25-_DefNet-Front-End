@@ -43,9 +43,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  const SizedBox(height: 130),
                   _buildHeader('Registration'),
-                  const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32.0),
                     child: Container(
@@ -184,24 +182,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        // Immagine del logo
+        const SizedBox(height: 10),
         Image.asset(
           'lib/assets/logo.png',
-          width: 150,
-          height: 150,
+          width: 200,
+          height: 160,
         ),
-
-        // Testo "Registration"
-        const SizedBox(height: 5), // Aggiunge spazio tra l'immagine e il testo
         Text(
-          screenPage,
-
+          'Registration',
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: Colors.indigo[800], // Colore scuro per il testo
+            color: Colors.indigo[800],
           ),
         ),
+        const SizedBox(height: 20),
       ],
     );
   }
@@ -226,7 +221,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   size: 50,
                 ),
               if (success) ...[
-
                 Icon(
                   FontAwesomeIcons.check,
                   color: Colors.green,
@@ -257,8 +251,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       }
     });
   }
-
-
 
   void _onValidatePassword(String password) {
     String errorMessage = '';
@@ -329,192 +321,4 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           context, 'Registration failed. Please try again.', false);
     }
   }
-
-
-
-  @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          height: screenHeight,
-          child: Stack(
-            children: <Widget>[
-              EllipseUp(),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const SizedBox(height: 10),
-                  Image.asset(
-                    'lib/assets/logo.png',
-                    width: 200,
-                    height: 160,
-                  ),
-                  Text(
-                    'Registration',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.indigo[800],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.blue.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 15,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'Username',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.indigo[700],
-                            ),
-                          ),
-                          TextField(
-                            controller: _usernameController,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue[800]!),
-                              ),
-                              hintText: 'Enter your username...',
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                              'Email',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.indigo[700],
-                              ),
-                          ),
-                          TextField(
-                              controller: _emailController,
-                              onChanged: _validateEmail,
-                              decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blue[800]!),
-                                  ),
-                                  hintText: 'Enter your email...',
-                              ),
-                          ),
-                          if (_emailErrorMessage.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              _emailErrorMessage,
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                          const SizedBox(height: 16),
-                          Text(
-                            'Password',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.indigo[700],
-                            ),
-                          ),
-                          TextField(
-                            controller: _passwordController,
-                            obscureText: !_isPasswordVisible,
-                            onChanged: _validatePassword,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue[800]!),
-                              ),
-                              hintText: 'Enter your password...',
-                              suffixIcon: IconButton(
-                                icon: _isPasswordVisible
-                                    ? SvgPicture.asset(
-                                        'lib/assets/icons/eye-password-see-view.svg',
-                                      )
-                                    : SvgPicture.asset(
-                                        'lib/assets/icons/eye-password-hide.svg',
-                                      ),
-                                onPressed: () {
-                                  setState(() {
-                                    _isPasswordVisible = !_isPasswordVisible;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                          if (_passwordErrorMessage.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              _passwordErrorMessage,
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                          const SizedBox(height: 16),
-                          Container(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _handleRegister,
-                              child: _isLoading
-                                  ? const CircularProgressIndicator()
-                                  : const Text('Sign Up'),
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                backgroundColor: Colors.blue[700],
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Center(
-                            child: TextButton(
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                                );
-                              },
-                              child: const Text(
-                                'To log in click here!',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
 }

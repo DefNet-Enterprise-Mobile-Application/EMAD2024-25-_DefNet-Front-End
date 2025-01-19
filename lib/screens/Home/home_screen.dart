@@ -26,7 +26,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   int _currentIndex = 0; // Indice corrente della pagina visualizzata
   int? _previousIndex; // Variabile per memorizzare la pagina precedente
 
@@ -36,9 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final LogoutService _logoutService = LogoutService();
   int? userId;
 
-
   late NotificationState _notificationState;
-
 
   final List<Widget> _pages = [
     DashboardScreen(),
@@ -70,7 +67,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
 
     _checkLoginStatus(); // Controlla// se l'utente è loggato
   }
@@ -125,7 +121,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       // Onda (ellisse)
                       EllipseUp(),
-
                       // Contenuto della pagina
                       SingleChildScrollView(
                         child: SizedBox(
@@ -135,7 +130,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 40),
                               // Immagine del logo
                               Align(
-                                alignment: Alignment.topLeft, // Allineamento a sinistra e in alto
+                                alignment: Alignment
+                                    .topLeft, // Allineamento a sinistra e in alto
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -145,10 +141,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       width: 170,
                                       height: 60,
                                     ),
-                                    const SizedBox(height: 0), // Spazio tra il logo e il testo
+                                    const SizedBox(
+                                        height:
+                                            0), // Spazio tra il logo e il testo
 
                                     Padding(
-                                      padding: const EdgeInsets.fromLTRB(52.0, 0.0, 20.0, 3.0), // Aggiunge un po' di spazio
+                                      padding: const EdgeInsets.fromLTRB(
+                                          52.0,
+                                          0.0,
+                                          20.0,
+                                          3.0), // Aggiunge un po' di spazio
                                       child: Row(
                                         children: [
                                           Text(
@@ -156,94 +158,50 @@ class _HomeScreenState extends State<HomeScreen> {
                                             style: TextStyle(
                                               fontSize: 20, // Dimensione testo
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.white, // Colore del testo
+                                              color: Colors
+                                                  .white, // Colore del testo
                                               shadows: [
                                                 Shadow(
                                                   blurRadius: 5.0,
-                                                  color: Colors.black.withOpacity(0.5),
+                                                  color: Colors.black
+                                                      .withOpacity(0.5),
                                                   offset: Offset(3.0, 3.0),
                                                 ),
                                               ],
                                             ),
                                           ),
                                           const Spacer(),
-                                          IconButton(
-                                            icon: Container(
-                                              decoration: BoxDecoration(
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black.withOpacity(0.3), // Colore dell'ombra
-                                                    spreadRadius: 1, // Distanza dell'ombra
-                                                    blurRadius: 30, // Sfocatura dell'ombra
-                                                    offset: Offset(0, 4), // Spostamento dell'ombra
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Image.asset(
-                                                'lib/assets/icons/notification.png',
-                                                width: screenWidth * 0.10,
-                                                height: screenWidth * 0.10,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            onPressed: () {
-                                              // Logica per le notifiche
-                                              Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) => NotificationScreen()),
-                                              );
-                                            },
-                                          ),
-                                          SizedBox(width: screenWidth * 0.03),
-                                          IconButton(
-                                            icon: Container(
-                                              decoration: BoxDecoration(
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black.withOpacity(0.3), // Colore dell'ombra
-                                                    spreadRadius: 1, // Distanza dell'ombra
-                                                    blurRadius: 30, // Sfocatura dell'ombra
-                                                    offset: Offset(0, 4), // Spostamento dell'ombra
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Image.asset(
-                                                'lib/assets/icons/logout.png',
-                                                width: screenWidth * 0.10,
-                                                height: screenWidth * 0.10,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            onPressed: () async {
-                                              bool responseLogout = await _logoutService.logout(_storageService);
 
-                                              if (responseLogout) {
-                                                _showMessageDialog(context, "Logout Successful!", true);
-                                              } else {
-                                                _showMessageDialog(context, "Logout Error!", false);
-                                              }
-                                            },
-                                          ),
+                                          /// Notification Button
+                                          /// Consumer Notification
+                                          _buildNotificationButton(
+                                              screenWidth, _notificationState),
+
+                                          SizedBox(width: screenWidth * 0.03),
+                                          _buildLogoutButton(screenWidth)
                                         ],
                                       ),
                                     ),
                                     // Mostra il nome dell'utente dopo il caricamento
                                     if (_userName != null && _currentIndex == 0)
                                       Padding(
-                                        padding: const EdgeInsets.fromLTRB(30.0, 1.0, 20.0, 0.0),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            30.0, 1.0, 20.0, 0.0),
                                         child: Row(
                                           children: [
                                             Text(
                                               'Hello ',
                                               style: TextStyle(
-                                                fontSize: 40, // Aumentata la dimensione del testo
-                                                color: Colors.white, // Cambiato il colore in nero
+                                                fontSize:
+                                                    40, // Aumentata la dimensione del testo
+                                                color: Colors
+                                                    .white, // Cambiato il colore in nero
                                                 fontWeight: FontWeight.bold,
                                                 shadows: [
                                                   Shadow(
                                                     blurRadius: 5.0,
-                                                    color: Colors.black.withOpacity(0.5),
+                                                    color: Colors.black
+                                                        .withOpacity(0.5),
                                                     offset: Offset(3.0, 3.0),
                                                   ),
                                                 ],
@@ -252,13 +210,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                             Text(
                                               _userName!,
                                               style: TextStyle(
-                                                fontSize: 30, // Aumentata la dimensione del testo
-                                                color: Colors.white, // Cambiato il colore in nero
+                                                fontSize:
+                                                    30, // Aumentata la dimensione del testo
+                                                color: Colors
+                                                    .white, // Cambiato il colore in nero
                                                 fontWeight: FontWeight.bold,
                                                 shadows: [
                                                   Shadow(
                                                     blurRadius: 5.0,
-                                                    color: Colors.black.withOpacity(0.5),
+                                                    color: Colors.black
+                                                        .withOpacity(0.5),
                                                     offset: Offset(3.0, 3.0),
                                                   ),
                                                 ],
@@ -277,112 +238,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                pinned: true, // Mantieni visibile l'ellisse anche dopo lo scroll
-                          
-                /*child: SizedBox(
-                        width: double.infinity,
-                        child: Column(children: <Widget>[
-                          const SizedBox(height: 40),
-                          // Immagine del logo
-                          Align(
-                            alignment: Alignment
-                                .topLeft, // Allineamento a sinistra e in alto
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Immagine del logo
-                                Image.asset(
-                                  'lib/assets/logodiviso.png',
-                                  width: 170,
-                                  height: 60,
-                                ),
-                                const SizedBox(
-                                  height: 0,
-                                ), // Spazio tra il logo e il testo
-
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(45.0, 0.0,
-                                      20.0, 3.0), // Aggiunge un po' di spazio
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'DefNet',
-                                        style: TextStyle(
-                                          fontSize: 20, // Dimensione testo
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              Colors.white, // Colore del testo
-                                          shadows: [
-                                            Shadow(
-                                              blurRadius: 5.0,
-                                              color:
-                                                  Colors.black.withOpacity(0.5),
-                                              offset: Offset(3.0, 3.0),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const Spacer(),
-
-                                      /// Notification Button
-                                      /// Consumer Notification
-                                      _buildNotificationButton(
-                                          screenWidth, _notificationState),
-
-                                      SizedBox(width: screenWidth * 0.03),
-
-                                      /// Logout Button
-                                      _buildLogoutButton(screenWidth),
-                                    ],
-                                  ),
-                                ),
-                                // Mostra il nome dell'utente dopo il caricamento, o un caricamento se non è ancora stato caricato
-                                if (_userName != null &&
-                                    _currentIndex ==
-                                        0) // Verifica se l'username è caricato
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        30.0, 25.0, 20.0, 0.0),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          'Ciao ', // Testo fisso "Ciao"
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          _userName!,
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ]),
-                      ))
-                    ],
-                  ),
-                ),
-
                 pinned:
                     true, // Mantieni visibile l'ellisse anche dopo lo scroll
- // Section - pub/sub-login-umberto */
               ),
               // Contenuto dinamico in base alla pagina selezionata
               SliverFillRemaining(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0), // Aggiungi un po' di spazio ai bordi
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 15.0), // Aggiungi un po' di spazio ai bordi
                   child: Container(
-                    padding: const EdgeInsets.all(20.0), // Padding interno per separare il contenuto dal bordo
+                    padding: const EdgeInsets.all(
+                        20.0), // Padding interno per separare il contenuto dal bordo
                     child: IndexedStack(
                       index: _currentIndex,
                       children: _pages,
@@ -443,7 +310,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showMessageDialog(BuildContext context, String message, bool success) {
     showDialog(
       context: context,
-      barrierDismissible: false, // Impedisce di chiudere il dialog cliccando fuori
+      barrierDismissible:
+          false, // Impedisce di chiudere il dialog cliccando fuori
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.indigo[700], // Sfondo blu
@@ -493,7 +361,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-
   IconButton _buildLogoutButton(screenWidth) {
     return IconButton(
       icon: Container(
@@ -515,9 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       onPressed: () async {
-        bool responseLogout =
-            await _logoutService.logout(_storageService);
-        
+        bool responseLogout = await _logoutService.logout(_storageService);
 
         if (responseLogout) {
           _notificationState.disposeService(userId!);
@@ -528,11 +393,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-
-
-
-
-
 
   /// Metodo _buildNotificationButton
   ///
@@ -619,12 +479,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           onPressed: () {
-            //notificationState
-                //.markNotificationsAsRead(); // Resetta il pallino rosso
             Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => NotificationsScreen(userId: userId!,)),
-        );
+              context,
+              MaterialPageRoute(
+                  builder: (context) => NotificationsScreen(
+                        userId: userId!,
+                      )),
+            );
           },
         );
       },
