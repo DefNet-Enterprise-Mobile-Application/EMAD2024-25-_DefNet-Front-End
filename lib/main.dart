@@ -1,3 +1,4 @@
+import 'package:defnet_front_end/screens/Home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Importa flutter_dotenv
@@ -32,7 +33,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SplashScreen(),
+      home: HomeScreen(),
       debugShowCheckedModeBanner: false,
     );
   }

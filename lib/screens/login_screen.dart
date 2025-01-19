@@ -219,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 130),
                   Image.asset(
                     'lib/assets/logo.png',
                     width: 150,
@@ -281,7 +281,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextField(
                             controller: _passwordController,
                             obscureText: !_isPasswordVisible,
-                            onChanged: _onValidatePassword,
+                            //onChanged: _onValidatePassword,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.blue[800]!),
@@ -363,7 +363,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
   // validatePassword() - method to validate the password that we have setted 
-  void _onValidatePassword(String password) {
+  /*void _onValidatePassword(String password) {
     
     String errorMessage = '';
     final hasUppercase = RegExp(r'[A-Z]');
@@ -387,11 +387,10 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _passwordErrorMessage = errorMessage;
     });
-  }
+  }*/
 
 
 
 
 
 }
-

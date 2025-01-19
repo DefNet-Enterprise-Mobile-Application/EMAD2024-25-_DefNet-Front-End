@@ -24,7 +24,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String _emailErrorMessage = '';
 
   void _showMessageDialog(BuildContext context, String message, bool success) {
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -54,13 +54,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 FontAwesomeIcons.check,
                 color: Colors.green,
                 size: 50,
-              
-              ),
-              
 
-                
+              ),
+
+
+
               ],
-              
+
               Text(
                 message,
                 textAlign: TextAlign.center,
@@ -69,7 +69,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   fontSize: 18,
                 ),
               ),
-              
+
             ],
           ),
         );
@@ -92,9 +92,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
 
   void _validatePassword(String password) {
-    
+
     String errorMessage = '';
-    
+
     final hasUppercase = RegExp(r'[A-Z]');
     final hasLowercase = RegExp(r'[a-z]');
     final hasDigits = RegExp(r'[0-9]');
@@ -180,11 +180,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Image.asset(
                     'lib/assets/logo.png',
-                    width: 150,
-                    height: 150,
+                    width: 200,
+                    height: 160,
                   ),
                   Text(
                     'Registration',
