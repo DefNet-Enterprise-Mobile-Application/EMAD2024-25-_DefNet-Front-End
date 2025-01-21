@@ -1,6 +1,11 @@
 import 'package:defnet_front_end/shared/services/wifi_settings_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '../../shared/services/logout_service.dart';
+import '../../shared/services/secure_storage_service.dart';
+import '../splash_screen.dart';
 
 class WifiSettingsScreen extends StatefulWidget {
   const WifiSettingsScreen({Key? key}) : super(key: key);
@@ -25,6 +30,125 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
   final List<String> encryptionTypes = ['WEP', 'WPA', 'WPA2', 'WPA3'];
 
   final WifiSettingsService _wifiService = WifiSettingsService();
+  final LogoutService _logoutService = LogoutService();
+
+  final SecureStorageService _storageService = SecureStorageService.instance;
+
+
+
+  // Funzione che mostra un dialog personalizzato
+  void _showMessageDialog(
+      BuildContext context, String message, bool success, Function() onConfirm) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Impedisce di chiudere il dialog cliccando fuori
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.indigo[700], // Sfondo blu
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15), // Bordi arrotondati
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!success)
+                Icon(
+                  FontAwesomeIcons.timesCircle,
+                  color: Colors.red,
+                  size: 50,
+                ),
+              if (success) ...[
+                Icon(
+                  FontAwesomeIcons.check,
+                  color: Colors.green,
+                  size: 50,
+                ),
+                const SizedBox(height: 10),
+              ],
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Pulsanti per confermare o annullare
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Chiude il dialog e permette all'utente di uscire dall'app
+                      Navigator.pop(context);
+                      // Esegui l'azione per aggiornare le informazioni
+                      onConfirm();
+                    },
+                    child: Text('Modifica'),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);  // Chiude il dialog senza fare nulla
+                    },
+                    child: Text('Annulla'),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+
+  void _showMessageDialogUpdateSettings(BuildContext context, String message, bool success) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Impedisce di chiudere il dialog cliccando fuori
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.indigo[700], // Sfondo blu
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15), // Bordi arrotondati
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!success)
+                Icon(
+                  FontAwesomeIcons.timesCircle,
+                  color: Colors.red,
+                  size: 50,
+                ),
+              if (success) ...[
+                Icon(
+                  FontAwesomeIcons.check,
+                  color: Colors.green,
+                  size: 50,
+                ),
+                const SizedBox(height: 10),
+              ],
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
 
   Future<void> _loadWifiSettings() async {
@@ -308,13 +432,59 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                         ),
                       const SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (passwordErrors.isEmpty) {
                             print('Current Wi-Fi Name: ${_wifiNameController.text}');
                             print('New Wi-Fi Name: ${_newWifiNameController.text}');
                             print('IP Gateway: ${_ipGatewayController.text}');
                             print('Encryption: $selectedEncryption');
                             print('Password: ${_wifiPasswordController.text}');
+                            Map<String, String> new_settings = {};
+
+                            // Definire le nuove impostazioni Wi-Fi
+                            if (_wifiNameController.text != _newWifiNameController.text &&
+                                _newWifiNameController.text.isNotEmpty) {
+                              new_settings = {
+                                'ssid': _newWifiNameController.text,
+                                'lan_ip': _ipGatewayController.text,
+                                'password': _wifiPasswordController.text,
+                                'encryption': selectedEncryption.toString()
+                              };
+                            } else {
+                              new_settings = {
+                                'ssid': _wifiNameController.text,
+                                'lan_ip': _ipGatewayController.text,
+                                'password': _wifiPasswordController.text,
+                                'encryption': selectedEncryption.toString()
+                              };
+                            }
+
+                            // Mostra il dialog di conferma per l'aggiornamento delle impostazioni Wi-Fi
+                            _showMessageDialog(
+                              context,
+                              'Sei sicuro di voler aggiornare le impostazioni Wi-Fi?',
+                              true, // Mostra il successo (puoi cambiare a false se serve un'icona d'errore)
+                                  () async {
+
+                                    /// Do Logout and delete every Info about User
+                                    var responseLogout = await _logoutService.logout(_storageService);
+
+                                    var result = await _wifiService
+                                        .updateSettings(new_settings);
+
+                                    if (result['status'] == 'pending' && responseLogout) {
+
+                                      _showMessageDialogUpdateSettings(context, result['message'], true);
+                                      /// Timer per disconnettere l'utente
+                                      Future.delayed(Duration(seconds: 8), () {
+                                        _logout();
+                                      });
+
+                                    } else {
+                                      _showMessageDialogUpdateSettings(context, result['message'], false);
+                                    }
+                                  }
+                            );
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -341,6 +511,13 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _logout() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => SplashScreen()),
     );
   }
 }
