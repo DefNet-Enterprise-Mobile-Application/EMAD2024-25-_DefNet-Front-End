@@ -15,7 +15,7 @@ Widget EllipseUp() {
       children: [
         // Aggiungi il BackdropFilter per sfocare l'onda
         BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0), // Applica il blur
+          filter: ImageFilter.blur(sigmaX: 0.1, sigmaY: 0.1), // Applica il blur
           child: Container(
             color: Colors.transparent,
           ),
@@ -35,7 +35,7 @@ Widget EllipseUp() {
               gradientBegin: Alignment.centerLeft,
               gradientEnd: Alignment.centerRight,
             ),
-            size: const Size(double.infinity, 620), // Aumenta l'altezza
+            size: const Size(double.infinity, 500), // Aumenta l'altezza
             waveAmplitude: 10, // Incrementa per dare maggiore dinamismo
           ),
         ),
