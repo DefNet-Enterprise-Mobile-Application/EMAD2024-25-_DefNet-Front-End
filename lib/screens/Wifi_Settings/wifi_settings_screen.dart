@@ -459,7 +459,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                               };
                             }
 
-                            // Mostra il dialog di conferma per l'aggiornamento delle impostazioni Wi-Fi
+                            /// Mostra il dialog di conferma per l'aggiornamento delle impostazioni Wi-Fi
                             _showMessageDialog(
                               context,
                               'Sei sicuro di voler aggiornare le impostazioni Wi-Fi?',
@@ -467,12 +467,11 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                                   () async {
 
                                     /// Do Logout and delete every Info about User
-                                    var responseLogout = await _logoutService.logout(_storageService);
+                                    await _logoutService.logout(_storageService);
 
-                                    var result = await _wifiService
-                                        .updateSettings(new_settings);
+                                    var result = await _wifiService.updateSettings(new_settings);
 
-                                    if (result['status'] == 'pending' && responseLogout) {
+                                    if (result['status'] == 'pending') {
 
                                       _showMessageDialogUpdateSettings(context, result['message'], true);
                                       /// Timer per disconnettere l'utente

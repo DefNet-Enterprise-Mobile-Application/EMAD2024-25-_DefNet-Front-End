@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:defnet_front_end/shared/services/settings_service.dart';
 import 'package:defnet_front_end/shared/services/websocket_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,44 @@ import '../../shared/services/secure_storage_service.dart';
 
 class NotificationState extends ChangeNotifier {
 
+  final SettingsService settingsService = SettingsService();
+  /// Lista delle notifiche
   final List<Map<String, dynamic>> _notifications = [];
+
+
+  /// Services of Router
+  /// E' possibile gestire lo stato di questi servizi mediante questi oggetti
+  /// Questi verranno modificati a seconda del cambiamento di stato a tutti i partecipanti che sono all'interno
+  /// della nostra applicazione mediante un messaggio di broadcasting
+  final List<Map<String, dynamic>> _services = [
+    {
+      'name': 'AD Block',
+      'enabled': true,
+      'modifiable': false,
+      'description': 'Blocks annoying ads on websites, improving the browsing experience and security.'
+    },
+    {
+      'name': 'IDS and IPS',
+      'enabled': false,
+      'modifiable': true,
+      'description': 'Intrusion Detection and Prevention System (IDS/IPS) detects and prevents potential security threats.'
+    },
+    {
+      'name': 'Parental Control',
+      'enabled': false,
+      'modifiable': true,
+      'description': 'Allows parents to monitor and control children\'s internet usage for safety.'
+    },
+    {
+      'name': 'VPN Protection',
+      'enabled': false,
+      'modifiable': false,
+      'comingSoon': true,
+      'description': 'VPN will be available soon. It will secure your internet connection by encrypting your data.'
+    },
+  ];
+
+  List<Map<String, dynamic>> get services => List.unmodifiable(_services);
 
   final ConfigurationService _configurationService = ConfigurationService();
 
@@ -17,8 +55,28 @@ class NotificationState extends ChangeNotifier {
 
   bool _hasNewNotification = false;
 
-  List<Map<String, dynamic>> get notifications {
-    return List.unmodifiable(_notifications);
+  List<Map<String, dynamic>> get notifications { return List.unmodifiable(_notifications); }
+
+  /// Funzione per aggiornare lo stato di un servizio
+  void updateServiceStatus(String serviceName, bool newStatus) {
+    final service = _services.firstWhere(
+          (service) => service['name'] == serviceName,
+    );
+
+    service['enabled'] = newStatus;
+    notifyListeners();  // Notifica la UI per aggiornare
+  }
+
+
+  Future<void> _fetchStatusService() async {
+    final serviceState = await settingsService.fetchServicesStatus();
+
+    for (var entry in serviceState.entries) {
+      final serviceName = entry.key; // Nome del servizio
+      final newServiceStatus = entry.value; // Stato del servizio (true/false)
+      // Aggiorna lo stato del servizio
+      updateServiceStatus(serviceName, newServiceStatus);
+    }
   }
 
   bool get hasNewNotification => _hasNewNotification;
@@ -29,11 +87,11 @@ class NotificationState extends ChangeNotifier {
       print("Inizio la connessione al WebSocket");
     }
     await webSocketService.connect(userId); // Connetti al WebSocket dopo aver caricato il nome utente
-    if (kDebugMode) {
-      print("Ho inizilaizzato il NotificationState");
-    }
-    // Ascolta i messaggi in arrivo dal WebSocket
+
+    await _fetchStatusService();
+    /// Ascolta i messaggi in arrivo dal WebSocket
     webSocketService.notificationsStream.listen((message) {
+
       if (kDebugMode) {
         print("Aggiungi la Notifica ! $message");
       }
@@ -44,6 +102,13 @@ class NotificationState extends ChangeNotifier {
       bool letto = message['stato'] ?? false;
       int id = message['id'];
 
+      /// Modifica lo Stato dei Servizi
+      if(tipo == "serviceStatusChange"){
+        final serviceName = message['serviceName'];
+        final newStatus = message['newStatus'];
+        updateServiceStatus(serviceName, newStatus);
+      }
+      /// Aggiunge la notifica alla lista delle Notifiche
       addNotification(id, tipo, descrizione, timestamp, letto);
     });
   }
@@ -67,7 +132,7 @@ class NotificationState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Funzione per marcare una notifica come letta
+  /// Funzione per marcare una notifica come letta
   void markNotificationAsRead(int notificationId) async {
     // Trova la notifica corrispondente e aggiorna lo stato 'letto' a true
     var notification = _notifications.firstWhere(
@@ -90,8 +155,10 @@ class NotificationState extends ChangeNotifier {
     }
   }
 
-  // Funzione per inviare la modifica al backend
+  /// Funzione per inviare la modifica al backend
+  /// Aggiorna lo stato della notifica da "non letta" a "letta"
   Future<void> _updateNotificationStatusInBackend(int notificationId, bool status) async {
+
     String? url = _configurationService.getBasicUrlHttp();
 
     String? ip = _configurationService.getIpRaspberryPi();
@@ -100,7 +167,7 @@ class NotificationState extends ChangeNotifier {
 
     String baseUrl = "$url$ip:$port/notification_alert";
 
-    // Recupera il token dall'archiviazione sicura
+    /// Recupera il token dall'archiviazione sicura
     final token = await SecureStorageService().getToken();
 
     try {
@@ -129,8 +196,12 @@ class NotificationState extends ChangeNotifier {
     }
   }
 
+  /// Gestisce lo stato delle notifiche
+  /// Viene chiuso il websocket con l'ID dell'Utente
   void disposeService(int userId) async {
     _hasNewNotification = false;
     webSocketService.dispose();
   }
+
+
 }
