@@ -88,7 +88,7 @@ class NotificationState extends ChangeNotifier {
     }
     await webSocketService.connect(userId); // Connetti al WebSocket dopo aver caricato il nome utente
 
-    await _fetchStatusService();
+    //await _fetchStatusService();
     /// Ascolta i messaggi in arrivo dal WebSocket
     webSocketService.notificationsStream.listen((message) {
 
@@ -100,6 +100,7 @@ class NotificationState extends ChangeNotifier {
       String descrizione = message['descrizione'] ?? 'Descrizione non disponibile';
       String timestamp = message['timestamp'] ?? DateTime.now().toIso8601String();
       bool letto = message['stato'] ?? false;
+      int user_Id = message['user_id']; // Assumi che l'ID utente sia incluso nel messaggio
       int id = message['id'];
 
       /// Modifica lo Stato dei Servizi
@@ -108,14 +109,25 @@ class NotificationState extends ChangeNotifier {
         final newStatus = message['newStatus'];
         updateServiceStatus(serviceName, newStatus);
       }
-      /// Aggiunge la notifica alla lista delle Notifiche
-      addNotification(id, tipo, descrizione, timestamp, letto);
+
+      // Verifica che il messaggio appartenga all'utente corretto
+      if (user_Id == userId) { // Confronta con l'ID utente locale
+        /// Aggiunge la notifica alla lista delle Notifiche
+        addNotification(id, tipo, descrizione, timestamp, letto, user_Id);
+      } else {
+        if (kDebugMode) {
+          print("Notifica scartata: non corrisponde all'utente corrente");
+        }
+      }
+
+
     });
   }
 
-  void addNotification(int id, String tipo, String descrizione, String timestamp, bool letto) {
+  void addNotification(int id, String tipo, String descrizione, String timestamp, bool letto, int userId) {
     _notifications.insert(0, {
       'id':id,
+      'user_id': userId, // Salva anche l'ID utente
       'Tipo': tipo,
       'Descrizione': descrizione,
       'Timestamp': timestamp, //da controllare
