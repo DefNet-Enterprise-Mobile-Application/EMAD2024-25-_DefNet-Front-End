@@ -111,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // Contenuto dinamico con scrolling
           CustomScrollView(
+            physics: NeverScrollableScrollPhysics(),
             slivers: [
               // SliverAppBar per l'ellisse con logo sovrapposto
               SliverAppBar(
