@@ -57,6 +57,7 @@ dependencies:
   network_info_plus: ^6.1.2
   image_picker: ^0.8.5+3
   flutter_font_icons: ^2.2.7
+  shared_preferences: ^2.0.18
 
 
 dev_dependencies:

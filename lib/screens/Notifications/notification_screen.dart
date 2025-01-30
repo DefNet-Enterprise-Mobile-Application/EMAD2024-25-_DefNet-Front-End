@@ -67,109 +67,122 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     _notificationState = Provider.of<NotificationState>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Notifiche',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-              icon: const Icon(
-                  FontAwesomeIcons.house), // Usa l'icona di FontAwesome
-              onPressed: () {
-                //_notificationState.markNotificationsAsRead();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                );
-              }),
-          IconButton(
-            icon: const Icon(
-                FontAwesomeIcons.signOutAlt), // Icona di logout stilizzata
-            onPressed: () async {
-            bool response =  await _logoutService.logout(_storageService);
-
-            if(response){
-              _notificationState
-                  .disposeService(widget.userId); // Chiudi WebSocket
-              _notificationState.clearNotifications(); // Resetta notifiche
-
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => SplashScreen()),
-                );
-            }
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            // Logo e titolo
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'lib/assets/logodiviso.png',
-                    width: 100,
-                    height: 60,
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'DefNet',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade700,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 3.0,
-                          color: Colors.black.withOpacity(0.3),
-                          offset: const Offset(2.0, 2.0),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+    return WillPopScope(
+        onWillPop: () async {
+          // Quando l'utente preme il tasto indietro nella pagina delle notifiche
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(), // Naviga alla HomePage
             ),
-            const SizedBox(height: 20),
-            // Lista delle notifiche
-            _notificationState.notifications.isEmpty
-                ? const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: Text(
-                        "Nessuna notifica disponibile",
+                (Route<dynamic> route) => false, // Rimuove tutte le rotte precedenti
+          );
+          return false; // Impedisce il comportamento di default (ritorno alla pagina precedente)
+        },
+        child:  Scaffold(
+          appBar: AppBar(
+            title: const Text(
+              'Notifiche',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            actions: [
+              IconButton(
+                  icon: const Icon(
+                      FontAwesomeIcons.house), // Usa l'icona di FontAwesome
+                  onPressed: () {
+                    //_notificationState.markNotificationsAsRead();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
+                  }),
+              IconButton(
+                icon: const Icon(
+                    FontAwesomeIcons.signOutAlt), // Icona di logout stilizzata
+                onPressed: () async {
+                bool response =  await _logoutService.logout(_storageService);
+
+                if(response){
+                  _notificationState
+                      .disposeService(widget.userId); // Chiudi WebSocket
+                  _notificationState.clearNotifications(); // Resetta notifiche
+
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => SplashScreen()),
+                    );
+                }
+                },
+              ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                // Logo e titolo
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'lib/assets/logodiviso.png',
+                        width: 100,
+                        height: 60,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'DefNet',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.grey,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade700,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 3.0,
+                              color: Colors.black.withOpacity(0.3),
+                              offset: const Offset(2.0, 2.0),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _notificationState.notifications.length,
-                      itemBuilder: (context, index) {
-                        final notification =
-                            _notificationState.notifications[index];
-                        return _buildNotificationCard(notification);
-                      },
-                    ),
+                    ],
                   ),
-          ],
+                ),
+                const SizedBox(height: 20),
+                // Lista delle notifiche
+                _notificationState.notifications.isEmpty
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text(
+                            "Nessuna notifica disponibile",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _notificationState.notifications.length,
+                          itemBuilder: (context, index) {
+                            final notification =
+                                _notificationState.notifications[index];
+                            return _buildNotificationCard(notification);
+                          },
+                        ),
+                      ),
+              ],
+            ),
+          ),
         ),
-      ),
     );
   }
 
