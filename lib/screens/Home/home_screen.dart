@@ -318,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
   
   
   
-  // Modifiche relative al branch GestioneStato
+  // Modifiche relative al branch GestioneStato - /// TODO: da rivedere 
   //@override
   Widget build2(BuildContext context) {
     _notificationState = Provider.of<NotificationState>(context);
@@ -434,6 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     ],
                                                   ),
                                                 ),
+                                              ]),
                                               ),
                                               const Spacer(),
                                               _buildNotificationButton(
@@ -444,19 +445,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                               _buildLogoutButton(screenWidth),
                                             ],
                                           ),
+                                  )
                                       ],
                                     ),
                                   ),
+                          )
                                 ],
                               ),
                             ),
-                          )
-                        ],
-                      ),
-                    ),
-                    pinned: true, // Mantieni visibile l'ellisse anche dopo lo scroll
-                  ),
-                  // Contenuto dinamico in base alla pagina selezionata
+                          pinned: true,
+                          ),
                   SliverFillRemaining(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -474,9 +472,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ],
-          );
-        },
-      ),
+          ),
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.white,
         color: Colors.blue.shade900,
@@ -514,8 +510,11 @@ class _HomeScreenState extends State<HomeScreen> {
             height: screenWidth * 0.08,
             color: Colors.white,
           ),
+        ]
+        )
         ),
     );
+                  
   }
 
 // Pulsante QR Code
