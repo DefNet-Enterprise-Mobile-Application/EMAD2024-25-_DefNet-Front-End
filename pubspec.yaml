@@ -59,6 +59,7 @@ dependencies:
   image_picker: ^0.8.5+3
   flutter_font_icons: ^2.2.7
   wifi_iot: ^0.3.4
+  shared_preferences: ^2.0.18
 
 dev_dependencies:
   flutter_test:
