@@ -580,7 +580,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       onPressed: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ReportScreen()));
+            context, MaterialPageRoute(builder: (context) => ReportScreen(userId: userId!)));
       },
     );
   }

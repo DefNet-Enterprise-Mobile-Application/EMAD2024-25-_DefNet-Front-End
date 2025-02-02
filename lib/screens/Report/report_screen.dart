@@ -1,8 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class ReportScreen extends StatelessWidget {
-  const ReportScreen({super.key});
+class ReportScreen extends StatefulWidget {
+  final int userId;
+  const ReportScreen({super.key, required this.userId});
+
+  @override
+  State<ReportScreen> createState() => _ReportScreenState();
+}
+
+class _ReportScreenState extends State<ReportScreen> {
+  bool isDailyReport = true;
+  List<dynamic> notifications = [];
+  Map<String, int> reportData = {'attacchi': 0, 'ping': 0, 'soppressioni': 0};
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchReports();
+  }
+
+  Future<void> _fetchReports() async {
+    String backendUrl = 'http://192.168.1.5:8000/report/daily/${widget.userId}';
+
+    print("User ID: ${widget.userId}");  // <-- Stampa l'ID utente per verificare
+    print("Invio richiesta a: $backendUrl");
+
+    try {
+      final response = await http.get(Uri.parse(backendUrl));
+
+      print("Stato risposta: ${response.statusCode}");
+      print("Corpo risposta: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          notifications = data['notifiche'] ?? [];
+          reportData = {
+            'attacchi': data['attacchi'] ?? 0,
+            'ping': data['ping'] ?? 0,
+            'soppressioni': data['soppressioni'] ?? 0,
+          };
+        });
+      } else {
+        print("Errore nella richiesta: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Errore di connessione: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,139 +58,105 @@ class ReportScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Reporting',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,  // Impostiamo il grassetto
-            fontSize: 25,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
         ),
         backgroundColor: Colors.blue.shade700,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Titolo della schermata
-            const Text(
-              'Dati di Report',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Dati di Report',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        isDailyReport = !isDailyReport;
+                      });
+                      _fetchReports();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade700,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: Text(
+                      isDailyReport ? 'Settimanale' : 'Giornaliero',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 20),
-
-            // Esempio di grafico o statistica
-            _buildGraphSection(),
-
-            const SizedBox(height: 20),
-
-            // Altre informazioni o dettagli sul report
-            _buildReportInfo(),
-          ],
+              const SizedBox(height: 20),
+              _buildGraphSection(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Sezione del grafico (qui si può aggiungere un grafico o una statistica)
   Widget _buildGraphSection() {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 5,
-            spreadRadius: 3,
-          ),
-        ],
-      ),
       padding: const EdgeInsets.all(20),
+      decoration: _boxDecoration(),
       child: Column(
         children: [
-          const Text(
-            'Performance Grafico',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          Text(
+            isDailyReport ? 'Report Giornaliero' : 'Report Settimanale',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 200,
+            child: PieChart(
+              PieChartData(
+                sections: [
+                  PieChartSectionData(
+                    value: reportData['attacchi']!.toDouble(),
+                    color: Colors.redAccent,
+                    title: 'Attacchi',
+                    radius: 60,
+                  ),
+                  PieChartSectionData(
+                    value: reportData['ping']!.toDouble(),
+                    color: Colors.blueAccent,
+                    title: 'Ping',
+                    radius: 60,
+                  ),
+                  PieChartSectionData(
+                    value: reportData['soppressioni']!.toDouble(),
+                    color: Colors.greenAccent,
+                    title: 'Soppressioni',
+                    radius: 60,
+                  ),
+                ],
+                centerSpaceRadius: 40,
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-          Icon(
-            FontAwesomeIcons.chartLine, // Un'icona di grafico
-            size: 50,
-            color: Colors.blue.shade900,
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'Visualizza i tuoi dati statistici',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
           ),
         ],
       ),
     );
   }
-
-  // Sezione con altre informazioni (ad esempio statistiche, numeri, tabelle, ecc.)
-  Widget _buildReportInfo() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.green.shade50,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 5,
-            spreadRadius: 3,
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Statistiche Generali',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              const Icon(
-                FontAwesomeIcons.users,
-                size: 20,
-                color: Colors.green,
-              ),
-              const SizedBox(width: 10),
-              const Text(
-                'Utenti attivi: 120',
-                style: TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              const Icon(
-                FontAwesomeIcons.wifi,
-                size: 20,
-                color: Colors.green,
-              ),
-              const SizedBox(width: 10),
-              const Text(
-                'Connessioni stabili: 95%',
-                style: TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
-        ],
-      ),
+  BoxDecoration _boxDecoration() {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 10,
+          spreadRadius: 5,
+        ),
+      ],
     );
   }
 }
