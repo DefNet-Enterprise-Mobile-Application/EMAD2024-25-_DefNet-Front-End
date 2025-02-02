@@ -13,13 +13,11 @@ class ServiceScreen extends StatefulWidget {
 }
 
 class _ServiceScreenState extends State<ServiceScreen> {
-
-
   late NotificationState notificationState;
+  final SettingsService settingsService = SettingsService();
 
-  /// Funzione per mostrare il dialogo con la descrizione del servizio
+  /// Mostra il dialog con la descrizione del servizio
   void _showServiceInfo(String description) {
-    print("Showing service info: $description"); // Controllo di debug
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -27,12 +25,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
-          child: Container(
+          child: Padding(
             padding: const EdgeInsets.all(20.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -63,14 +57,9 @@ class _ServiceScreenState extends State<ServiceScreen> {
                   ),
                   child: const Text(
                     'Close',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Chiude il dialogo
-                  },
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
@@ -79,115 +68,39 @@ class _ServiceScreenState extends State<ServiceScreen> {
       },
     );
   }
-
-
-  void _showMessageEnableServices(BuildContext context, String message, bool success) {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Impedisce di chiudere il dialog cliccando fuori
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.indigo[700], // Sfondo blu
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15), // Bordi arrotondati
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!success)
-                Icon(
-                  FontAwesomeIcons.timesCircle,
-                  color: Colors.red,
-                  size: 50,
-                ),
-              if (success) ...[
-                Icon(
-                  FontAwesomeIcons.check,
-                  color: Colors.green,
-                  size: 50,
-                ),
-                const SizedBox(height: 10),
-              ],
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        );
-      },
-    );
-
-    // Chiudi il dialog dopo 3 secondi
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pop(); // Chiude il dialog
-    });
-  }
-
-  final SettingsService settingsService = SettingsService();
-
 
   @override
   Widget build(BuildContext context) {
     notificationState = Provider.of<NotificationState>(context);
 
     return Scaffold(
-        body: Stack(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        child: ListView(
           children: [
-            Padding(
-              padding: EdgeInsets.zero,
-              child: SingleChildScrollView(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 0.0, left: 12.0, right: 12.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-
-                            /// Logo e testo
-                            _buildLogoService(),
-                            const SizedBox(height: 5),
-                            Text(
-                              'Protect and manage your connection with the following services:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey.shade700,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            _buildService(notificationState)
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+            _buildLogoService(),
+            const SizedBox(height: 5),
+            Text(
+              'Protect and manage your connection with the following services:',
+              style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width * 0.04,
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.w500,
               ),
             ),
+            const SizedBox(height: 15),
+            _buildService(notificationState),
           ],
         ),
-      );
+      ),
+    );
   }
 
   Consumer<NotificationState> _buildService(NotificationState notificationState) {
     return Consumer<NotificationState>(
-
       builder: (context, notificationState, child) {
         return Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           elevation: 4,
           color: Colors.grey.shade100,
           child: Padding(
@@ -203,83 +116,59 @@ class _ServiceScreenState extends State<ServiceScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            service['name'],
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: comingSoon
-                                  ? Colors.grey
-                                  : Colors.blueGrey.shade900,
+                      Expanded(
+                        child: Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              service['name'],
+                              style: TextStyle(
+                                fontSize: MediaQuery.of(context).size.width * 0.04,
+                                fontWeight: FontWeight.w600,
+                                color: comingSoon ? Colors.grey : Colors.blueGrey.shade900,
+                              ),
                             ),
-                          ),
-                          if (comingSoon)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
-                                  vertical: 2.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.orange.shade200,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Text(
-                                  'Coming Soon',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange,
+                            if (comingSoon)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.shade200,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Text(
+                                    'Coming Soon',
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange),
                                   ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                       if (!comingSoon)
                         Row(
                           children: [
                             GestureDetector(
-                              onTap: () {
-                                _showServiceInfo(service['description']);
-                              },
+                              onTap: () => _showServiceInfo(service['description']),
                               child: Image.asset(
                                 'lib/assets/icons/info.png',
-                                height: 30,
-                                width: 30,
+                                height: MediaQuery.of(context).size.width * 0.07,
+                                width: MediaQuery.of(context).size.width * 0.07,
                               ),
                             ),
                             Switch(
                               value: enabled,
                               onChanged: modifiable
                                   ? (bool value) async {
-                                /// Abilita e disabilita il servizio
-                                bool success = await settingsService.toggleService(
-                                    service['name'], value);
+                                bool success = await settingsService.toggleService(service['name'], value);
                                 if (success) {
-                                  notificationState.updateServiceStatus(
-                                      service['name'], value);
-                                  _showMessageEnableServices(
-                                      context,
-                                      '${service['name']} ${value
-                                          ? 'attivato'
-                                          : 'disattivato'} con successo',
-                                      true);
-                                } else {
-                                  _showMessageEnableServices(
-                                      context,
-                                      'Errore durante l\'aggiornamento del servizio ${service['name']}',
-                                      false);
+                                  notificationState.updateServiceStatus(service['name'], value);
                                 }
                               }
                                   : null,
                               activeColor: Colors.blueAccent,
-                              inactiveThumbColor: modifiable
-                                  ? Colors.grey
-                                  : Colors.grey.shade400,
+                              inactiveThumbColor: modifiable ? Colors.grey : Colors.grey.shade400,
                             ),
                           ],
                         ),
@@ -294,7 +183,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
     );
   }
 
-  /// Costruisce il Widget per l'Icona e il titolo dei servizi
   Row _buildLogoService() {
     return Row(
       children: [
@@ -322,7 +210,4 @@ class _ServiceScreenState extends State<ServiceScreen> {
       ],
     );
   }
-
-
 }
-
