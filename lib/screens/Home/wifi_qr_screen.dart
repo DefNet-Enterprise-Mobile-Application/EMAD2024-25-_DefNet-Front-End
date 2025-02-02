@@ -13,6 +13,9 @@ class WifiQRScreen extends StatefulWidget {
 class _WifiQRScreenState extends State<WifiQRScreen> {
   String? qrCodeBase64;
 
+ final String  baseUrl = "wifi/qr";
+ final String baseUrlTest = "wifi/qr_test";
+
   @override
   void initState() {
     super.initState();
@@ -20,14 +23,16 @@ class _WifiQRScreenState extends State<WifiQRScreen> {
   }
 
   Future<void> fetchQRCode() async {
+    print("Sono all'interno del metodo!");
     try {
-      final response = await http.get(Uri.parse('http://localhost:8000/wifi/qr')); // Cambia l'URL in base alla tua configurazione
+      final response = await http.get(Uri.parse('http://10.71.71.1:8000/$baseUrlTest')); // Cambia l'URL in base alla tua configurazione
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
           qrCodeBase64 = data['qr_code'];
         });
       } else {
+        print(response.body);
         throw Exception('Errore nel recupero del QR code');
       }
     } catch (e) {
