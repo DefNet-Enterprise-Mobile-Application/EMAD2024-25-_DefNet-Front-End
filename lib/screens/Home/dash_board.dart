@@ -138,6 +138,9 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -145,7 +148,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 20),
+              SizedBox(height: height * 0.00001), // Spostato più in alto
               // Pulsante animato con immagine
               Center(
                 child: ScaleTransition(
@@ -162,7 +165,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.cyanAccent.shade700,
                       shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(40),
+                      padding: EdgeInsets.all(width * 0.1), // Responsivo
                       elevation: 10,
                     ),
                     child: Column(
@@ -171,8 +174,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                         // Logo personalizzato al posto dell'icona
                         Image.asset(
                           "lib/assets/button_image/speedtest.png", // Percorso del logo
-                          width: 50, // Dimensione del logo
-                          height: 50, // Dimensione del logo
+                          width: width * 0.12, // Adatta la dimensione per schermi diversi
+                          height: width * 0.12, // Adatta la dimensione per schermi diversi
                         ),
                       ],
                     ),
@@ -180,7 +183,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
               ),
 
-              const SizedBox(height: 30),
+              SizedBox(height: height * 0.05), // Spazio responsivo ridotto
 
               // Titolo dei dispositivi connessi
               Row(
@@ -189,34 +192,41 @@ class _DashboardScreenState extends State<DashboardScreen>
                   Text(
                     "Connected Devices",
                     style: TextStyle(
-                      fontSize: 25,
+                      fontSize: width * 0.07, // Responsivo
                       fontWeight: FontWeight.bold,
                       color: Colors.cyanAccent.shade700,
                       shadows: [
                         Shadow(
-                        blurRadius: 5.0,
-                        color: Colors.blue.shade500.withOpacity(0.4),
-                        offset: Offset(3.0, 3.0),
+                          blurRadius: 5.0,
+                          color: Colors.blue.shade500.withOpacity(0.4),
+                          offset: const Offset(3.0, 3.0),
                         ),
-                      ]
+                      ],
                     ),
                   ),
                   if (isScanning)
-                    const CircularProgressIndicator()
-                  else
-                    IconButton(
-                      onPressed: _scanNetwork,
-                      icon: Image.asset(
-                        "lib/assets/button_image/aggiorna.png", // Percorso del logo
-                        width: 50, // Dimensione del logo
-                        height: 50, // Dimensione del logo
+                    const Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: CircularProgressIndicator(),
                       ),
-                      color: Colors.cyan,
+                    )
+                  else
+                    Flexible(
+                      child: IconButton(
+                        onPressed: _scanNetwork,
+                        icon: Image.asset(
+                          "lib/assets/button_image/aggiorna.png", // Percorso del logo
+                          width: width * 0.12, // Adatta la dimensione per schermi diversi
+                          height: width * 0.12, // Adatta la dimensione per schermi diversi
+                        ),
+                        color: Colors.cyan,
+                      ),
                     ),
                 ],
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: height * 0.001), // Spazio responsivo ridotto
 
               // Lista dei dispositivi connessi
               ListView.builder(
@@ -233,11 +243,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: ListTile(
                       leading: Image.asset(
                         "lib/assets/button_image/dispositivi.png", // Percorso del logo
-                        width: 50, // Dimensione del logo
-                        height: 50, // Dimensione del logo
+                        width: width * 0.12, // Responsivo
+                        height: width * 0.12, // Responsivo
                       ),
-                      title: Text(device["name"] ?? "Unknown Device"),
-                      subtitle: Text("IP: ${device["ip"]}"),
+                      title: Text(
+                        device["name"] ?? "Unknown Device",
+                        style: TextStyle(fontSize: width * 0.05), // Responsivo
+                      ),
+                      subtitle: Text(
+                        "IP: ${device["ip"]}",
+                        style: TextStyle(fontSize: width * 0.04), // Responsivo
+                      ),
                       onLongPress: () => _editDeviceName(index), // Rileva la pressione prolungata
                     ),
                   );
@@ -245,9 +261,12 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
 
               if (_connectedDevices.isEmpty && !isScanning)
-                const Text(
+                Text(
                   'Nessun dispositivo trovato.',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: width * 0.05, // Responsivo
+                  ),
                 ),
             ],
           ),

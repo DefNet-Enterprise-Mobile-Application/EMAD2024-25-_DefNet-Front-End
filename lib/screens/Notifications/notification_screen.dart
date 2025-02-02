@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'notification_state.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class NotificationsScreen extends StatefulWidget {
   final int userId;
@@ -19,37 +18,30 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-
   final LogoutService _logoutService = LogoutService();
   final SecureStorageService _storageService = SecureStorageService.instance;
 
   late NotificationState _notificationState;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-
-    // Usa Provider per ottenere l'istanza di NotificationState
-
     _notificationState = Provider.of<NotificationState>(context, listen: false);
-
-      _markUnreadNotificationsAsRead(); //Marca automaticamente come lette le notifiche non lette
+    _markUnreadNotificationsAsRead();
   }
 
   void _markUnreadNotificationsAsRead() async {
-    // Ottieni tutte le notifiche con `letto == false`
     final unreadNotifications = _notificationState.notifications
         .where((notification) => notification['letto'] == false)
         .toList();
     if (unreadNotifications.isNotEmpty) {
       for (var notification in unreadNotifications) {
         try {
-          // Chiama il metodo per aggiornare lo stato della notifica nel backend
-           _notificationState.markNotificationAsRead(notification['id']);
+          _notificationState.markNotificationAsRead(notification['id']);
         } catch (e) {
           if (kDebugMode) {
             print(
-              "Errore durante l'aggiornamento della notifica con id ${notification['id']}: $e");
+                "Errore durante l'aggiornamento della notifica con id ${notification['id']}: $e");
           }
         }
       }
@@ -187,7 +179,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildNotificationCard(Map<String, dynamic> notification) {
-    // Determina il tipo di notifica, ad esempio "error", "warning", "info"
     String tipo = notification['Tipo'] ?? 'Sconosciuto';
     String descrizione = notification['Descrizione'] ?? 'Descrizione non disponibile';
     String timestamp = notification['Timestamp'] ?? DateTime.now().toIso8601String();
@@ -197,80 +188,68 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     Color iconColor;
     Color containerColor;
 
-    // Imposta l'icona e il colore in base al tipo di notifica
     if (tipo.toLowerCase() == 'system') {
-      notificationIcon =
-          FontAwesomeIcons.bell; // Icona di avviso
-      iconColor = Colors.green; // Colore per le notifiche di avviso
-      containerColor = Colors.green.shade100; // Colore verde per il contenitore
+      notificationIcon = FontAwesomeIcons.bell;
+      iconColor = Colors.green;
+      containerColor = Colors.green.shade100;
     } else if (tipo.toLowerCase() == 'block') {
-      notificationIcon = FontAwesomeIcons.timesCircle; // Icona di errore
-      iconColor = Colors.red.shade700; // Colore per le notifiche di errore
-      containerColor = Colors.red.shade100; // Colore rosso per il contenitore
+      notificationIcon = FontAwesomeIcons.timesCircle;
+      iconColor = Colors.red.shade700;
+      containerColor = Colors.red.shade100;
     } else {
-      /// Info System
-      notificationIcon = FontAwesomeIcons.timesCircle; // Icona di notifica generica
+      notificationIcon = FontAwesomeIcons.timesCircle;
       iconColor = Colors.orange;
-      containerColor = Colors.blue.shade100; // Colore blu per il contenitore
+      containerColor = Colors.blue.shade100;
     }
 
     return GestureDetector(
-       /* onTap: () {
-      // Marcare la notifica come letta quando l'utente la seleziona
-      int notificationId = notification['id'];
-      _notificationState.markNotificationAsRead(notificationId);
-      },*/
       child: Card(
-        elevation: 4,
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: containerColor, // Applica il colore al contenitore
+        elevation: 5,  // Moderato
+        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 15), // Moderato
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), // Moderato
+        color: containerColor,
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(15.0),  // Moderato
           child: Row(
             children: [
-              // Icona all'interno di un container
               Container(
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.2), // Colore di sfondo iconico
+                  color: iconColor.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),  // Moderato
                 child: Icon(
                   notificationIcon,
                   color: iconColor,
-                  size: 28,
+                  size: 35,  // Moderato
                 ),
               ),
-              const SizedBox(width: 12),
-              // Dettagli notifica
+              const SizedBox(width: 18),  // Moderato
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       "${tipo.toUpperCase()} Message !",
-                      //notification['Topic'] ?? '',
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,  // Moderato
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),  // Moderato
                     Text(
                       descrizione,
-                      //notification['Message'] ?? '',
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,  // Moderato
                         color: Colors.black54,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 8),  // Moderato
                     Text(
                       timestamp,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,  // Moderato
                         color: Colors.grey.shade600,
                       ),
                     ),

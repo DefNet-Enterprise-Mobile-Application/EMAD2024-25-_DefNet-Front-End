@@ -1,18 +1,30 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+// Principal Component 
 import 'package:defnet_front_end/screens/Profile/profile_screen.dart';
 import 'package:defnet_front_end/screens/Service/service_screen.dart';
 import 'package:defnet_front_end/screens/Wifi_Settings/wifi_settings_screen.dart';
 import 'package:defnet_front_end/screens/Home/dash_board.dart';
-import 'package:defnet_front_end/shared/services/logout_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:defnet_front_end/screens/Notifications/notification_screen.dart';
+import 'package:defnet_front_end/screens/Notifications/notification_state.dart';
+import '../splash_screen.dart'; 
+import 'package:defnet_front_end/screens/Report/report_screen.dart';
+
+
+// Shared Component 
+import 'package:defnet_front_end/shared/components/shape_lines/ellipse_custom.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+
+
+
+import 'package:defnet_front_end/shared/services/logout_service.dart';
+import 'package:defnet_front_end/shared/services/websocket_service.dart';
+import 'package:defnet_front_end/shared/services/secure_storage_service.dart';
+
+
+// Legacy Library Component
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import '../../shared/components/shape_lines/ellipse_custom.dart';
-import '../Notifications/notification_state.dart';
-import '../splash_screen.dart'; // Update the Ellipse widget as needed
-import 'package:defnet_front_end/shared/services/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -44,22 +56,12 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   Future<void> _checkLoginStatus() async {
-    final secureStorageService =
-        SecureStorageService.instance; // Usa il tuo SecureStorageService
-    final token = await secureStorageService
-        .getToken(); // Supponiamo che esista un metodo getToken()
+    final secureStorageService = SecureStorageService.instance;
+    final token = await secureStorageService.getToken();
 
     if (token == null) {
-      // Se il token non esiste, significa che l'utente non è loggato
-      /*Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                SplashScreen()), // Torna alla SplashScreen o LoginScreen
-      );*/
       _userName = "Guest";
     } else {
-      // Se il token esiste, carica il nome utente
       await _loadUserName();
     }
   }
@@ -115,7 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
     // Blocca la rotazione solo in modalità verticale
     /*SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -125,19 +126,15 @@ class _HomeScreenState extends State<HomeScreen> {
     _checkLoginStatus(); // Controlla// se l'utente è loggato
   }
 
-  // Funzione per caricare il nome dell'utente da SecureStorageService
   Future<void> _loadUserName() async {
     try {
-      final user =
-          await _storageService.get(); // Ottieni i dati dell'utente salvati
+      final user = await _storageService.get();
       if (user != null) {
         setState(() {
-          _userName = user.username; // Aggiorna il nome dell'utente nella UI
+          _userName = user.username;
           if (kDebugMode) {
             print("User ID: ${user.id}");
-          } // Puoi loggare l'id per verificare che venga caricato
-
-          /// Inserire l'ID dell'utente
+          }
           userId = user.id;
         });
       } else {
@@ -149,11 +146,204 @@ class _HomeScreenState extends State<HomeScreen> {
       if (kDebugMode) {
         print("Error loading username: $e");
       }
-    } finally {}
+    }
   }
-
+  
+  
+  
+  // Modifiche Pub-Sub/Login Umberto
+  
   @override
   Widget build(BuildContext context) {
+    _notificationState = Provider.of<NotificationState>(context);
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    
+    return Scaffold(
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          return Stack(
+            children: [
+              CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    backgroundColor: Colors.transparent,
+                    expandedHeight: screenHeight * 0.27,
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Stack(
+                        children: [
+                          EllipseUp(),
+                          SingleChildScrollView(
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Column(
+                                children: <Widget>[
+                                  const SizedBox(height: 40),
+
+                                  Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Image.asset(
+                                          'lib/assets/logodiviso.png',
+                                          width: screenWidth * 0.27,
+                                          height: screenHeight * 0.06,
+                                        ),
+                                        const SizedBox(height: 0),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: screenWidth * 0.05,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                'DefNet',
+                                                style: TextStyle(
+                                                  fontSize: screenWidth * 0.05,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                  shadows: [
+                                                    Shadow(
+                                                      blurRadius: 5.0,
+                                                      color: Colors.black
+                                                          .withOpacity(0.5),
+                                                      offset: Offset(3.0, 3.0),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const Spacer(),
+                                              _buildNotificationButton(
+                                                  screenWidth, _notificationState),
+                                              SizedBox(width: screenWidth * 0.03),
+                                              _buildReportIcon(screenWidth),
+                                              SizedBox(width: screenWidth * 0.03),
+                                              _buildLogoutButton(screenWidth),
+                                            ],
+                                          ),
+                                        ),
+                                        if (_userName != null && _currentIndex == 0)
+                                          Padding(
+                                            padding: EdgeInsets.fromLTRB(
+                                                screenWidth * 0.08, 1.0, 20.0, 0.0),
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  'Hello ',
+                                                  style: TextStyle(
+                                                    fontSize: screenWidth * 0.08,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    shadows: [
+                                                      Shadow(
+                                                        blurRadius: 5.0,
+                                                        color: Colors.black
+                                                            .withOpacity(0.5),
+                                                        offset: Offset(3.0, 3.0),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Text(
+                                                  _userName!,
+                                                  style: TextStyle(
+                                                    fontSize: screenWidth * 0.08,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    shadows: [
+                                                      Shadow(
+                                                        blurRadius: 5.0,
+                                                        color: Colors.black
+                                                            .withOpacity(0.5),
+                                                        offset: Offset(3.0, 3.0),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    pinned: true,
+                  ),
+                  SliverFillRemaining(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.05,
+                        vertical: screenHeight * 0.02,
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.all(screenWidth * 0.05),
+                        child: IndexedStack(
+                          index: _currentIndex,
+                          children: _pages,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      bottomNavigationBar: CurvedNavigationBar(
+        backgroundColor: Colors.white,
+        color: Colors.blue.shade900,
+        buttonBackgroundColor: Colors.blueAccent.shade100,
+        height: screenHeight * 0.08,
+        animationDuration: const Duration(milliseconds: 300),
+        index: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: [
+          Image.asset(
+            'lib/assets/icons/home.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
+          ),
+          Image.asset(
+            'lib/assets/icons/wifi.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
+          ),
+          Image.asset(
+            'lib/assets/icons/service.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
+          ),
+          Image.asset(
+            'lib/assets/icons/profile.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
+          ),
+        ),
+    );
+  }
+  
+  
+  
+  // Modifiche relative al branch GestioneStato
+  //@override
+  Widget build2(BuildContext context) {
     _notificationState = Provider.of<NotificationState>(context);
 
     double screenWidth = MediaQuery.of(context).size.width;
@@ -267,8 +457,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     ],
                                                   ),
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                              const Spacer(),
+                                              _buildNotificationButton(
+                                                  screenWidth, _notificationState),
+                                              SizedBox(width: screenWidth * 0.03),
+                                              _buildReportIcon(screenWidth),
+                                              SizedBox(width: screenWidth * 0.03),
+                                              _buildLogoutButton(screenWidth),
+                                            ],
                                           ),
                                       ],
                                     ),
@@ -300,120 +497,60 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ],
+          );
+        },
+      ),
+      bottomNavigationBar: CurvedNavigationBar(
+        backgroundColor: Colors.white,
+        color: Colors.blue.shade900,
+        buttonBackgroundColor: Colors.blueAccent.shade100,
+        height: screenHeight * 0.08,
+        animationDuration: const Duration(milliseconds: 300),
+        index: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: [
+          Image.asset(
+            'lib/assets/icons/home.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
           ),
-
-          // Barra di navigazione curva
-          bottomNavigationBar: CurvedNavigationBar(
-            backgroundColor: Colors.white,
-            color: Colors.blue.shade900,
-            buttonBackgroundColor: Colors.blueAccent.shade100,
-            height: screenHeight * 0.08, // Altezza della barra di navigazione adattiva
-            animationDuration: const Duration(milliseconds: 300),
-            index: _currentIndex,
-            onTap: (index) {
-              setState(() {
-                if (index != _currentIndex) {
-                  _navigationStack.add(_currentIndex);
-                  _currentIndex = index;
-                }
-              });
-            },
-            items: [
-              Image.asset(
-                'lib/assets/icons/home.png',
-                width: screenWidth * 0.08, // Dimensione adattiva delle icone
-                height: screenWidth * 0.08, // Dimensione adattiva delle icone
-                color: Colors.white,
-              ),
-              Image.asset(
-                'lib/assets/icons/wifi.png',
-                width: screenWidth * 0.08, // Dimensione adattiva delle icone
-                height: screenWidth * 0.08, // Dimensione adattiva delle icone
-                color: Colors.white,
-              ),
-              Image.asset(
-                'lib/assets/icons/service.png',
-                width: screenWidth * 0.08, // Dimensione adattiva delle icone
-                height: screenWidth * 0.08, // Dimensione adattiva delle icone
-                color: Colors.white,
-              ),
-              Image.asset(
-                'lib/assets/icons/profile.png',
-                width: screenWidth * 0.08, // Dimensione adattiva delle icone
-                height: screenWidth * 0.08, // Dimensione adattiva delle icone
-                color: Colors.white,
-              ),
-            ],
+          Image.asset(
+            'lib/assets/icons/wifi.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
+          ),
+          Image.asset(
+            'lib/assets/icons/service.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
+          ),
+          Image.asset(
+            'lib/assets/icons/profile.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
           ),
         ),
     );
   }
 
-  // Funzione che mostra un dialog personalizzato
-  void _showMessageDialog(BuildContext context, String message, bool success) {
-    showDialog(
-      context: context,
-      barrierDismissible:
-          false, // Impedisce di chiudere il dialog cliccando fuori
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.indigo[700], // Sfondo blu
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15), // Bordi arrotondati
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!success)
-                Icon(
-                  FontAwesomeIcons.timesCircle,
-                  color: Colors.red,
-                  size: 50,
-                ),
-              if (success) ...[
-                Icon(
-                  FontAwesomeIcons.check,
-                  color: Colors.green,
-                  size: 50,
-                ),
-                const SizedBox(height: 10),
-              ],
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    // Chiudi il dialog dopo 3 secondi
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pop(); // Chiude il dialog
-      if (success) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => SplashScreen()),
-        ); // Naviga alla schermata Home se il login ha successo
-      }
-    });
-  }
-
-  IconButton _buildLogoutButton(screenWidth) {
+  IconButton _buildLogoutButton(double screenWidth) {
     return IconButton(
       icon: Container(
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3), // Colore dell'ombra
-              spreadRadius: 1, // Distanza dell'ombra
-              blurRadius: 30, // Sfocatura dell'ombra
-              offset: Offset(0, 4), // Spostamento dell'ombra
+              color: Colors.black.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 30,
+              offset: Offset(0, 4),
             ),
           ],
         ),
@@ -437,53 +574,37 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Metodo _buildNotificationButton
-  ///
-  /// Questo metodo costruisce un widget che rappresenta un pulsante di notifica
-  /// con un'icona personalizzata. È incluso un pallino rosso per indicare la presenza
-  /// di nuove notifiche non lette. Il pulsante utilizza un `Consumer` per ascoltare
-  /// i cambiamenti nello stato delle notifiche attraverso il modello `NotificationState`.
-  ///
-  /// ### Parametri:
-  /// - **screenWidth** (`double`): La larghezza dello schermo. Serve per scalare
-  ///   dinamicamente le dimensioni dell'icona di notifica.
-  /// - **notificationState** (`NotificationState`): Lo stato attuale delle notifiche.
-  ///   Gestisce la logica per determinare se ci sono nuove notifiche e aggiorna l'interfaccia.
-  ///
-  /// ### Funzionalità:
-  /// - L'icona di notifica è rappresentata da un'immagine personalizzata (`notification.png`).
-  /// - Se ci sono nuove notifiche, viene mostrato un piccolo cerchio rosso in alto a destra dell'icona.
-  /// - Quando l'utente preme il pulsante:
-  ///   1. Il pallino rosso viene rimosso (chiamando il metodo `markNotificationsAsRead()`
-  ///      di `NotificationState`).
-  ///   2. L'utente viene reindirizzato alla schermata delle notifiche (`/notifications`),
-  ///      passando come argomento il parametro `userId`.
-  ///
-  ///
-  /// ### Logica interna:
-  /// - La logica di rendering dell'icona e del pallino rosso è gestita utilizzando un widget `Stack`.
-  /// - Un `BoxShadow` è applicato all'immagine per migliorare l'estetica.
-  /// - La posizione del pallino rosso è gestita utilizzando un widget `Positioned`.
-  ///
-  /// ### Vantaggi:
-  /// - La gestione dello stato è reattiva grazie al `Consumer` di Provider.
-  /// - Il design è flessibile e si adatta dinamicamente alla larghezza dello schermo.
-  /// - Facilmente estendibile per supportare altre funzionalità, come notifiche sonore o animazioni.
-  ///
-  /// ### Limitazioni:
-  /// - Richiede un'implementazione corretta di `NotificationState` per funzionare.
-  /// - L'immagine dell'icona deve essere presente nella directory specificata (`lib/assets/icons/`).
-  ///
-  /// ### Dipendenze:
-  /// - Provider per la gestione dello stato.
-  /// - Risorsa immagine in `lib/assets/icons/notification.png`.
-  ///
-  /// ### Modifica necessaria in `NotificationState`:
-  /// Il metodo `markNotificationsAsRead` dovrebbe essere implementato nella classe `NotificationState`:
+  IconButton _buildReportIcon(double screenWidth) {
+    return IconButton(
+      icon: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 30,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(
+          FontAwesomeIcons.chartColumn,
+          color: Colors.white,
+          size: screenWidth * 0.080,
+        ),
+      ),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ReportScreen()),
+        );
+      },
+    );
+  }
+
   Consumer<NotificationState> _buildNotificationButton(
-      screenWidth, notificationState) {
-    return // Aggiungi il Consumer per gestire le notifiche
-        Consumer<NotificationState>(
+      double screenWidth, NotificationState notificationState) {
+    return Consumer<NotificationState>(
       builder: (context, notificationState, child) {
         return IconButton(
           icon: Stack(
@@ -531,5 +652,57 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  void _showMessageDialog(BuildContext context, String message, bool success) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.indigo[700],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!success)
+                Icon(
+                  FontAwesomeIcons.timesCircle,
+                  color: Colors.red,
+                  size: 50,
+                ),
+              if (success) ...[
+                Icon(
+                  FontAwesomeIcons.check,
+                  color: Colors.green,
+                  size: 50,
+                ),
+                const SizedBox(height: 10),
+              ],
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.of(context).pop();
+      if (success) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SplashScreen()),
+        );
+      }
+    });
   }
 }

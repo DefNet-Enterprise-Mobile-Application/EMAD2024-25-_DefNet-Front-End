@@ -17,9 +17,7 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _usernameController = TextEditingController();
-
   final _passwordController = TextEditingController();
-
   final _emailController = TextEditingController();
 
   bool _isLoading = false;
@@ -29,7 +27,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenWidth < 600; // Schermi più piccoli
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -45,7 +45,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 children: <Widget>[
                   _buildHeader('Registration'),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isSmallScreen ? 16 : 32.0), // Adattato per schermi piccoli
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -93,7 +94,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           const SizedBox(height: 16),
 
                           /// Perform Registration Button
-                          _buildRegistrationButton(),
+                          _buildRegistrationButton(isSmallScreen),
                           const SizedBox(height: 16),
 
                           /// Login Button to navigation into LoginScreen
@@ -112,63 +113,41 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   /// Costruisce il bottone per la registrazione (Sign Up).
-  ///
-  /// Questo metodo crea un bottone di tipo `ElevatedButton`, che se premuto
-  /// esegue la funzione `_handleRegister`. Se il flag `_isLoading` è attivo,
-  /// il bottone mostrerà un indicatore di caricamento (un `CircularProgressIndicator`),
-  /// altrimenti mostrerà il testo "Sign Up". Il bottone ha uno stile personalizzato
-  /// con un bordo arrotondato e uno sfondo blu.
-  ///
-  /// - Restituisce un `Container` che contiene l'`ElevatedButton` per la registrazione.
-  Container _buildRegistrationButton() {
+  Container _buildRegistrationButton(bool isSmallScreen) {
     return Container(
-      width: double
-          .infinity, // Imposta la larghezza del bottone a quella massima disponibile
+      width: double.infinity, // Imposta la larghezza del bottone a quella massima disponibile
       child: ElevatedButton(
-        onPressed: _isLoading
-            ? null
-            : _handleRegister, // Mostra il testo "Sign Up" se il flag è falso
+        onPressed: _isLoading ? null : _handleRegister,
         style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(
-              vertical: 16), // Padding verticale del bottone
-          backgroundColor:
-              Colors.blue[700], // Colore di sfondo blu per il bottone
+          padding: EdgeInsets.symmetric(
+              vertical: isSmallScreen ? 14 : 16), // Variato in base alla larghezza dello schermo
+          backgroundColor: Colors.blue[700],
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(8), // Bordo arrotondato per il bottone
+            borderRadius: BorderRadius.circular(8),
           ),
-        ), // Disabilita il bottone se il flag `_isLoading` è vero
+        ),
         child: _isLoading
-            ? const CircularProgressIndicator() // Mostra l'indicatore di caricamento se `_isLoading` è vero
+            ? const CircularProgressIndicator()
             : const Text('Sign Up'),
       ),
     );
   }
 
   /// Costruisce il bottone per navigare alla schermata di login.
-  ///
-  /// Questo metodo crea un `TextButton` che, quando premuto, naviga alla schermata di login.
-  /// Utilizza la funzione `Navigator.pushReplacement` per sostituire la schermata corrente con
-  /// la `LoginScreen`. Il bottone contiene il testo "To log in click here!" con uno stile
-  /// personalizzato per il colore e la dimensione del testo.
-  ///
-  /// - Restituisce un `Center` che contiene il `TextButton` per la navigazione.
   Center _buildLoginNavigationButton() {
     return Center(
       child: TextButton(
         onPressed: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    LoginScreen()), // Naviga alla schermata di login
+            MaterialPageRoute(builder: (context) => LoginScreen()),
           );
         },
         child: const Text(
-          'To log in click here!', // Testo che indica la possibilità di navigare alla schermata di login
+          'To log in click here!',
           style: TextStyle(
-            color: Colors.blue, // Colore del testo del bottone
-            fontSize: 16, // Dimensione del font
+            color: Colors.blue,
+            fontSize: 16,
           ),
         ),
       ),
@@ -176,8 +155,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   /// Crea l'intestazione della schermata di registrazione con il logo e il titolo.
-  /// Questa funzione viene utilizzata all'interno del metodo `build()` per creare l'header
-  /// della schermata di registrazione.
   Widget _buildHeader(String screenPage) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -189,7 +166,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           height: 160,
         ),
         Text(
-          'Registration',
+          screenPage,
           style: TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
