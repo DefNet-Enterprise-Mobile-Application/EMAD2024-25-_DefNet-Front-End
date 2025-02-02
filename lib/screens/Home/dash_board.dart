@@ -1,3 +1,4 @@
+import 'package:defnet_front_end/shared/services/wifi_settings_service.dart';
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:ping_discover_network_forked/ping_discover_network_forked.dart';
@@ -19,6 +20,9 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   // Lista dinamica di dispositivi connessi
   List<Map<String, String>> _connectedDevices = [];
+
+
+  final WifiSettingsService _wifiSettingsService = WifiSettingsService();
 
   // Stato della scansione
   bool isScanning = false;
@@ -44,6 +48,21 @@ class _DashboardScreenState extends State<DashboardScreen>
     // Avvia la scansione all'avvio
     _scanNetwork();
   }
+
+   void _loadDevices() async {
+    try {
+      List<Map<String, String>> devices =
+          await _wifiSettingsService.fetchConnectedDevices();
+      setState(() {
+        _connectedDevices = devices;
+      });
+    } catch (e) {
+      // Gestisci errori (ad esempio, mostrare un messaggio di errore)
+      print('Error loading devices: $e');
+    }
+  }
+
+
 
   void _editDeviceName(int index) {
     final TextEditingController nameController = TextEditingController(

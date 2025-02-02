@@ -25,7 +25,45 @@ class WifiSettingsService {
     }
   }
 
-// Metodo per aggiornare le impostazioni Wi-Fi
+
+
+  // Metodo per ottenere i dispositivi connessi
+  Future<List<Map<String, String>>> fetchConnectedDevices() async {
+    try {
+      // Effettua la richiesta HTTP GET
+      final response = await http.get(Uri.parse("$baseUrl/devices"));
+
+      // Se la risposta è positiva (codice 200)
+      if (response.statusCode == 200) {
+        // Decodifica la risposta in formato JSON
+        final data = json.decode(response.body);
+
+        // Estrai la lista dei dispositivi connessi
+        List<Map<String, String>> devices = [];
+        for (var device in data['connected_devices']) {
+          devices.add({
+            'name':
+                device['hostname'] ?? 'Unknown Device', // Nome del dispositivo
+            'ip': device['ip'], // IP assegnato
+            'mac': device['mac'], // MAC address
+            'interface': 'Defnet_Network_Adapter', // Interfaccia statica
+            'tx_bytes': device['tx_bytes'], // Bytes trasmessi
+            'rx_bytes': device['rx_bytes'], // Bytes ricevuti
+          });
+        }
+
+        return devices;
+      } else {
+        // Se la risposta non è 200, lancia un'eccezione
+        throw Exception('Failed to load devices');
+      }
+    } catch (e) {
+      // Gestisci eventuali errori
+      throw Exception('Error fetching devices: $e');
+    }
+  }
+
+  // Metodo per aggiornare le impostazioni Wi-Fi
   Future<Map<String, dynamic>> updateSettings(Map<String, String> newSettings) async {
     try {
       // Definire l'URL completo per la PUT request
