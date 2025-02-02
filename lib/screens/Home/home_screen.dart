@@ -527,8 +527,8 @@ class _HomeScreenState extends State<HomeScreen> {
               blurRadius: 30,
               offset: Offset(0, 4),)
           ]),
-          child: Icon(Icons.qr_code_scanner, color: Colors.white,
-              size: screenWidth * 0.08)
+          child: Icon(FontAwesomeIcons.qrcode, color: Colors.white,
+            size: screenWidth * 0.080,)
       ),
       onPressed: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) =>
