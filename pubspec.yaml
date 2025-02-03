@@ -61,6 +61,7 @@ dependencies:
   wifi_iot: ^0.3.4
   shared_preferences: ^2.0.18
   qr_code_scanner_plus: ^2.0.9+1
+  fl_chart: ^0.66.0
 
 dev_dependencies:
   flutter_test:

@@ -1,17 +1,16 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:wifi_iot/wifi_iot.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class WifiQRScreen extends StatefulWidget {
-  const WifiQRScreen({Key? key}) : super(key: key);
-
   @override
-  State<WifiQRScreen> createState() => _WifiQRScreenState();
+  _WifiQRScreenState createState() => _WifiQRScreenState();
 }
 
 class _WifiQRScreenState extends State<WifiQRScreen> {
   String? qrCodeBase64;
+  final String backendURL = "${dotenv.env['URL']}${dotenv.env['IP_RASP']}:${dotenv.env['PORT_MICROSERVICE']}";
 
  final String  baseUrl = "wifi/qr";
  final String baseUrlTest = "wifi/qr_test";
@@ -19,19 +18,20 @@ class _WifiQRScreenState extends State<WifiQRScreen> {
   @override
   void initState() {
     super.initState();
-    fetchQRCode();
+    _fetchQRCode();
   }
+
 
   Future<void> fetchQRCode() async {
     print("Sono all'interno del metodo!");
     try {
       final response = await http.get(Uri.parse('http://10.71.71.1:8000/$baseUrlTest')); // Cambia l'URL in base alla tua configurazione
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
         setState(() {
-          qrCodeBase64 = data['qr_code'];
+          qrCodeBase64 = jsonDecode(response.body)["qr_code"];
         });
       } else {
+        
         print(response.body);
         throw Exception('Errore nel recupero del QR code');
       }
@@ -70,7 +70,7 @@ class _WifiQRScreenState extends State<WifiQRScreen> {
         );
       }
     } catch (e) {
-      print('Errore nella connessione alla rete Wi-Fi: $e');
+      print("Errore: $e");
     }
   }
 
@@ -78,31 +78,25 @@ class _WifiQRScreenState extends State<WifiQRScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wi-Fi QR Code'),
+        title: Text(
+          "QR Code Wi-Fi",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
+        backgroundColor: Colors.blue.shade700,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // Torna indietro alla schermata precedente
+          },
+        ),
       ),
       body: Center(
-        child: qrCodeBase64 != null
-            ? Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.memory(
-              base64Decode(qrCodeBase64!),
-              width: 200,
-              height: 200,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                final wifiData = parseWifiQRCode(qrCodeBase64!);
-                if (wifiData != null) {
-                  connectToWifi(wifiData['ssid']!, wifiData['password']!);
-                }
-              },
-              child: const Text('Connetti alla rete'),
-            ),
-          ],
-        )
-            : const CircularProgressIndicator(),
+        child: qrCodeBase64 == null
+            ? CircularProgressIndicator()
+            : Image.memory(base64Decode(qrCodeBase64!)),
       ),
     );
   }
