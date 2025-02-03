@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../shared/services/settings_service.dart';
@@ -13,6 +12,7 @@ class ServiceScreen extends StatefulWidget {
 }
 
 class _ServiceScreenState extends State<ServiceScreen> {
+  
   late NotificationState notificationState;
   final SettingsService settingsService = SettingsService();
 
