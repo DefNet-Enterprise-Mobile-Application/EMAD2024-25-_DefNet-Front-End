@@ -54,6 +54,7 @@ dependencies:
   flutter_lints: ^5.0.0
   dio: any
   wave: any
+  flutter_launcher_icons: any
   ping_discover_network_forked: ^0.0.1
   network_info_plus: ^6.1.2
   image_picker: ^0.8.5+3
@@ -158,3 +159,9 @@ fonts:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
+#flutter_icons:
+ # android: true
+  #ios: true
+  #image_path: "lib/assets/logo.jpeg"  # Percorso dell'icona della tua app
+  #adaptive_icon_foreground: "assets/adaptive_icon_foreground.png" # Solo per Android
+  #adaptive_icon_background: "assets/adaptive_icon_background.png" # Solo per Android
