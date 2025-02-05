@@ -332,8 +332,8 @@ Widget build(BuildContext context) {
         slivers: [
           /// **SliverAppBar scrollabile**
           SliverAppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 2,
+            backgroundColor: const Color.fromARGB(0, 235, 227, 227),
+            elevation: 0,
             expandedHeight: screenHeight * 0.30, // Altezza espansa
             floating: true, // Scompare quando si scrolla
             snap: false, // Riapparizione immediata quando si scrolla verso l'alto
