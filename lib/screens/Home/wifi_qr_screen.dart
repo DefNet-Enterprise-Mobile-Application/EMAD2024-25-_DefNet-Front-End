@@ -5,12 +5,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+
 class WifiQRScreen extends StatefulWidget {
   @override
   _WifiQRScreenState createState() => _WifiQRScreenState();
 }
 
 class _WifiQRScreenState extends State<WifiQRScreen> {
+  
   String? qrCodeBase64;
   final String backendURL = "${dotenv.env['URL']}${dotenv.env['IP_RASP']}:${dotenv.env['PORT_MICROSERVICE']}";
   final String baseUrl = "wifi/qr";

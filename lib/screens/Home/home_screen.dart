@@ -1,4 +1,4 @@
-// Principal Component 
+// Principal Component
 import 'package:defnet_front_end/screens/Profile/profile_screen.dart';
 import 'package:defnet_front_end/screens/Service/service_screen.dart';
 import 'package:defnet_front_end/screens/Wifi_Settings/wifi_settings_screen.dart';
@@ -17,6 +17,8 @@ import 'package:defnet_front_end/shared/services/logout_service.dart';
 import 'package:defnet_front_end/shared/services/websocket_service.dart';
 import 'package:defnet_front_end/shared/services/secure_storage_service.dart';
 
+
+// Legacy Library Component
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -35,14 +37,16 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0; // Indice corrente della pagina visualizzata
   int? _previousIndex; // Variabile per memorizzare la pagina precedente
 
-  String? _userName; // Variabile che conterrà il nome utente (inizialmente null)
+  String?
+      _userName; // Variabile che conterrà il nome utente (inizialmente null)
   final SecureStorageService _storageService = SecureStorageService.instance;
   final LogoutService _logoutService = LogoutService();
   int? userId;
 
   late NotificationState _notificationState;
 
-  List<int> _navigationStack = []; // Stack per tenere traccia delle pagine visitate
+  List<int> _navigationStack =
+      []; // Stack per tenere traccia delle pagine visitate
 
   final List<Widget> _pages = [
     DashboardScreen(),
@@ -66,25 +70,28 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<bool> _onWillPop(BuildContext context) async {
     if (_currentIndex == 0) {
       // Se sei sulla Dashboard, mostra il messaggio
-      bool shouldLogout =  await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Vuoi uscire?'),
-          content: const Text('Sei sicuro di voler uscire dall\'app?'),
-          actions: [
-            // Pulsante "No"
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false), // Chiude il dialog
-              child: const Text('No'),
+      bool shouldLogout = await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Vuoi uscire?'),
+              content: const Text('Sei sicuro di voler uscire dall\'app?'),
+              actions: [
+                // Pulsante "No"
+                TextButton(
+                  onPressed: () =>
+                      Navigator.of(context).pop(false), // Chiude il dialog
+                  child: const Text('No'),
+                ),
+                // Pulsante "Sì"
+                TextButton(
+                  onPressed: () =>
+                      Navigator.of(context).pop(true), // Conferma uscita
+                  child: const Text('Sì'),
+                ),
+              ],
             ),
-            // Pulsante "Sì"
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true), // Conferma uscita
-              child: const Text('Sì'),
-            ),
-          ],
-        ),
-      ) ?? false; // Se il dialog viene chiuso senza selezione
+          ) ??
+          false; // Se il dialog viene chiuso senza selezione
 
       if (shouldLogout) {
         // Effettua il logout
@@ -103,7 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // Se non siamo sulla Dashboard, torniamo alla pagina precedente
     if (_navigationStack.isNotEmpty) {
       setState(() {
-        _currentIndex = _navigationStack.removeLast(); // Torna alla pagina precedente
+        _currentIndex =
+            _navigationStack.removeLast(); // Torna alla pagina precedente
       });
       return false; // Blocca l'uscita dall'app
     }
@@ -144,6 +152,175 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
   }
+
+  
+  // Modifiche relative al branch GestioneStato - /// TODO: da rivedere
+  //@override
+  Widget build2(BuildContext context) {
+    _notificationState = Provider.of<NotificationState>(context);
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    return WillPopScope(
+      onWillPop: () => _onWillPop(context), // Gestione del tasto "Indietro"
+      child: Scaffold(
+          body: Stack(
+            children: [
+              // Contenuto dinamico con scrolling
+              CustomScrollView(
+                physics: NeverScrollableScrollPhysics(),
+                slivers: [
+                  // SliverAppBar per l'ellisse con logo sovrapposto
+                  SliverAppBar(
+                    backgroundColor: Colors.transparent,
+                    expandedHeight: screenHeight *
+                        0.27, // Aumenta l'altezza dell'ellisse per lasciare spazio
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Stack(
+                        children: [
+                          // Onda (ellisse)
+                          EllipseUp(),
+                          // Contenuto della pagina
+                          SingleChildScrollView(
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Column(
+                                children: <Widget>[
+                                  const SizedBox(height: 40),
+                                  // Immagine del logo
+                                  Align(
+                                    alignment: Alignment
+                                        .topLeft, // Allineamento a sinistra e in alto
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Immagine del logo
+                                        Image.asset(
+                                          'lib/assets/logodiviso.png',
+                                          width: 170,
+                                          height: 60,
+                                        ),
+                                        const SizedBox(
+                                            height:
+                                                0), // Spazio tra il logo e il testo
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              52.0,
+                                              0.0,
+                                              20.0,
+                                              3.0), // Aggiunge un po' di spazio
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                'DefNet',
+                                                style: TextStyle(
+                                                  fontSize:
+                                                      20, // Dimensione testo
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors
+                                                      .white, // Colore del testo
+                                                  shadows: [
+                                                    Shadow(
+                                                      blurRadius: 5.0,
+                                                      color: Colors.black
+                                                          .withOpacity(0.5),
+                                                      offset: Offset(3.0, 3.0),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const Spacer(),
+                                              _buildNotificationButton(screenWidth, _notificationState),
+                                              SizedBox(width: screenWidth * 0.03),
+                                              _buildReportIcon(screenWidth),
+                                              SizedBox(width: screenWidth * 0.03),
+                                              _buildLogoutButton(screenWidth),
+                                            ],
+                                          ),
+                                        ),
+                                        if (_userName != null && _currentIndex == 0)
+                                          Padding(
+                                            padding: EdgeInsets.fromLTRB(screenWidth * 0.08, 1.0, 20.0, 0.0),
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  'Hello ',
+                                                  style: TextStyle(
+                                                    fontSize: screenWidth * 0.08,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  _userName!,
+                                                  style: TextStyle(
+                                                    fontSize: screenWidth * 0.08,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    pinned: true,
+                  ),
+                  SliverFillRemaining(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
+                      child: Container(
+                        padding: EdgeInsets.all(screenWidth * 0.05),
+
+                        child: IndexedStack(
+                            index: _currentIndex, children: _pages),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      bottomNavigationBar: CurvedNavigationBar(
+        backgroundColor: Colors.white,
+        color: Colors.blue.shade900,
+        buttonBackgroundColor: Colors.blueAccent.shade100,
+        height: screenHeight * 0.08,
+        animationDuration: const Duration(milliseconds: 300),
+        index: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: [
+          Image.asset('lib/assets/icons/home.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
+          Image.asset('lib/assets/icons/wifi.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
+          Image.asset('lib/assets/icons/service.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
+          Image.asset('lib/assets/icons/profile.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
+        ],
+      ),
+
+    );
+  }
+  
+  
+  
+
+  // Modifiche Pub-Sub/Login Umberto
 
   @override
   Widget build(BuildContext context) {
@@ -196,41 +373,54 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     Shadow(
                                                       blurRadius: 5.0,
                                                       color: Colors.black.withOpacity(0.5),
+                                                      color: Colors.black
+                                                          .withOpacity(0.5),
                                                       offset: Offset(3.0, 3.0),
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                               const Spacer(),
-                                              _buildNotificationButton(screenWidth, _notificationState),
-                                              SizedBox(width: screenWidth * 0.03),
+                                              _buildNotificationButton(
+                                                  screenWidth,
+                                                  _notificationState),
+                                              SizedBox(
+                                                  width: screenWidth * 0.03),
+                                              _buildQRCodeButton(screenWidth),
+                                              // Pulsante QR Code aggiunto qui
+                                              SizedBox(
+                                                  width: screenWidth * 0.03),
                                               _buildReportIcon(screenWidth),
-                                              SizedBox(width: screenWidth * 0.03),
+                                              SizedBox(
+                                                  width: screenWidth * 0.03),
                                               _buildLogoutButton(screenWidth),
                                             ],
                                           ),
                                         ),
-                                        if (_userName != null && _currentIndex == 0)
+                                        if (_userName != null &&
+                                            _currentIndex == 0)
                                           Padding(
-                                            padding: EdgeInsets.fromLTRB(screenWidth * 0.08, 1.0, 20.0, 0.0),
+                                            padding: EdgeInsets.fromLTRB(
+                                                screenWidth * 0.08,
+                                                1.0,
+                                                20.0,
+                                                0.0),
                                             child: Row(
                                               children: [
-                                                Text(
-                                                  'Hello ',
-                                                  style: TextStyle(
-                                                    fontSize: screenWidth * 0.08,
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  _userName!,
-                                                  style: TextStyle(
-                                                    fontSize: screenWidth * 0.08,
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
+                                                Text('Hello ',
+                                                    style: TextStyle(
+                                                        fontSize:
+                                                            screenWidth * 0.08,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                Text(_userName!,
+                                                    style: TextStyle(
+                                                        fontSize:
+                                                            screenWidth * 0.08,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
                                               ],
                                             ),
                                           ),
@@ -248,7 +438,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SliverFillRemaining(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: screenWidth * 0.05,
+                          vertical: screenHeight * 0.02),
                       child: Container(
                         padding: EdgeInsets.all(screenWidth * 0.05),
                         child: IndexedStack(
@@ -275,14 +467,28 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
         items: [
-          Image.asset('lib/assets/icons/home.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
-          Image.asset('lib/assets/icons/wifi.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
-          Image.asset('lib/assets/icons/service.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
-          Image.asset('lib/assets/icons/profile.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
+          Image.asset('lib/assets/icons/home.png',
+              width: screenWidth * 0.08,
+              height: screenWidth * 0.08,
+              color: Colors.white),
+          Image.asset('lib/assets/icons/wifi.png',
+              width: screenWidth * 0.08,
+              height: screenWidth * 0.08,
+              color: Colors.white),
+          Image.asset('lib/assets/icons/service.png',
+              width: screenWidth * 0.08,
+              height: screenWidth * 0.08,
+              color: Colors.white),
+          Image.asset('lib/assets/icons/profile.png',
+              width: screenWidth * 0.08,
+              height: screenWidth * 0.08,
+              color: Colors.white),
         ],
       ),
     );
   }
+
+  
 
   // (Mantieni la funzione _buildQRCodeButton se in futuro serve)
   IconButton _buildQRCodeButton(double screenWidth) {
@@ -318,6 +524,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ]),
           child: Image.asset('lib/assets/icons/logout.png', width: screenWidth * 0.10, height: screenWidth * 0.10, color: Colors.white)
       ),
+
       onPressed: () async {
         bool responseLogout = await _logoutService.logout(_storageService);
         if (responseLogout) {
@@ -412,5 +619,6 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     );
+
   }
 }
