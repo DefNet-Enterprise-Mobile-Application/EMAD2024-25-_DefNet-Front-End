@@ -14,7 +14,7 @@ class ReportScreen extends StatefulWidget {
 class _ReportScreenState extends State<ReportScreen> {
   bool isDailyReport = true;
   List<dynamic> notifications = [];
-  Map<String, int> reportData = {'attacchi': 0, 'ping': 0, 'soppressioni': 0};
+  Map<String, int> reportData = {'InfoSystem': 0, 'AlertSystem': 0, 'WarningSystem': 0};
 
   @override
   void initState() {
@@ -23,10 +23,7 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Future<void> _fetchReports() async {
-    String backendUrl = 'http://192.168.1.5:8000/report/daily/${widget.userId}';
-
-    print("User ID: ${widget.userId}");  // <-- Stampa l'ID utente per verificare
-    print("Invio richiesta a: $backendUrl");
+    String backendUrl = 'http://192.168.1.5:8000/report/daily';
 
     try {
       final response = await http.get(Uri.parse(backendUrl));
@@ -39,9 +36,9 @@ class _ReportScreenState extends State<ReportScreen> {
         setState(() {
           notifications = data['notifiche'] ?? [];
           reportData = {
-            'attacchi': data['attacchi'] ?? 0,
-            'ping': data['ping'] ?? 0,
-            'soppressioni': data['soppressioni'] ?? 0,
+            'InfoSystem': data['notifiche'].firstWhere((item) => item['tipo'] == 'InfoSystem')['count'] ?? 0,
+            'AlertSystem': data['notifiche'].firstWhere((item) => item['tipo'] == 'AlertSystem')['count'] ?? 0,
+            'WarningSystem': data['notifiche'].firstWhere((item) => item['tipo'] == 'WarningSystem')['count'] ?? 0,
           };
         });
       } else {
@@ -115,37 +112,72 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
           const SizedBox(height: 20),
           SizedBox(
-            height: 200,
+            height: 300,
             child: PieChart(
               PieChartData(
                 sections: [
                   PieChartSectionData(
-                    value: reportData['attacchi']!.toDouble(),
-                    color: Colors.redAccent,
-                    title: 'Attacchi',
-                    radius: 60,
-                  ),
-                  PieChartSectionData(
-                    value: reportData['ping']!.toDouble(),
+                    value: reportData['InfoSystem']!.toDouble(),
                     color: Colors.blueAccent,
-                    title: 'Ping',
                     radius: 60,
+                    titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold,color: Colors.blueAccent),
                   ),
                   PieChartSectionData(
-                    value: reportData['soppressioni']!.toDouble(),
-                    color: Colors.greenAccent,
-                    title: 'Soppressioni',
+                    value: reportData['AlertSystem']!.toDouble(),
+                    color: Colors.redAccent,
                     radius: 60,
+                    titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.redAccent),
+                  ),
+                  PieChartSectionData(
+                    value: reportData['WarningSystem']!.toDouble(),
+                    color: Colors.orangeAccent,
+                    radius: 60,
+                    titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.orangeAccent),
                   ),
                 ],
                 centerSpaceRadius: 40,
+                sectionsSpace: 4,
+                borderData: FlBorderData(show: false),
               ),
             ),
+          ),
+          const SizedBox(height: 20),
+          _buildLegend(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegend() {
+    return Column(
+      children: [
+        _buildLegendItem(Colors.blueAccent, 'InfoSystem', reportData['InfoSystem']!.toString()),
+        _buildLegendItem(Colors.redAccent, 'AlertSystem', reportData['AlertSystem']!.toString()),
+        _buildLegendItem(Colors.orangeAccent, 'WarningSystem', reportData['WarningSystem']!.toString()),
+      ],
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String title, String count) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            color: color,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '$title: $count',
+            style: TextStyle(fontSize: 16),
           ),
         ],
       ),
     );
   }
+
   BoxDecoration _boxDecoration() {
     return BoxDecoration(
       color: Colors.white,
