@@ -199,9 +199,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       iconColor = Colors.red.shade700;
       containerColor = Colors.red.shade100;
     } else {
-      notificationIcon = FontAwesomeIcons.timesCircle;
+      notificationIcon = FontAwesomeIcons.warning;
       iconColor = Colors.orange;
-      containerColor = Colors.blue.shade100;
+      containerColor = Colors.orange.shade100;
     }
 
     return GestureDetector(

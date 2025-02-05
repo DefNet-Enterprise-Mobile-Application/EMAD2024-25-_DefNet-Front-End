@@ -157,6 +157,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
+
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
@@ -167,7 +168,8 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: height * 0.00001), // Spostato più in alto
+
+              SizedBox(height: height * 0.1), // Spostato più in alto
               // Pulsante animato con immagine
               Center(
                 child: ScaleTransition(
