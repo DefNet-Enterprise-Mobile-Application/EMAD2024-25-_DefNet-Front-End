@@ -18,7 +18,9 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
+  
   final LogoutService _logoutService = LogoutService();
+
   final SecureStorageService _storageService = SecureStorageService.instance;
 
   late NotificationState _notificationState;

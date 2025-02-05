@@ -154,8 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   
-  // Modifiche relative al branch GestioneStato - /// TODO: da rivedere
-  //@override
+  /*@override
   // Modifiche relative al branch GestioneStato - /// TODO: da rivedere
   //@override
   Widget build2(BuildContext context) {
@@ -315,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       ),
     );
-  }
+  }*/
 
   // Modifiche Pub-Sub/Login Umberto
 
@@ -325,160 +324,163 @@ class _HomeScreenState extends State<HomeScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      body: OrientationBuilder(
-        builder: (context, orientation) {
-          return Stack(
-            children: [
-              CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    backgroundColor: Colors.transparent,
-                    expandedHeight: screenHeight * 0.27,
-                    flexibleSpace: FlexibleSpaceBar(
-                      background: Stack(
-                        children: [
-                          EllipseUp(),
-                          SingleChildScrollView(
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: Column(
-                                children: <Widget>[
-                                  const SizedBox(height: 40),
-                                  Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Image.asset(
-                                          'lib/assets/logodiviso.png',
-                                          width: screenWidth * 0.27,
-                                          height: screenHeight * 0.06,
-                                        ),
-                                        const SizedBox(height: 0),
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                'DefNet',
-                                                style: TextStyle(
-                                                  fontSize: screenWidth * 0.05,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                  shadows: [
-                                                    Shadow(
-                                                      blurRadius: 5.0,
-                                                      color: Colors.black.withOpacity(0.5),
-                                                      offset: Offset(3.0, 3.0),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              const Spacer(),
-                                              _buildNotificationButton(
-                                                  screenWidth,
-                                                  _notificationState),
-                                              SizedBox(
-                                                  width: screenWidth * 0.03),
-                                              _buildQRCodeButton(screenWidth),
-                                              // Pulsante QR Code aggiunto qui
-                                              SizedBox(
-                                                  width: screenWidth * 0.03),
-                                              _buildReportIcon(screenWidth),
-                                              SizedBox(
-                                                  width: screenWidth * 0.03),
-                                              _buildLogoutButton(screenWidth),
-                                            ],
+    return WillPopScope(
+      onWillPop: () => _onWillPop(context), // Gestione del tasto "Indietro",
+      child: Scaffold(
+        body: OrientationBuilder(
+          builder: (context, orientation) {
+            return Stack(
+              children: [
+                CustomScrollView(
+                  slivers: [
+                    SliverAppBar(
+                      backgroundColor: Colors.transparent,
+                      expandedHeight: screenHeight * 0.27,
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: Stack(
+                          children: [
+                            EllipseUp(),
+                            SingleChildScrollView(
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: Column(
+                                  children: <Widget>[
+                                    const SizedBox(height: 40),
+                                    Align(
+                                      alignment: Alignment.topLeft,
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Image.asset(
+                                            'lib/assets/logodiviso.png',
+                                            width: screenWidth * 0.27,
+                                            height: screenHeight * 0.06,
                                           ),
-                                        ),
-                                        if (_userName != null &&
-                                            _currentIndex == 0)
+                                          const SizedBox(height: 0),
                                           Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                screenWidth * 0.08,
-                                                1.0,
-                                                20.0,
-                                                0.0),
+                                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                                             child: Row(
                                               children: [
-                                                Text('Hello ',
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            screenWidth * 0.08,
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                                Text(_userName!,
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            screenWidth * 0.08,
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold)),
+                                                Text(
+                                                  'DefNet',
+                                                  style: TextStyle(
+                                                    fontSize: screenWidth * 0.05,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white,
+                                                    shadows: [
+                                                      Shadow(
+                                                        blurRadius: 5.0,
+                                                        color: Colors.black.withOpacity(0.5),
+                                                        offset: Offset(3.0, 3.0),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                const Spacer(),
+                                                _buildNotificationButton(
+                                                    screenWidth,
+                                                    _notificationState),
+                                                /*SizedBox(
+                                                    width: screenWidth * 0.03),*/
+                                                //_buildQRCodeButton(screenWidth),
+                                                // Pulsante QR Code aggiunto qui
+                                                SizedBox(
+                                                    width: screenWidth * 0.03),
+                                                _buildReportIcon(screenWidth),
+                                                SizedBox(
+                                                    width: screenWidth * 0.03),
+                                                _buildLogoutButton(screenWidth),
                                               ],
                                             ),
                                           ),
-                                      ],
+                                          if (_userName != null &&
+                                              _currentIndex == 0)
+                                            Padding(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  screenWidth * 0.08,
+                                                  1.0,
+                                                  20.0,
+                                                  0.0),
+                                              child: Row(
+                                                children: [
+                                                  Text('Hello ',
+                                                      style: TextStyle(
+                                                          fontSize:
+                                                              screenWidth * 0.08,
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                  Text(_userName!,
+                                                      style: TextStyle(
+                                                          fontSize:
+                                                              screenWidth * 0.08,
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                ],
+                                              ),
+                                            ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          )
-                        ],
+                            )
+                          ],
+                        ),
+                      ),
+                      pinned: true,
+                    ),
+                    SliverFillRemaining(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.05,
+                            vertical: screenHeight * 0.02),
+                        child: Container(
+                          padding: EdgeInsets.all(screenWidth * 0.05),
+                          child: IndexedStack(
+                              index: _currentIndex, children: _pages),
+                        ),
                       ),
                     ),
-                    pinned: true,
-                  ),
-                  SliverFillRemaining(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.05,
-                          vertical: screenHeight * 0.02),
-                      child: Container(
-                        padding: EdgeInsets.all(screenWidth * 0.05),
-                        child: IndexedStack(
-                            index: _currentIndex, children: _pages),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      ),
-      bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.white,
-        color: Colors.blue.shade900,
-        buttonBackgroundColor: Colors.blueAccent.shade100,
-        height: screenHeight * 0.08,
-        animationDuration: const Duration(milliseconds: 300),
-        index: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: [
-          Image.asset('lib/assets/icons/home.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white),
-          Image.asset('lib/assets/icons/wifi.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white),
-          Image.asset('lib/assets/icons/service.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white),
-          Image.asset('lib/assets/icons/profile.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white),
-        ],
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+        bottomNavigationBar: CurvedNavigationBar(
+          backgroundColor: Colors.white,
+          color: Colors.blue.shade900,
+          buttonBackgroundColor: Colors.blueAccent.shade100,
+          height: screenHeight * 0.08,
+          animationDuration: const Duration(milliseconds: 300),
+          index: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: [
+            Image.asset('lib/assets/icons/home.png',
+                width: screenWidth * 0.08,
+                height: screenWidth * 0.08,
+                color: Colors.white),
+            Image.asset('lib/assets/icons/wifi.png',
+                width: screenWidth * 0.08,
+                height: screenWidth * 0.08,
+                color: Colors.white),
+            Image.asset('lib/assets/icons/service.png',
+                width: screenWidth * 0.08,
+                height: screenWidth * 0.08,
+                color: Colors.white),
+            Image.asset('lib/assets/icons/profile.png',
+                width: screenWidth * 0.08,
+                height: screenWidth * 0.08,
+                color: Colors.white),
+          ],
+        ),
       ),
     );
   }
@@ -614,6 +616,17 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     );
-
+    
+     // Chiudi il dialog dopo 3 secondi
+    Future.delayed(const Duration(seconds: 2), () {
+      // Cambiato da 1 a 3 secondi
+      Navigator.of(context).pop(); // Chiude il dialog
+      if (success) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SplashScreen()),
+        ); // Torna al login// Naviga alla schermata Home se il login ha successo
+      }
+    });
   }
 }
