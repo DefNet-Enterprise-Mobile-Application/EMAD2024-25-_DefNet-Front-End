@@ -259,18 +259,22 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+  double screenHeight = MediaQuery.of(context).size.height;
+
+
     final inputDecoration = InputDecoration(
       labelStyle: const TextStyle(color: Colors.blue),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: Colors.blue),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: Colors.blue),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: Colors.blue, width: 2),
       ),
     );
@@ -286,10 +290,10 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                 children: [
                   Image.asset(
                     'lib/assets/icons/settingswifi.png',
-                    height: 60, // Ridurre l'immagine
+                    height: 45, // Ridurre l'immagine
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 5),
                   Text(
                     'Settings Wi-Fi',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(

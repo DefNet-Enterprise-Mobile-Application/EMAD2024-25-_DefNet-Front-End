@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart'; // Per formattare la data
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -13,8 +15,9 @@ class ReportScreen extends StatefulWidget {
 
 class _ReportScreenState extends State<ReportScreen> {
   bool isDailyReport = true;
+  bool _isLoading = false;
   List<dynamic> notifications = [];
-  Map<String, int> reportData = {'InfoSystem': 0, 'AlertSystem': 0, 'WarningSystem': 0};
+  Map<String, int> reportData = {'system': 0, 'alert': 0, 'block': 0};
 
   @override
   void initState() {
@@ -23,30 +26,63 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Future<void> _fetchReports() async {
-    String backendUrl = 'http://192.168.1.5:8000/report/daily';
+    setState(() {
+      _isLoading = true; // Inizia il caricamento
+    });
+
+    // Generazione della data nel formato richiesto (YYYY-MM-DD)
+    String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    // Se è settimanale, calcoliamo la data di 7 giorni fa
+    String sevenDaysAgo = DateFormat('yyyy-MM-dd')
+        .format(DateTime.now().subtract(const Duration(days: 7)));
+
+    String backendUrl = isDailyReport
+        ? 'http://10.71.71.1:8000/report/daily?date=$today'
+        : 'http://10.71.71.1:8000/report/weekly?start_date=$sevenDaysAgo&end_date=$today';
 
     try {
       final response = await http.get(Uri.parse(backendUrl));
 
-      print("Stato risposta: ${response.statusCode}");
-      print("Corpo risposta: ${response.body}");
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        setState(() {
-          notifications = data['notifiche'] ?? [];
-          reportData = {
-            'InfoSystem': data['notifiche'].firstWhere((item) => item['tipo'] == 'InfoSystem')['count'] ?? 0,
-            'AlertSystem': data['notifiche'].firstWhere((item) => item['tipo'] == 'AlertSystem')['count'] ?? 0,
-            'WarningSystem': data['notifiche'].firstWhere((item) => item['tipo'] == 'WarningSystem')['count'] ?? 0,
-          };
-        });
+
+        if (data['notifiche'] is List) {
+          List<dynamic> notifiche = data['notifiche'];
+
+          setState(() {
+            notifications = notifiche;
+
+            // Estrazione dei conteggi in modo sicuro
+            reportData = {
+              'system': notifiche.firstWhere(
+                (item) => item['tipo'] == 'system',
+                orElse: () => {'count': 0},
+              )['count'],
+              'alert': notifiche.firstWhere(
+                (item) => item['tipo'] == 'alert',
+                orElse: () => {'count': 0},
+              )['count'],
+              'block': notifiche.firstWhere(
+                (item) => item['tipo'] == 'block',
+                orElse: () => {'count': 0},
+              )['count'],
+            };
+          });
+        } else {
+          print("Formato JSON non valido");
+        }
       } else {
-        print("Errore nella richiesta: ${response.statusCode}");
+        print(
+            "Errore nella richiesta: ${response.statusCode} - ${response.body}");
       }
     } catch (e) {
       print("Errore di connessione: $e");
     }
+
+    setState(() {
+      _isLoading = false; // Termina il caricamento
+    });
   }
 
   @override
@@ -54,10 +90,20 @@ class _ReportScreenState extends State<ReportScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Reporting',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+          "Reporting",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.white),
         ),
         backgroundColor: Colors.blue.shade700,
+        leading: IconButton(
+          icon: const Icon(
+            FontAwesomeIcons.house, // Usa l'icona di FontAwesome
+            color: Colors.white,
+          ),
+          onPressed: () {
+            // Torna alla pagina precedente senza creare una nuova istanza
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -72,11 +118,11 @@ class _ReportScreenState extends State<ReportScreen> {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       setState(() {
                         isDailyReport = !isDailyReport;
                       });
-                      _fetchReports();
+                      await _fetchReports();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue.shade700,
@@ -92,7 +138,27 @@ class _ReportScreenState extends State<ReportScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              _buildGraphSection(),
+
+              // Mostra il caricamento durante la richiesta dei dati
+              _isLoading
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 50),
+                      child: Column(
+                        children: [
+                          const CircularProgressIndicator(
+                            color: Colors.blue,
+                            strokeWidth: 5.0,
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            "Caricamento dei report...",
+                            style: TextStyle(
+                                fontSize: 18, color: Colors.blue.shade700),
+                          ),
+                        ],
+                      ),
+                    )
+                  : _buildGraphSection(), // Mostra il grafico solo se i dati sono caricati
             ],
           ),
         ),
@@ -117,22 +183,31 @@ class _ReportScreenState extends State<ReportScreen> {
               PieChartData(
                 sections: [
                   PieChartSectionData(
-                    value: reportData['InfoSystem']!.toDouble(),
-                    color: Colors.blueAccent,
+                    value: reportData['system']!.toDouble(),
+                    color: Colors.greenAccent,
                     radius: 60,
-                    titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold,color: Colors.blueAccent),
+                    titleStyle: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent),
                   ),
                   PieChartSectionData(
-                    value: reportData['AlertSystem']!.toDouble(),
-                    color: Colors.redAccent,
-                    radius: 60,
-                    titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.redAccent),
-                  ),
-                  PieChartSectionData(
-                    value: reportData['WarningSystem']!.toDouble(),
+                    value: reportData['alert']!.toDouble(),
                     color: Colors.orangeAccent,
                     radius: 60,
-                    titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.orangeAccent),
+                    titleStyle: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.redAccent),
+                  ),
+                  PieChartSectionData(
+                    value: reportData['block']!.toDouble(),
+                    color: Colors.redAccent,
+                    radius: 60,
+                    titleStyle: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orangeAccent),
                   ),
                 ],
                 centerSpaceRadius: 40,
@@ -151,9 +226,12 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget _buildLegend() {
     return Column(
       children: [
-        _buildLegendItem(Colors.blueAccent, 'InfoSystem', reportData['InfoSystem']!.toString()),
-        _buildLegendItem(Colors.redAccent, 'AlertSystem', reportData['AlertSystem']!.toString()),
-        _buildLegendItem(Colors.orangeAccent, 'WarningSystem', reportData['WarningSystem']!.toString()),
+        _buildLegendItem(
+            Colors.blueAccent, 'system', reportData['system']!.toString()),
+        _buildLegendItem(
+            Colors.redAccent, 'alert', reportData['alert']!.toString()),
+        _buildLegendItem(
+            Colors.orangeAccent, 'block', reportData['block']!.toString()),
       ],
     );
   }

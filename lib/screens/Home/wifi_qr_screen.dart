@@ -84,12 +84,14 @@ class _WifiQRScreenState extends State<WifiQRScreen> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 24,
+            color: Colors.white
           ),
         ),
         backgroundColor: Colors.blue.shade700,
         leading: IconButton(
           icon: const Icon(
             FontAwesomeIcons.house, // Usa l'icona di FontAwesome
+            color: Colors.white,
           ),
           onPressed: () {
             // Torna alla pagina precedente senza creare una nuova istanza
