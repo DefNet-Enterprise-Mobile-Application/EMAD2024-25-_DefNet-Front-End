@@ -156,6 +156,8 @@ class _HomeScreenState extends State<HomeScreen> {
   
   // Modifiche relative al branch GestioneStato - /// TODO: da rivedere
   //@override
+  // Modifiche relative al branch GestioneStato - /// TODO: da rivedere
+  //@override
   Widget build2(BuildContext context) {
     _notificationState = Provider.of<NotificationState>(context);
 
@@ -291,9 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ],
-          );
-        },
-      ),
+          ),
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.white,
         color: Colors.blue.shade900,
@@ -313,12 +313,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Image.asset('lib/assets/icons/profile.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
         ],
       ),
-
+      ),
     );
   }
-  
-  
-  
 
   // Modifiche Pub-Sub/Login Umberto
 
@@ -373,8 +370,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     Shadow(
                                                       blurRadius: 5.0,
                                                       color: Colors.black.withOpacity(0.5),
-                                                      color: Colors.black
-                                                          .withOpacity(0.5),
                                                       offset: Offset(3.0, 3.0),
                                                     ),
                                                   ],
