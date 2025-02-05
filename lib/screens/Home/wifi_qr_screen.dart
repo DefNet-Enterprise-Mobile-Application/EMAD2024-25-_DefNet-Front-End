@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:wifi_iot/wifi_iot.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class WifiQRScreen extends StatefulWidget {
   @override
@@ -11,16 +13,14 @@ class WifiQRScreen extends StatefulWidget {
 class _WifiQRScreenState extends State<WifiQRScreen> {
   String? qrCodeBase64;
   final String backendURL = "${dotenv.env['URL']}${dotenv.env['IP_RASP']}:${dotenv.env['PORT_MICROSERVICE']}";
-
- final String  baseUrl = "wifi/qr";
- final String baseUrlTest = "wifi/qr_test";
+  final String baseUrl = "wifi/qr";
+  final String baseUrlTest = "wifi/qr_test";
 
   @override
   void initState() {
     super.initState();
-    _fetchQRCode();
+    fetchQRCode();
   }
-
 
   Future<void> fetchQRCode() async {
     print("Sono all'interno del metodo!");
@@ -31,7 +31,6 @@ class _WifiQRScreenState extends State<WifiQRScreen> {
           qrCodeBase64 = jsonDecode(response.body)["qr_code"];
         });
       } else {
-        
         print(response.body);
         throw Exception('Errore nel recupero del QR code');
       }
@@ -87,9 +86,12 @@ class _WifiQRScreenState extends State<WifiQRScreen> {
         ),
         backgroundColor: Colors.blue.shade700,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(
+            FontAwesomeIcons.house, // Usa l'icona di FontAwesome
+          ),
           onPressed: () {
-            Navigator.pop(context); // Torna indietro alla schermata precedente
+            // Torna alla pagina precedente senza creare una nuova istanza
+            Navigator.pop(context);
           },
         ),
       ),

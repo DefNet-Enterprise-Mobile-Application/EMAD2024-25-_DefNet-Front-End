@@ -2,10 +2,10 @@ import 'package:defnet_front_end/shared/services/wifi_settings_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import '../../shared/services/logout_service.dart';
 import '../../shared/services/secure_storage_service.dart';
 import '../splash_screen.dart';
+import '../Home/wifi_qr_screen.dart'; // Importa la schermata QR
 
 class WifiSettingsScreen extends StatefulWidget {
   const WifiSettingsScreen({Key? key}) : super(key: key);
@@ -15,7 +15,6 @@ class WifiSettingsScreen extends StatefulWidget {
 }
 
 class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
-
   final _wifiNameController = TextEditingController();
   final _newWifiNameController = TextEditingController();
   final _ipGatewayController = TextEditingController();
@@ -33,8 +32,6 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
   final LogoutService _logoutService = LogoutService();
 
   final SecureStorageService _storageService = SecureStorageService.instance;
-
-
 
   // Funzione che mostra un dialog personalizzato
   void _showMessageDialog(
@@ -80,9 +77,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // Chiude il dialog e permette all'utente di uscire dall'app
                       Navigator.pop(context);
-                      // Esegui l'azione per aggiornare le informazioni
                       onConfirm();
                     },
                     child: Text('Modifica'),
@@ -104,8 +99,6 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
       },
     );
   }
-
-
 
   void _showMessageDialogUpdateSettings(BuildContext context, String message, bool success) {
     showDialog(
@@ -150,7 +143,6 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
     );
   }
 
-
   Future<void> _loadWifiSettings() async {
     try {
       final settings = await _wifiService.getWifiSettings();
@@ -168,7 +160,6 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
       });
     }
   }
-
 
   @override
   void initState() {
@@ -310,7 +301,26 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                   ),
                 ],
               ),
-              //const SizedBox(height: 0), // Distanza tra il titolo e la box
+              const SizedBox(height: 20),
+              // Nuovo pulsante "Condividi Wi-Fi"
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => WifiQRScreen()),
+                  );
+                },
+                icon: Icon(FontAwesomeIcons.qrcode, color: Colors.white),
+                label: const Text("Condividi Wi-Fi"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade500,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -461,28 +471,28 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
 
                             /// Mostra il dialog di conferma per l'aggiornamento delle impostazioni Wi-Fi
                             _showMessageDialog(
-                              context,
-                              'Sei sicuro di voler aggiornare le impostazioni Wi-Fi?',
-                              true, // Mostra il successo (puoi cambiare a false se serve un'icona d'errore)
-                                  () async {
+                                context,
+                                'Sei sicuro di voler aggiornare le impostazioni Wi-Fi?',
+                                true, // Mostra il successo
+                                    () async {
 
-                                    /// Do Logout and delete every Info about User
-                                    await _logoutService.logout(_storageService);
+                                  /// Do Logout and delete every Info about User
+                                  await _logoutService.logout(_storageService);
 
-                                    var result = await _wifiService.updateSettings(new_settings);
+                                  var result = await _wifiService.updateSettings(new_settings);
 
-                                    if (result['status'] == 'pending') {
+                                  if (result['status'] == 'pending') {
 
-                                      _showMessageDialogUpdateSettings(context, result['message'], true);
-                                      /// Timer per disconnettere l'utente
-                                      Future.delayed(Duration(seconds: 8), () {
-                                        _logout();
-                                      });
+                                    _showMessageDialogUpdateSettings(context, result['message'], true);
+                                    /// Timer per disconnettere l'utente
+                                    Future.delayed(Duration(seconds: 8), () {
+                                      _logout();
+                                    });
 
-                                    } else {
-                                      _showMessageDialogUpdateSettings(context, result['message'], false);
-                                    }
+                                  } else {
+                                    _showMessageDialogUpdateSettings(context, result['message'], false);
                                   }
+                                }
                             );
                           }
                         },
@@ -496,7 +506,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                         child: const Text(
                           'Save Settings',
                           style: TextStyle(
-                            fontSize: 15, // Ridurre la dimensione del testo
+                            fontSize: 15,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
