@@ -367,8 +367,7 @@ Widget build(BuildContext context) {
           ),
         ],
       ),
-
-      /// **Bottom Navigation Bar**
+      /// Bottom Navigation Bar 
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.white,
         color: Colors.blue.shade900,
@@ -378,26 +377,41 @@ Widget build(BuildContext context) {
         index: _currentIndex,
         onTap: (index) {
           setState(() {
+            if (index == 0) {
+              // Se l'utente torna alla Dashboard, resetta lo stack
+              _navigationStack.clear();
+            } else {
+              // Altrimenti, aggiungi l'indice corrente allo stack
+              _navigationStack.add(_currentIndex);
+            }
             _currentIndex = index;
           });
         },
         items: [
-          Image.asset('lib/assets/icons/home.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white),
-          Image.asset('lib/assets/icons/wifi.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white),
-          Image.asset('lib/assets/icons/service.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white),
-          Image.asset('lib/assets/icons/profile.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white),
+          Image.asset(
+            'lib/assets/icons/home.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
+          ),
+          Image.asset(
+            'lib/assets/icons/wifi.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
+          ),
+          Image.asset(
+            'lib/assets/icons/service.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
+          ),
+          Image.asset(
+            'lib/assets/icons/profile.png',
+            width: screenWidth * 0.08,
+            height: screenWidth * 0.08,
+            color: Colors.white,
+          ),
         ],
       ),
     ),
