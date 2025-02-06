@@ -46,7 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
 
     // Avvia la scansione all'avvio
-    _scanNetwork();
+    _loadDevices();
   }
 
    void _loadDevices() async {
@@ -108,52 +108,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.dispose();
   }
 
-  // Funzione per ottenere il subnet dinamico
-  Future<String?> _getSubnet() async {
-    final info = NetworkInfo();
-    final wifiIP = await info.getWifiIP();
-    if (wifiIP != null) {
-      return wifiIP.substring(0, wifiIP.lastIndexOf('.'));
-    }
-    return null;
-  }
 
-  // Funzione per scansionare la rete
-  Future<void> _scanNetwork() async {
-    setState(() {
-      isScanning = true;
-      _connectedDevices = [];
-    });
-
-    final subnet = await _getSubnet();
-    if (subnet == null) {
-      setState(() {
-        isScanning = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossibile ottenere il subnet.')),
-      );
-      return;
-    }
-
-    final port = 80; // Porta standard
-    final stream = NetworkAnalyzer.discover2(subnet, port);
-
-    stream.listen((NetworkAddress address) {
-      if (address.exists) {
-        setState(() {
-          _connectedDevices.add({
-            "name": "Device ${_connectedDevices.length + 1}", // Nome generico
-            "ip": address.ip,
-          });
-        });
-      }
-    }).onDone(() {
-      setState(() {
-        isScanning = false;
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +190,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   else
                     Flexible(
                       child: IconButton(
-                        onPressed: _scanNetwork,
+                        onPressed: _loadDevices,
                         icon: Image.asset(
                           "lib/assets/button_image/aggiorna.png", // Percorso del logo
                           width: width * 0.12, // Adatta la dimensione per schermi diversi
@@ -296,3 +251,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 }
+
+
+
+
