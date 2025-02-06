@@ -118,6 +118,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     return Scaffold(
       body: SingleChildScrollView(
+        physics: NeverScrollableScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
