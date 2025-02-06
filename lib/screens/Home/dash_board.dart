@@ -169,7 +169,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
 
-              SizedBox(height: height * 0.1), // Spostato più in alto
+              SizedBox(height: height * 0.0001), // Spostato più in alto
               // Pulsante animato con immagine
               Center(
                 child: ScaleTransition(

@@ -281,6 +281,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
 
     return Scaffold(
       body: SingleChildScrollView(
+        physics: NeverScrollableScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Column(

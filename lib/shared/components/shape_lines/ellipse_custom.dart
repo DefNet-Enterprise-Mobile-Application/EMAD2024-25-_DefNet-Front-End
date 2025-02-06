@@ -35,7 +35,7 @@ Widget EllipseUp() {
               gradientBegin: Alignment.centerLeft,
               gradientEnd: Alignment.centerRight,
             ),
-            size: const Size(double.infinity, 400), // Aumenta l'altezza
+            size: const Size(double.infinity, 500), // Aumenta l'altezza
             waveAmplitude: 10, // Incrementa per dare maggiore dinamismo
           ),
         ),

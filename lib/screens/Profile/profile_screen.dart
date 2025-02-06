@@ -115,6 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
+        physics: NeverScrollableScrollPhysics(),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),

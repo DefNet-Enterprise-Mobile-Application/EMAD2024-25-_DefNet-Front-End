@@ -114,18 +114,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                // Logo e titolo
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      /// Logo
                       Image.asset(
                         'lib/assets/logodiviso.png',
                         width: 100,
                         height: 60,
                       ),
+
                       const SizedBox(width: 10),
+
+                      /// Titolo "DefNet"
                       Text(
                         'DefNet',
                         style: TextStyle(
@@ -139,6 +142,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               offset: const Offset(2.0, 2.0),
                             ),
                           ],
+                        ),
+                      ),
+
+                      /// Spazio flessibile per spingere l'icona a destra
+                      Spacer(),
+
+                      /// Cestino per eliminare le notifiche
+                      InkWell(
+                        onTap: () => _showDeleteDialog(context),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Icon(
+                          FontAwesomeIcons.trashCan,
+                          color: Colors.red, // Cestino rosso
+                          size: 28,
                         ),
                       ),
                     ],
@@ -177,6 +194,37 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
           ),
         ),
+    );
+  }
+
+
+  /// Funzione per mostrare il `showDialog`
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Elimina notifiche'),
+          content: const Text('Sei sicuro di voler eliminare tutte le notifiche?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Chiudi senza eliminare
+              child: const Text('Annulla'),
+            ),
+            TextButton(
+              onPressed: () {
+                _notificationState.clearNotifications();
+                //_clearNotifications(); // Funzione per eliminare le notifiche
+                Navigator.of(context).pop(); // Chiudi il dialog
+              },
+              child: const Text(
+                'Elimina',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

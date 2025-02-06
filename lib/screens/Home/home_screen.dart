@@ -17,7 +17,6 @@ import 'package:defnet_front_end/shared/services/logout_service.dart';
 import 'package:defnet_front_end/shared/services/websocket_service.dart';
 import 'package:defnet_front_end/shared/services/secure_storage_service.dart';
 
-
 // Legacy Library Component
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -109,6 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Se non siamo sulla Dashboard, torniamo alla pagina precedente
     if (_navigationStack.isNotEmpty) {
+      print("Sono Qui devo togliere un elemento dallo stack !");
       setState(() {
         _currentIndex =
             _navigationStack.removeLast(); // Torna alla pagina precedente
@@ -153,273 +153,109 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  
-  /*@override
-  // Modifiche relative al branch GestioneStato - /// TODO: da rivedere
-  //@override
-  Widget build2(BuildContext context) {
+  // Modifiche Pub-Sub/Login Umberto
+  @override
+  Widget build(BuildContext context) {
     _notificationState = Provider.of<NotificationState>(context);
-
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
     return WillPopScope(
       onWillPop: () => _onWillPop(context), // Gestione del tasto "Indietro"
       child: Scaffold(
-          body: Stack(
-            children: [
-              // Contenuto dinamico con scrolling
-              CustomScrollView(
-                physics: NeverScrollableScrollPhysics(),
-                slivers: [
-                  // SliverAppBar per l'ellisse con logo sovrapposto
-                  SliverAppBar(
-                    backgroundColor: Colors.transparent,
-                    expandedHeight: screenHeight *
-                        0.27, // Aumenta l'altezza dell'ellisse per lasciare spazio
-                    flexibleSpace: FlexibleSpaceBar(
-                      background: Stack(
-                        children: [
-                          // Onda (ellisse)
-                          EllipseUp(),
-                          // Contenuto della pagina
-                          SingleChildScrollView(
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: Column(
-                                children: <Widget>[
-                                  const SizedBox(height: 40),
-                                  // Immagine del logo
-                                  Align(
-                                    alignment: Alignment
-                                        .topLeft, // Allineamento a sinistra e in alto
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Immagine del logo
-                                        Image.asset(
-                                          'lib/assets/logodiviso.png',
-                                          width: 170,
-                                          height: 60,
-                                        ),
-                                        const SizedBox(
-                                            height:
-                                                0), // Spazio tra il logo e il testo
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              52.0,
-                                              0.0,
-                                              20.0,
-                                              3.0), // Aggiunge un po' di spazio
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                'DefNet',
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      20, // Dimensione testo
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors
-                                                      .white, // Colore del testo
-                                                  shadows: [
-                                                    Shadow(
-                                                      blurRadius: 5.0,
-                                                      color: Colors.black
-                                                          .withOpacity(0.5),
-                                                      offset: Offset(3.0, 3.0),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              const Spacer(),
-                                              _buildNotificationButton(screenWidth, _notificationState),
-                                              SizedBox(width: screenWidth * 0.03),
-                                              _buildReportIcon(screenWidth),
-                                              SizedBox(width: screenWidth * 0.03),
-                                              _buildLogoutButton(screenWidth),
-                                            ],
-                                          ),
-                                        ),
-                                        if (_userName != null && _currentIndex == 0)
-                                          Padding(
-                                            padding: EdgeInsets.fromLTRB(screenWidth * 0.08, 1.0, 20.0, 0.0),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  'Hello ',
-                                                  style: TextStyle(
-                                                    fontSize: screenWidth * 0.08,
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  _userName!,
-                                                  style: TextStyle(
-                                                    fontSize: screenWidth * 0.08,
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
+        body: CustomScrollView(
+          physics: BouncingScrollPhysics(), // Scroll fluido
+          slivers: [
+            /// **SliverAppBar scrollabile**
+            SliverAppBar(
+              backgroundColor: const Color.fromARGB(0, 235, 227, 227),
+              elevation: 0,
+              expandedHeight: screenHeight * 0.30, // Altezza espansa
+              floating: true, // Scompare quando si scrolla
+              snap:
+                  false, // Riapparizione immediata quando si scrolla verso l'alto
+              flexibleSpace: FlexibleSpaceBar(
+                background: Stack(
+                  children: [
+                    /// Onda superiore
+                    EllipseUp(),
 
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    pinned: true,
-                  ),
-                  SliverFillRemaining(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
-                      child: Container(
-                        padding: EdgeInsets.all(screenWidth * 0.05),
-
-                        child: IndexedStack(
-                            index: _currentIndex, children: _pages),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-      bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.white,
-        color: Colors.blue.shade900,
-        buttonBackgroundColor: Colors.blueAccent.shade100,
-        height: screenHeight * 0.08,
-        animationDuration: const Duration(milliseconds: 300),
-        index: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: [
-          Image.asset('lib/assets/icons/home.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
-          Image.asset('lib/assets/icons/wifi.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
-          Image.asset('lib/assets/icons/service.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
-          Image.asset('lib/assets/icons/profile.png', width: screenWidth * 0.08, height: screenWidth * 0.08, color: Colors.white),
-        ],
-      ),
-      ),
-    );
-  }*/
-
-  // Modifiche Pub-Sub/Login Umberto
-
-@override
-Widget build(BuildContext context) {
-  _notificationState = Provider.of<NotificationState>(context);
-  double screenWidth = MediaQuery.of(context).size.width;
-  double screenHeight = MediaQuery.of(context).size.height;
-
-  return WillPopScope(
-    onWillPop: () => _onWillPop(context), // Gestione del tasto "Indietro"
-    child: Scaffold(
-      body: CustomScrollView(
-        physics: BouncingScrollPhysics(), // Scroll fluido
-        slivers: [
-          /// **SliverAppBar scrollabile**
-          SliverAppBar(
-            backgroundColor: const Color.fromARGB(0, 235, 227, 227),
-            elevation: 0,
-            expandedHeight: screenHeight * 0.30, // Altezza espansa
-            floating: true, // Scompare quando si scrolla
-            snap: false, // Riapparizione immediata quando si scrolla verso l'alto
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                children: [
-                  /// Onda superiore
-                  EllipseUp(),
-                  /// Header con logo e pulsanti
-                  _buildHeader(),
-                ],
-              ),
-            ),
-          ),
-
-          /// **Contenuto principale scrollabile**
-          SliverFillRemaining(
-            hasScrollBody: true, // Abilita lo scroll
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05,
-                  vertical: screenHeight * 0.02),
-              child: Container(
-                padding: EdgeInsets.all(screenWidth * 0.05),
-                child: IndexedStack(
-                  index: _currentIndex, 
-                  children: _pages,
+                    /// Header con logo e pulsanti
+                    _buildHeader(),
+                  ],
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-      /// Bottom Navigation Bar 
-      bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.white,
-        color: Colors.blue.shade900,
-        buttonBackgroundColor: Colors.blueAccent.shade100,
-        height: screenHeight * 0.08,
-        animationDuration: const Duration(milliseconds: 300),
-        index: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            if (index == 0) {
-              // Se l'utente torna alla Dashboard, resetta lo stack
-              _navigationStack.clear();
-            } else {
-              // Altrimenti, aggiungi l'indice corrente allo stack
-              _navigationStack.add(_currentIndex);
-            }
-            _currentIndex = index;
-          });
-        },
-        items: [
-          Image.asset(
-            'lib/assets/icons/home.png',
-            width: screenWidth * 0.08,
-            height: screenWidth * 0.08,
-            color: Colors.white,
-          ),
-          Image.asset(
-            'lib/assets/icons/wifi.png',
-            width: screenWidth * 0.08,
-            height: screenWidth * 0.08,
-            color: Colors.white,
-          ),
-          Image.asset(
-            'lib/assets/icons/service.png',
-            width: screenWidth * 0.08,
-            height: screenWidth * 0.08,
-            color: Colors.white,
-          ),
-          Image.asset(
-            'lib/assets/icons/profile.png',
-            width: screenWidth * 0.08,
-            height: screenWidth * 0.08,
-            color: Colors.white,
-          ),
-        ],
-      ),
-    ),
-  );
-}
 
+            /// **Contenuto principale scrollabile**
+            SliverFillRemaining(
+              hasScrollBody: true, // Abilita lo scroll
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth * 0.05,
+                    vertical: screenHeight * 0.01),
+                child: Container(
+                  padding: EdgeInsets.all(screenWidth * 0.04),
+                  child: IndexedStack(
+                    index: _currentIndex,
+                    children: _pages,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
 
-  
+        /// Bottom Navigation Bar
+        bottomNavigationBar: CurvedNavigationBar(
+          backgroundColor: Colors.white,
+          color: Colors.blue.shade900,
+          buttonBackgroundColor: Colors.blueAccent.shade100,
+          height: screenHeight * 0.08,
+          animationDuration: const Duration(milliseconds: 300),
+          index: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              if (index == 0) {
+                // Se l'utente torna alla Dashboard, resetta lo stack
+                _navigationStack.clear();
+              } else {
+                // Altrimenti, aggiungi l'indice corrente allo stack
+                _navigationStack.add(_currentIndex);
+              }
+              _currentIndex = index;
+            });
+          },
+          items: [
+            Image.asset(
+              'lib/assets/icons/home.png',
+              width: screenWidth * 0.08,
+              height: screenWidth * 0.08,
+              color: Colors.white,
+            ),
+            Image.asset(
+              'lib/assets/icons/wifi.png',
+              width: screenWidth * 0.08,
+              height: screenWidth * 0.08,
+              color: Colors.white,
+            ),
+            Image.asset(
+              'lib/assets/icons/service.png',
+              width: screenWidth * 0.08,
+              height: screenWidth * 0.08,
+              color: Colors.white,
+            ),
+            Image.asset(
+              'lib/assets/icons/profile.png',
+              width: screenWidth * 0.08,
+              height: screenWidth * 0.08,
+              color: Colors.white,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   // (Mantieni la funzione _buildQRCodeButton se in futuro serve)
   IconButton _buildQRCodeButton(double screenWidth) {
@@ -433,10 +269,14 @@ Widget build(BuildContext context) {
               offset: Offset(0, 4),
             )
           ]),
-          child: Icon(FontAwesomeIcons.qrcode, color: Colors.white, size: screenWidth * 0.080,)
-      ),
+          child: Icon(
+            FontAwesomeIcons.qrcode,
+            color: Colors.white,
+            size: screenWidth * 0.080,
+          )),
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => WifiQRScreen()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => WifiQRScreen()));
       },
     );
   }
@@ -453,9 +293,10 @@ Widget build(BuildContext context) {
               offset: Offset(0, 4),
             )
           ]),
-          child: Image.asset('lib/assets/icons/logout.png', width: screenWidth * 0.10, height: screenWidth * 0.10, color: Colors.white)
-      ),
-
+          child: Image.asset('lib/assets/icons/logout.png',
+              width: screenWidth * 0.10,
+              height: screenWidth * 0.10,
+              color: Colors.white)),
       onPressed: () async {
         bool responseLogout = await _logoutService.logout(_storageService);
         if (responseLogout) {
@@ -480,16 +321,23 @@ Widget build(BuildContext context) {
               offset: Offset(0, 4),
             )
           ]),
-          child: Icon(FontAwesomeIcons.chartColumn, color: Colors.white, size: screenWidth * 0.080,)
-      ),
+          child: Icon(
+            FontAwesomeIcons.chartColumn,
+            color: Colors.white,
+            size: screenWidth * 0.080,
+          )),
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ReportScreen(userId: userId!)));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ReportScreen(userId: userId!)));
       },
     );
   }
 
   // Pulsante Notifiche
-  Consumer<NotificationState> _buildNotificationButton(double screenWidth, NotificationState notificationState) {
+  Consumer<NotificationState> _buildNotificationButton(
+      double screenWidth, NotificationState notificationState) {
     return Consumer<NotificationState>(
       builder: (context, notificationState, child) {
         return IconButton(
@@ -504,17 +352,33 @@ Widget build(BuildContext context) {
                       offset: Offset(0, 4),
                     )
                   ]),
-                  child: Image.asset('lib/assets/icons/notification.png', width: screenWidth * 0.10, height: screenWidth * 0.10, color: Colors.white,)
-              ),
-              if(notificationState.hasNewNotification)
+                  child: Image.asset(
+                    'lib/assets/icons/notification.png',
+                    width: screenWidth * 0.10,
+                    height: screenWidth * 0.10,
+                    color: Colors.white,
+                  )),
+              if (notificationState.hasNewNotification)
                 Positioned(
-                  top: 0, right: 0,
-                  child: Container(width: 12, height: 12, decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle,),),
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                 )
             ],
           ),
           onPressed: () {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NotificationsScreen(userId: userId!)));
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        NotificationsScreen(userId: userId!)));
           },
         );
       },
@@ -524,34 +388,45 @@ Widget build(BuildContext context) {
   // Mostra messaggio di dialogo
   void _showMessageDialog(BuildContext context, String message, bool success) {
     showDialog(
-        context: context, barrierDismissible: false, builder: (context) {
-      return AlertDialog(
-        backgroundColor: Colors.indigo[700],
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if(!success)
-              Icon(FontAwesomeIcons.timesCircle, color: Colors.red, size: 50,),
-            if(success)...[
-              Icon(FontAwesomeIcons.check, color: Colors.green, size: 50,),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: MediaQuery.of(context).size.width * 0.05,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            ],
-          ],
-        ),
-      );
-    }
-    );
-    
-     // Chiudi il dialog dopo 3 secondi
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: Colors.indigo[700],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!success)
+                  Icon(
+                    FontAwesomeIcons.timesCircle,
+                    color: Colors.red,
+                    size: 50,
+                  ),
+                if (success) ...[
+                  Icon(
+                    FontAwesomeIcons.check,
+                    color: Colors.green,
+                    size: 50,
+                  ),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: MediaQuery.of(context).size.width * 0.05,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                ],
+              ],
+            ),
+          );
+        });
+
+    // Chiudi il dialog dopo 3 secondi
     Future.delayed(const Duration(seconds: 2), () {
       // Cambiato da 1 a 3 secondi
       Navigator.of(context).pop(); // Chiude il dialog
@@ -563,86 +438,80 @@ Widget build(BuildContext context) {
       }
     });
   }
-  
-  _buildHeader() {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-    return Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Image.asset(
-                                            'lib/assets/logodiviso.png',
-                                            width: screenWidth * 0.27,
-                                            height: screenHeight * 0.06,
-                                          ),
-                                          const SizedBox(height: 0),
-                                          Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  'DefNet',
-                                                  style: TextStyle(
-                                                    fontSize: screenWidth * 0.05,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white,
-                                                    shadows: [
-                                                      Shadow(
-                                                        blurRadius: 5.0,
-                                                        color: Colors.black.withOpacity(0.5),
-                                                        offset: Offset(3.0, 3.0),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                const Spacer(),
-                                                _buildNotificationButton(
-                                                    screenWidth,
-                                                    _notificationState),
-                                                /*SizedBox(
-                                                    width: screenWidth * 0.03),*/
-                                                //_buildQRCodeButton(screenWidth),
-                                                // Pulsante QR Code aggiunto qui
-                                                SizedBox(
-                                                    width: screenWidth * 0.03),
-                                                _buildReportIcon(screenWidth),
-                                                SizedBox(
-                                                    width: screenWidth * 0.03),
-                                                _buildLogoutButton(screenWidth),
-                                              ],
-                                            ),
-                                          ),
-                                          if (_userName != null &&
-                                              _currentIndex == 0)
-                                            Padding(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  screenWidth * 0.08,
-                                                  1.0,
-                                                  20.0,
-                                                  0.0),
-                                              child: Row(
-                                                children: [
-                                                  Text('Hello ',
-                                                      style: TextStyle(
-                                                          fontSize:
-                                                              screenWidth * 0.08,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold)),
-                                                  Text(_userName!,
-                                                      style: TextStyle(
-                                                          fontSize:
-                                                              screenWidth * 0.08,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold)),
-                                                ],
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    );
+
+  Widget _buildHeader() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double screenWidth = constraints.maxWidth;
+        double screenHeight = constraints.maxHeight;
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: screenHeight * 0.1),
+
+              /// Logo in alto a sinistra
+              Image.asset(
+                'lib/assets/logodiviso.png',
+                width: screenWidth * 0.2,
+                height: screenHeight * 0.2,
+              ),
+
+              SizedBox(height: screenHeight * 0.005),
+
+              /// Titolo e icone allineate a destra in modo flessibile
+              Row(
+                children: [
+                  /// Titolo "DefNet"
+                  Text(
+                    'DefNet',
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.06,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 5.0,
+                          color: Colors.black.withOpacity(0.5),
+                          offset: const Offset(3.0, 3.0),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  /// Spazio flessibile per adattarsi agli schermi più piccoli
+                  Spacer(),
+
+                  /// Pulsanti icone (avvolti per evitare overflow)
+                  Wrap(
+                    spacing: screenWidth * 0.03, // Spaziatura tra le icone
+                    children: [
+                      _buildNotificationButton(screenWidth, _notificationState),
+                      _buildReportIcon(screenWidth),
+                      _buildLogoutButton(screenWidth),
+                    ],
+                  ),
+                ],
+              ),
+
+              SizedBox(height: screenHeight * 0.005),
+
+              /// "Hello userx" (sempre visibile, ridotto in altezza)
+              if (_userName != null)
+                Text(
+                  'Hello $_userName!',
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.06,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

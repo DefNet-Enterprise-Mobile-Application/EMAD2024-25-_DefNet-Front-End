@@ -189,7 +189,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     titleStyle: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blueAccent),
+                        color: Colors.blue),
                   ),
                   PieChartSectionData(
                     value: reportData['alert']!.toDouble(),
