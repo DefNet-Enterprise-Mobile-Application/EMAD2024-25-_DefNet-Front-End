@@ -41,7 +41,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       minHeight: screenHeight, minWidth: double.infinity),
                   child: Stack(
                     children: <Widget>[
-                      EllipseUp(),
+                      EllipseUp(context),
                       Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,

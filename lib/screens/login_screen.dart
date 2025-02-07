@@ -110,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: IntrinsicHeight(
             child: Stack(
               children: <Widget>[
-                EllipseUp(),
+                EllipseUp(context),
                 Center(
                   // Centra il contenuto nella pagina
                   child: Padding(

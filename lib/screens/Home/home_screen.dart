@@ -169,16 +169,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         backgroundColor: Colors.transparent,
                         expandedHeight: screenHeight * 0.27,
                         //backgroundColor: const Color.fromARGB(0, 235, 227, 227),
-                        //elevation: 0,
+                        elevation: 0,
                         //expandedHeight: screenHeight * 0.30, // Altezza espansa
-                        //floating: true, // Scompare quando si scrolla
-                        //snap: false, // Riapparizione immediata quando si scrolla verso l'alto
+                        floating: true, // Scompare quando si scrolla
+                        snap: false, // Riapparizione immediata quando si scrolla verso l'alto
                         flexibleSpace: FlexibleSpaceBar(
                           background: Stack(
                             children: [
 
                               /// Onda superiore
-                              EllipseUp(),
+                              EllipseUp(context),
 
                               /// Header con logo e pulsanti
                               //_buildHeader(),
