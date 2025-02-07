@@ -31,7 +31,7 @@ class WifiSettingsService {
   Future<List<Map<String, String>>> fetchConnectedDevices() async {
     try {
       // Effettua la richiesta HTTP GET
-      final response = await http.get(Uri.parse("$baseUrl/devices"));
+      final response = await http.get(Uri.parse("$baseUrl/connected-devices"));
 
       // Se la risposta è positiva (codice 200)
       if (response.statusCode == 200) {
