@@ -1,8 +1,10 @@
 import 'package:defnet_front_end/shared/services/wifi_settings_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:ping_discover_network_forked/ping_discover_network_forked.dart';
 
+import '../../shared/services/secure_storage_service.dart';
 import 'speed_test_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -21,6 +23,9 @@ class _DashboardScreenState extends State<DashboardScreen>
   // Lista dinamica di dispositivi connessi
   List<Map<String, String>> _connectedDevices = [];
 
+  String?_userName;
+  final SecureStorageService _storageService = SecureStorageService.instance;
+  int? userId;
 
   final WifiSettingsService _wifiSettingsService = WifiSettingsService();
 
@@ -43,13 +48,50 @@ class _DashboardScreenState extends State<DashboardScreen>
         parent: _animationController,
         curve: Curves.easeInOut,
       ),
+
+
     );
 
     // Avvia la scansione all'avvio
+    _checkLoginStatus();
     _loadDevices();
   }
 
-   void _loadDevices() async {
+  Future<void> _checkLoginStatus() async {
+    final secureStorageService = SecureStorageService.instance;
+    final token = await secureStorageService.getToken();
+
+    if (token == null) {
+      _userName = "Guest";
+    } else {
+      await _loadUserName();
+    }
+  }
+
+  Future<void> _loadUserName() async {
+    try {
+      final user = await _storageService.get();
+      if (user != null) {
+        setState(() {
+          _userName = user.username;
+          if (kDebugMode) {
+            print("User ID: ${user.id}");
+          }
+          userId = user.id;
+        });
+      } else {
+        if (kDebugMode) {
+          print("User or username not found in storage.");
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error loading username: $e");
+      }
+    }
+  }
+
+  void _loadDevices() async {
     try {
       List<Map<String, String>> devices =
           await _wifiSettingsService.fetchConnectedDevices();
@@ -118,11 +160,37 @@ class _DashboardScreenState extends State<DashboardScreen>
       body: SingleChildScrollView(
         physics: NeverScrollableScrollPhysics(),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.only(top: 0.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: height * 0.0001), // Spostato più in alto
+              if (_userName != null)
+                Padding(
+                  padding: EdgeInsets.only(left: width * 0.0,top: height * 0.0), // Margine sopra e sotto
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Hello ',
+                          style: TextStyle(
+                            fontSize: width * 0.08,
+                            color: Colors.blue.shade900,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          _userName!,
+                          style: TextStyle(
+                            fontSize: width * 0.08,
+                            color: Colors.blue.shade900,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                ),
+              //SizedBox(height: height * 0.0001),
+              SizedBox(height: height * 0.06),// Spostato più in alto
               // Pulsante animato con immagine
               Center(
                 child: ScaleTransition(
@@ -157,11 +225,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
               ),
 
-              SizedBox(height: height * 0.05), // Spazio responsivo ridotto
+              SizedBox(height: height * 0.07), // Spazio responsivo ridotto
 
               // Titolo dei dispositivi connessi
               Row(
-                //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
                     child:Text(

@@ -260,8 +260,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-  double screenHeight = MediaQuery.of(context).size.height;
-
+    double screenHeight = MediaQuery.of(context).size.height;
 
     final inputDecoration = InputDecoration(
       labelStyle: const TextStyle(color: Colors.blue),
@@ -281,32 +280,35 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
 
     return Scaffold(
       body: SingleChildScrollView(
-        physics: NeverScrollableScrollPhysics(),
+        //physics: NeverScrollableScrollPhysics(),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: 0),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+               Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Image.asset(
                     'lib/assets/icons/settingswifi.png',
-                    height: 45, // Ridurre l'immagine
+                    height: screenHeight * 0.07, // Ridurre l'immagine
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(width: 5),
-                  Text(
-                    'Settings Wi-Fi',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontSize: 30, // Ridurre la dimensione del testo
-                      color: Colors.blue.shade800,
-                      fontWeight: FontWeight.bold,
+                  Expanded( // Espande il testo per evitare overflow
+                    child: Text(
+                      'Settings Wi-Fi',
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontSize: screenWidth * 0.06, // Ridurre la dimensione del testo
+                        color: Colors.blue.shade800,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               // Nuovo pulsante "Condividi Wi-Fi"
               ElevatedButton.icon(
                 onPressed: () {
@@ -315,11 +317,11 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                     MaterialPageRoute(builder: (context) => WifiQRScreen()),
                   );
                 },
-                icon: Icon(FontAwesomeIcons.qrcode, color: Colors.white),
+                icon: Icon(FontAwesomeIcons.qrcode, color: Colors.white, size: screenWidth * 0.05),
                 label: const Text("Condividi Wi-Fi"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue.shade500,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: 10),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -365,7 +367,8 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                           IconButton(
                             icon: Image.asset(
                               'lib/assets/icons/info.png', // Percorso della tua immagine
-                              height: 20,
+                              //height: 20,
+                              height: screenWidth * 0.05,
                               fit: BoxFit.contain,
                             ),
                             onPressed: () {
@@ -396,7 +399,8 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                               ),
                               icon: Image.asset(
                                 'lib/assets/icons/freccia.png', // Percorso della tua immagine per la freccia
-                                height: 20,
+                                //height: 20,
+                                height: screenWidth * 0.05,
                                 fit: BoxFit.contain,
                               ),
                             ),
@@ -404,7 +408,8 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                           IconButton(
                             icon: Image.asset(
                               'lib/assets/icons/info.png', // Percorso della tua immagine
-                              height: 20,
+                              //height: 20,
+                              height: screenWidth * 0.05,
                               fit: BoxFit.contain,
                             ),
                             onPressed: () {
@@ -502,7 +507,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: screenWidth * 0.1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),

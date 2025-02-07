@@ -47,14 +47,12 @@ Widget EllipseUp(BuildContext context) {
                 [Colors.blue.shade700, Colors.blue.shade500],
               ],
               durations: [5000, 5000],
-              // Le percentuali di altezza dei diversi strati dell'onda
-              heightPercentages: [0.50, 0.55],
+              heightPercentages: const [0.35, 0.40], // Incrementa per aumentare l'altezza
               gradientBegin: Alignment.centerLeft,
               gradientEnd: Alignment.centerRight,
             ),
-            // Imposta la dimensione dell'onda in base alle dimensioni dello schermo
-            size: Size(screenWidth, waveHeight),
-            waveAmplitude: waveAmplitude,
+            size: const Size(double.infinity, 340), // Aumenta l'altezza
+            waveAmplitude: 10, // Incrementa per dare maggiore dinamismo
           ),
         ),
       ],

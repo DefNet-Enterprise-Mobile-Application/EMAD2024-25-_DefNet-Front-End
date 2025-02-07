@@ -167,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       /// **SliverAppBar scrollabile**
                       SliverAppBar(
                         backgroundColor: Colors.transparent,
-                        expandedHeight: screenHeight * 0.27,
+                        expandedHeight: screenHeight * 0.20,
                         //backgroundColor: const Color.fromARGB(0, 235, 227, 227),
                         elevation: 0,
                         //expandedHeight: screenHeight * 0.30, // Altezza espansa
@@ -240,12 +240,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ],
                                               ),
                                             ),
-                                            if (_userName != null &&
-                                                _currentIndex == 0)
+                                            /*if (_userName != null && _currentIndex == 0)
                                               Padding(
                                                 padding: EdgeInsets.fromLTRB(
                                                     screenWidth * 0.05,
-                                                    screenHeight * 0.07, 20.0,
+                                                    screenHeight * 0.03, 20.0,
                                                     0.0),
                                                 child: Row(
                                                   children: [
@@ -273,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     ),
                                                   ],
                                                 ),
-                                              ),
+                                              ),*/
                                           ],
                                         ),
                                       ),
@@ -290,18 +289,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       /// **Contenuto principale scrollabile**
                       SliverFillRemaining(
                         //hasScrollBody: true, // Abilita lo scroll
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: screenWidth * 0.05,
-                              vertical: screenHeight * 0.02),
+                        //child: Padding(
+                          //padding: EdgeInsets.symmetric(
+                              //horizontal: screenWidth * 0.0,
+                              //vertical: screenHeight * 0),
                           child: Container(
-                            padding: EdgeInsets.all(screenWidth * 0.05),
+                            padding: EdgeInsets.all(screenWidth * 0.09),
                             child: IndexedStack(
                               index: _currentIndex,
                               children: _pages,
                             ),
                           ),
-                        ),
+                        //),
                       ),
                     ],
                   ),
@@ -543,80 +542,4 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
   }
-
-  /*Widget _buildHeader() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        double screenWidth = constraints.maxWidth;
-        double screenHeight = constraints.maxHeight;
-
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: screenHeight * 0.1),
-
-              /// Logo in alto a sinistra
-              Image.asset(
-                'lib/assets/logodiviso.png',
-                width: screenWidth * 0.2,
-                height: screenHeight * 0.2,
-              ),
-
-              SizedBox(height: screenHeight * 0.005),
-
-              /// Titolo e icone allineate a destra in modo flessibile
-              Row(
-                children: [
-                  /// Titolo "DefNet"
-                  Text(
-                    'DefNet',
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.06,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 5.0,
-                          color: Colors.black.withOpacity(0.5),
-                          offset: const Offset(3.0, 3.0),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  /// Spazio flessibile per adattarsi agli schermi più piccoli
-                  Spacer(),
-
-                  /// Pulsanti icone (avvolti per evitare overflow)
-                  Wrap(
-                    spacing: screenWidth * 0.03, // Spaziatura tra le icone
-                    children: [
-                      _buildNotificationButton(screenWidth, _notificationState),
-                      _buildReportIcon(screenWidth),
-                      _buildLogoutButton(screenWidth),
-                    ],
-                  ),
-                ],
-              ),
-
-              SizedBox(height: screenHeight * 0.005),
-
-              /// "Hello userx" (sempre visibile, ridotto in altezza)
-              if (_userName != null)
-                Text(
-                  'Hello $_userName!',
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.06,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }*/
 }

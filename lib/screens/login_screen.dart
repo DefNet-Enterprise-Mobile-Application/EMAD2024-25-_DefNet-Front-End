@@ -106,7 +106,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: SingleChildScrollView(
         child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height,minWidth: double.infinity),
+          constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height,
+              minWidth: double.infinity),
           child: IntrinsicHeight(
             child: Stack(
               children: <Widget>[
@@ -117,60 +119,65 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: EdgeInsets.symmetric(
                       horizontal: MediaQuery.of(context).size.width * 0.1,
                     ),
-                    child: Column( // Usa Column per supportare Expanded
-                        mainAxisSize: MainAxisSize.min, // Adatta la dimensione alla schermata
+                    child: SingleChildScrollView(
+                      // Permette lo scroll se il contenuto è troppo alto
+                      child: Column(
+                        // Usa Column per supportare Expanded
+                        mainAxisSize: MainAxisSize
+                            .min, // Adatta la dimensione alla schermata
                         children: <Widget>[
                           const SizedBox(height: 150),
                           _buildHeader('Login'),
                           const SizedBox(height: 20),
-                          Expanded(
-                            child: Container(
-                              width: 400,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 10,
-                                    offset: Offset(0, 10),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize:MainAxisSize.min, // Evita l'overflow
-                                children: <Widget>[
-                                  // Username Field
-                                  UsernameField(usernameController: _usernameController),
-                                  const SizedBox(height: 16),
-                                  // Password Field
-                                  PasswordField(
-                                    passwordController: _passwordController,
-                                    isPasswordVisible: _isPasswordVisible,
-                                    onPasswordChanged: _onValidatePassword,
-                                    errorMessage: _passwordErrorMessage,
-                                    onTogglePasswordVisibility: () {
-                                      setState(() {
-                                        _isPasswordVisible = !_isPasswordVisible;
-                                      });
-                                    },
-                                  ),
-                                  const SizedBox(height: 16),
+                          Container(
+                            width: 400,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 10,
+                                  offset: Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize:
+                                  MainAxisSize.min, // Evita l'overflow
+                              children: <Widget>[
+                                // Username Field
+                                UsernameField(
+                                    usernameController: _usernameController),
+                                const SizedBox(height: 16),
+                                // Password Field
+                                PasswordField(
+                                  passwordController: _passwordController,
+                                  isPasswordVisible: _isPasswordVisible,
+                                  onPasswordChanged: _onValidatePassword,
+                                  errorMessage: _passwordErrorMessage,
+                                  onTogglePasswordVisibility: () {
+                                    setState(() {
+                                      _isPasswordVisible = !_isPasswordVisible;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 16),
 
-                                  // Login Button
-                                  _buildLoginButton(_notificationState),
-                                  const SizedBox(height: 16),
+                                // Login Button
+                                _buildLoginButton(_notificationState),
+                                const SizedBox(height: 16),
 
-                                  // Navigation Button to Registration
-                                  _buildRegistrationNavigationButton()
-                                ],
-                              ),
+                                // Navigation Button to Registration
+                                _buildRegistrationNavigationButton()
+                              ],
                             ),
                           ),
                           const SizedBox(height: 50),
                         ],
+                      ),
                     ),
                   ),
                 ),
@@ -205,7 +212,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-    
   // validatePassword() - method to validate the password that we have setted
   void _onValidatePassword(String password) {
     String errorMessage = '';
@@ -232,8 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-                  
-                 /// Crea un pulsante che permette di eseguire il login.
+  /// Crea un pulsante che permette di eseguire il login.
   /// Il pulsante si adatta dinamicamente alla larghezza dello schermo ed è reattivo a
   /// cambiamenti di stato (ad esempio, quando l'operazione di login è in corso).
   Container _buildLoginButton(NotificationState notificationState) {
@@ -287,10 +292,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ],
     );
   }
-                  
-                  
-                  
-                  
+
   Future<void> _handleLogin(NotificationState notificationState) async {
     String username = _usernameController.text.trim();
     String password = _passwordController.text.trim();
@@ -318,7 +320,6 @@ class _LoginScreenState extends State<LoginScreen> {
         String usernameFromToken = decodedToken['sub'];
         String emailFromToken = decodedToken['email'];
 
-
         final user = User(
             id: userId,
             username: usernameFromToken,
@@ -330,8 +331,7 @@ class _LoginScreenState extends State<LoginScreen> {
           GetIt.I.registerSingleton<User>(user);
         }
 
-        if(notificationState.webSocketService.isConnected==false){
-
+        if (notificationState.webSocketService.isConnected == false) {
           notificationState.webSocketService = WebSocketService();
           // Inizializza il NotificationState
           await notificationState.initialize(userId);
