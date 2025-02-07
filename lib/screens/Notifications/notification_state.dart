@@ -72,7 +72,7 @@ class NotificationState extends ChangeNotifier {
     notifyListeners(); // Notifica la UI per aggiornare
   }
 
-  Future<void> _fetchStatusService() async {
+  /*Future<void> _fetchStatusService() async {
     final serviceState = await settingsService.fetchServicesStatus();
 
     for (var entry in serviceState.entries) {
@@ -81,7 +81,7 @@ class NotificationState extends ChangeNotifier {
       // Aggiorna lo stato del servizio
       updateServiceStatus(serviceName, newServiceStatus);
     }
-  }
+  }*/
 
   bool get hasNewNotification => _hasNewNotification;
 
@@ -91,7 +91,7 @@ class NotificationState extends ChangeNotifier {
     }
 
     await webSocketService.connect(userId); // Connessione WebSocket
-    await _fetchStatusService(); // Carica lo stato dei servizi
+    //await _fetchStatusService(); // Carica lo stato dei servizi
 
     /// Ascolta i messaggi WebSocket
     webSocketService.notificationsStream.listen((message) {

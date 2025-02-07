@@ -108,8 +108,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
 
@@ -118,13 +116,12 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     return Scaffold(
       body: SingleChildScrollView(
-        physics: NeverScrollableScrollPhysics(),
+        //physics: NeverScrollableScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-
               SizedBox(height: height * 0.0001), // Spostato più in alto
               // Pulsante animato con immagine
               Center(
@@ -164,41 +161,46 @@ class _DashboardScreenState extends State<DashboardScreen>
 
               // Titolo dei dispositivi connessi
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Connected Devices",
-                    style: TextStyle(
-                      fontSize: width * 0.07, // Responsivo
-                      fontWeight: FontWeight.bold,
-                      color: Colors.cyanAccent.shade700,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 5.0,
-                          color: Colors.blue.shade500.withOpacity(0.4),
-                          offset: const Offset(3.0, 3.0),
-                        ),
-                      ],
+                  Expanded(
+                    child:Text(
+                      "Connected Devices",
+                      style: TextStyle(
+                        fontSize: width * 0.05, // Responsivo
+                        fontWeight: FontWeight.bold,
+                        color: Colors.cyanAccent.shade700,
+                        shadows: [
+                          Shadow(
+                            blurRadius: 5.0,
+                            color: Colors.blue.shade500.withOpacity(0.4),
+                            offset: const Offset(3.0, 3.0),
+                          ),
+                        ],
+                      ),
+                      overflow: TextOverflow.ellipsis, // Evita overflow di testo
                     ),
                   ),
                   if (isScanning)
-                    const Expanded(
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
+                    const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator()
+                      //const Expanded(
+                      //child: Align(
+                        //alignment: Alignment.centerRight,
+                  )
                   else
-                    Flexible(
-                      child: IconButton(
-                        onPressed: _loadDevices,
-                        icon: Image.asset(
-                          "lib/assets/button_image/aggiorna.png", // Percorso del logo
-                          width: width * 0.12, // Adatta la dimensione per schermi diversi
-                          height: width * 0.12, // Adatta la dimensione per schermi diversi
-                        ),
-                        color: Colors.cyan,
+                    //Flexible(
+                      //child:
+                    IconButton(
+                      onPressed: _loadDevices,
+                      icon: Image.asset(
+                        "lib/assets/button_image/aggiorna.png", // Percorso del logo
+                        width: width * 0.1, // Adatta la dimensione per schermi diversi
+                        height: width * 0.1, // Adatta la dimensione per schermi diversi
                       ),
+                        //color: Colors.cyan,
                     ),
                 ],
               ),

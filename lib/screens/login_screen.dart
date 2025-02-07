@@ -105,70 +105,77 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       body: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          height: MediaQuery.of(context).size.height,
-          child: Stack(
-            children: <Widget>[
-              EllipseUp(),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-
-                  /// Build Logo and Title
-                  const SizedBox(height: 130),
-                  _buildHeader('Login'),
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 10,
-                            offset: Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height,minWidth: double.infinity),
+          child: IntrinsicHeight(
+            child: Stack(
+              children: <Widget>[
+                EllipseUp(),
+                Center(
+                  // Centra il contenuto nella pagina
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width * 0.1,
+                    ),
+                    child: Column( // Usa Column per supportare Expanded
+                        mainAxisSize: MainAxisSize.min, // Adatta la dimensione alla schermata
                         children: <Widget>[
-                          // Username Field
-                          UsernameField(
-                              usernameController: _usernameController),
+                          const SizedBox(height: 150),
+                          _buildHeader('Login'),
+                          const SizedBox(height: 20),
+                          Expanded(
+                            child: Container(
+                              width: 400,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 10),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize:MainAxisSize.min, // Evita l'overflow
+                                children: <Widget>[
+                                  // Username Field
+                                  UsernameField(usernameController: _usernameController),
+                                  const SizedBox(height: 16),
+                                  // Password Field
+                                  PasswordField(
+                                    passwordController: _passwordController,
+                                    isPasswordVisible: _isPasswordVisible,
+                                    onPasswordChanged: _onValidatePassword,
+                                    errorMessage: _passwordErrorMessage,
+                                    onTogglePasswordVisibility: () {
+                                      setState(() {
+                                        _isPasswordVisible = !_isPasswordVisible;
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
 
-                          const SizedBox(height: 16),
-                          // Password Field
-                          PasswordField(
-                            passwordController: _passwordController,
-                            isPasswordVisible: _isPasswordVisible,
-                            onPasswordChanged: _onValidatePassword,
-                            errorMessage: _passwordErrorMessage,
-                            onTogglePasswordVisibility: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
+                                  // Login Button
+                                  _buildLoginButton(_notificationState),
+                                  const SizedBox(height: 16),
+
+                                  // Navigation Button to Registration
+                                  _buildRegistrationNavigationButton()
+                                ],
+                              ),
+                            ),
                           ),
-                          const SizedBox(height: 16),
-
-                          // Login Button
-                          _buildLoginButton(_notificationState),
-                          const SizedBox(height: 16),
-
-                          // Navigation Button to Registration
-                          _buildRegistrationNavigationButton()
+                          const SizedBox(height: 50),
                         ],
-                      ),
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

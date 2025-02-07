@@ -36,16 +36,14 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0; // Indice corrente della pagina visualizzata
   int? _previousIndex; // Variabile per memorizzare la pagina precedente
 
-  String?
-      _userName; // Variabile che conterrà il nome utente (inizialmente null)
+  String?_userName; // Variabile che conterrà il nome utente (inizialmente null)
   final SecureStorageService _storageService = SecureStorageService.instance;
   final LogoutService _logoutService = LogoutService();
   int? userId;
 
   late NotificationState _notificationState;
 
-  List<int> _navigationStack =
-      []; // Stack per tenere traccia delle pagine visitate
+  List<int> _navigationStack = []; // Stack per tenere traccia delle pagine visitate
 
   final List<Widget> _pages = [
     DashboardScreen(),
@@ -121,12 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Blocca la rotazione solo in modalità verticale
-    /*SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);*/
-
     _checkLoginStatus(); // Controlla se l'utente è loggato
   }
 
@@ -153,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Modifiche Pub-Sub/Login Umberto
+
   @override
   Widget build(BuildContext context) {
     _notificationState = Provider.of<NotificationState>(context);
@@ -163,47 +155,159 @@ class _HomeScreenState extends State<HomeScreen> {
     return WillPopScope(
       onWillPop: () => _onWillPop(context), // Gestione del tasto "Indietro"
       child: Scaffold(
-        body: CustomScrollView(
-          physics: BouncingScrollPhysics(), // Scroll fluido
-          slivers: [
-            /// **SliverAppBar scrollabile**
-            SliverAppBar(
-              backgroundColor: const Color.fromARGB(0, 235, 227, 227),
-              elevation: 0,
-              expandedHeight: screenHeight * 0.30, // Altezza espansa
-              floating: true, // Scompare quando si scrolla
-              snap:
-                  false, // Riapparizione immediata quando si scrolla verso l'alto
-              flexibleSpace: FlexibleSpaceBar(
-                background: Stack(
-                  children: [
-                    /// Onda superiore
-                    EllipseUp(),
+        body: OrientationBuilder(
+            builder: (context, orientation) {
+              return Stack(
+                children: [
+                  CustomScrollView(
+                    //CustomScrollView(
+                    //physics: BouncingScrollPhysics(), // Scroll fluido
+                    slivers: [
 
-                    /// Header con logo e pulsanti
-                    _buildHeader(),
-                  ],
-                ),
-              ),
-            ),
+                      /// **SliverAppBar scrollabile**
+                      SliverAppBar(
+                        backgroundColor: Colors.transparent,
+                        expandedHeight: screenHeight * 0.27,
+                        //backgroundColor: const Color.fromARGB(0, 235, 227, 227),
+                        //elevation: 0,
+                        //expandedHeight: screenHeight * 0.30, // Altezza espansa
+                        //floating: true, // Scompare quando si scrolla
+                        //snap: false, // Riapparizione immediata quando si scrolla verso l'alto
+                        flexibleSpace: FlexibleSpaceBar(
+                          background: Stack(
+                            children: [
 
-            /// **Contenuto principale scrollabile**
-            SliverFillRemaining(
-              hasScrollBody: true, // Abilita lo scroll
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.05,
-                    vertical: screenHeight * 0.01),
-                child: Container(
-                  padding: EdgeInsets.all(screenWidth * 0.04),
-                  child: IndexedStack(
-                    index: _currentIndex,
-                    children: _pages,
+                              /// Onda superiore
+                              EllipseUp(),
+
+                              /// Header con logo e pulsanti
+                              //_buildHeader(),
+
+                              SingleChildScrollView(
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: Column(
+                                    children: <Widget>[
+                                      const SizedBox(height: 40),
+                                      Align(
+                                        alignment: Alignment.topLeft,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment
+                                              .start,
+                                          children: [
+                                            Image.asset(
+                                              'lib/assets/logodiviso.png',
+                                              width: screenWidth * 0.27,
+                                              height: screenHeight * 0.06,
+                                            ),
+                                            const SizedBox(height: 0),
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: screenWidth * 0.05,
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    'DefNet',
+                                                    style: TextStyle(
+                                                      fontSize: screenWidth *
+                                                          0.05,
+                                                      fontWeight: FontWeight
+                                                          .bold,
+                                                      color: Colors.white,
+                                                      shadows: [
+                                                        Shadow(
+                                                          blurRadius: 5.0,
+                                                          color: Colors.black
+                                                              .withOpacity(0.5),
+                                                          offset: Offset(3.0,
+                                                              3.0),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const Spacer(),
+                                                  _buildNotificationButton(
+                                                      screenWidth,
+                                                      _notificationState),
+                                                  SizedBox(width: screenWidth *
+                                                      0.03),
+                                                  _buildReportIcon(screenWidth),
+                                                  SizedBox(width: screenWidth *
+                                                      0.03),
+                                                  _buildLogoutButton(
+                                                      screenWidth),
+                                                ],
+                                              ),
+                                            ),
+                                            if (_userName != null &&
+                                                _currentIndex == 0)
+                                              Padding(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    screenWidth * 0.05,
+                                                    screenHeight * 0.07, 20.0,
+                                                    0.0),
+                                                child: Row(
+                                                  children: [
+                                                    Text(
+                                                      'Hello ',
+                                                      style: TextStyle(
+                                                        fontSize: screenWidth *
+                                                            0.08,
+                                                        color: Colors.blue
+                                                            .shade900,
+                                                        fontWeight: FontWeight
+                                                            .bold,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      _userName!,
+                                                      style: TextStyle(
+                                                        fontSize: screenWidth *
+                                                            0.08,
+                                                        color: Colors.blue
+                                                            .shade900,
+                                                        fontWeight: FontWeight
+                                                            .bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        pinned: true,
+                      ),
+
+                      /// **Contenuto principale scrollabile**
+                      SliverFillRemaining(
+                        //hasScrollBody: true, // Abilita lo scroll
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.05,
+                              vertical: screenHeight * 0.02),
+                          child: Container(
+                            padding: EdgeInsets.all(screenWidth * 0.05),
+                            child: IndexedStack(
+                              index: _currentIndex,
+                              children: _pages,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-            ),
-          ],
+                ],
+              );
+            },
         ),
 
         /// Bottom Navigation Bar
@@ -293,7 +397,8 @@ class _HomeScreenState extends State<HomeScreen> {
               offset: Offset(0, 4),
             )
           ]),
-          child: Image.asset('lib/assets/icons/logout.png',
+          child: Image.asset(
+              'lib/assets/icons/logout.png',
               width: screenWidth * 0.10,
               height: screenWidth * 0.10,
               color: Colors.white)),
@@ -329,8 +434,8 @@ class _HomeScreenState extends State<HomeScreen> {
       onPressed: () {
         Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) => ReportScreen(userId: userId!)));
+            MaterialPageRoute(builder: (context) => ReportScreen(userId: userId!))
+        );
       },
     );
   }
@@ -439,7 +544,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Widget _buildHeader() {
+  /*Widget _buildHeader() {
     return LayoutBuilder(
       builder: (context, constraints) {
         double screenWidth = constraints.maxWidth;
@@ -513,5 +618,5 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
-  }
+  }*/
 }
