@@ -74,29 +74,38 @@ class _ServiceScreenState extends State<ServiceScreen> {
     notificationState = Provider.of<NotificationState>(context);
 
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-        child: ListView(
-          children: [
-            _buildLogoService(),
-            const SizedBox(height: 5),
-            Text(
-              'Protect and manage your connection with the following services:',
-              style: TextStyle(
-                fontSize: MediaQuery.of(context).size.width * 0.04,
-                color: Colors.grey.shade700,
-                fontWeight: FontWeight.w500,
-              ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          double width = constraints.maxWidth;
+          double height = constraints.maxHeight;
+          double textScaleFactor = width / 400; // Scala il testo in base alla larghezza
+          bool isTablet = width > 600; // Controllo per tablet
+
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: isTablet ? 24.0 : 12),
+            child: ListView(
+              children: [
+                _buildLogoService(width),
+                SizedBox(height: height * 0.01),
+                Text(
+                  'Protect and manage your connection with the following services:',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: height * 0.02),
+                _buildService(notificationState, width),
+              ],
             ),
-            const SizedBox(height: 15),
-            _buildService(notificationState),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Consumer<NotificationState> _buildService(NotificationState notificationState) {
+  Consumer<NotificationState> _buildService(NotificationState notificationState, double width) {
     return Consumer<NotificationState>(
       builder: (context, notificationState, child) {
         return Card(
@@ -104,7 +113,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
           elevation: 4,
           color: Colors.grey.shade100,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(width * 0.04),
             child: Column(
               children: notificationState.services.map((service) {
                 bool enabled = service['enabled'] ?? false;
@@ -112,7 +121,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 bool comingSoon = service['comingSoon'] ?? false;
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: EdgeInsets.symmetric(vertical: width * 0.02),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -130,16 +139,16 @@ class _ServiceScreenState extends State<ServiceScreen> {
                             ),
                             if (comingSoon)
                               Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
+                                padding: EdgeInsets.only(left: width * 0.02),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                                  padding: EdgeInsets.symmetric(horizontal: width * 0.02, vertical: width * 0.005 ),
                                   decoration: BoxDecoration(
                                     color: Colors.orange.shade200,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'Coming Soon',
-                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange),
+                                    style: TextStyle(fontSize: width * 0.03, fontWeight: FontWeight.bold, color: Colors.orange),
                                   ),
                                 ),
                               ),
@@ -183,19 +192,20 @@ class _ServiceScreenState extends State<ServiceScreen> {
     );
   }
 
-  Row _buildLogoService() {
+  Row _buildLogoService(double width) {
     return Row(
       children: [
         Image.asset(
           'lib/assets/icons/scudo.png',
-          height: 70,
-          width: 120,
+          height: width * 0.15,
+          width: width * 0.25,
           fit: BoxFit.contain,
         ),
         Text(
           'Services',
+          textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 30,
+            fontSize: width * 0.08,
             fontWeight: FontWeight.bold,
             color: Colors.blue.shade800,
             shadows: [
