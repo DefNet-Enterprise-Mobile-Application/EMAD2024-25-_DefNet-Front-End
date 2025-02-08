@@ -83,8 +83,8 @@ class _WifiQRScreenState extends State<WifiQRScreen> {
           "QR Code Wi-Fi",
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 24,
-            color: Colors.white
+            fontSize: 22,
+            color: Colors.black
           ),
         ),
         backgroundColor: Colors.blue.shade700,

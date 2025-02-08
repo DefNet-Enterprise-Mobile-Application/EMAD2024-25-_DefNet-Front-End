@@ -301,6 +301,14 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                         fontSize: screenWidth * 0.06, // Ridurre la dimensione del testo
                         color: Colors.blue.shade800,
                         fontWeight: FontWeight.bold,
+
+                        shadows: [
+                          Shadow(
+                            blurRadius: 4.0,
+                            color: Colors.blue.shade200,
+                            offset: const Offset(2.0, 2.0),
+                          ),
+                        ],
                       ),
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
@@ -327,7 +335,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -345,14 +353,14 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                         ),
                         enabled: false, // Campo non modificabile
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 7),
                       TextFormField(
                         controller: _newWifiNameController,
                         decoration: inputDecoration.copyWith(
                           labelText: 'New Wi-Fi Name',
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 5),
                       Row(
                         children: [
                           Expanded(
@@ -421,7 +429,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 7),
                       TextFormField(
                         controller: _wifiPasswordController,
                         obscureText: !_isPasswordVisible,
@@ -450,7 +458,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                             );
                           }).toList(),
                         ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 5),
                       ElevatedButton(
                         onPressed: () async {
                           if (passwordErrors.isEmpty) {
@@ -507,7 +515,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: screenWidth * 0.1),
+                          padding: EdgeInsets.symmetric(vertical: 5, horizontal: screenWidth * 0.1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),

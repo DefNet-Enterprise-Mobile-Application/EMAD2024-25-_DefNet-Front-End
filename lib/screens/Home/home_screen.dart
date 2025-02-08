@@ -240,39 +240,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ],
                                               ),
                                             ),
-                                            /*if (_userName != null && _currentIndex == 0)
-                                              Padding(
-                                                padding: EdgeInsets.fromLTRB(
-                                                    screenWidth * 0.05,
-                                                    screenHeight * 0.03, 20.0,
-                                                    0.0),
-                                                child: Row(
-                                                  children: [
-                                                    Text(
-                                                      'Hello ',
-                                                      style: TextStyle(
-                                                        fontSize: screenWidth *
-                                                            0.08,
-                                                        color: Colors.blue
-                                                            .shade900,
-                                                        fontWeight: FontWeight
-                                                            .bold,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      _userName!,
-                                                      style: TextStyle(
-                                                        fontSize: screenWidth *
-                                                            0.08,
-                                                        color: Colors.blue
-                                                            .shade900,
-                                                        fontWeight: FontWeight
-                                                            .bold,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),*/
                                           ],
                                         ),
                                       ),
@@ -478,6 +445,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           onPressed: () {
+            print("KATIA, ${userId}");
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
