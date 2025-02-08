@@ -402,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
             size: screenWidth * 0.080,
           )),
       onPressed: () {
-        Navigator.push(
+        Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => ReportScreen(userId: userId!))
         );

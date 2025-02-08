@@ -320,7 +320,7 @@ class _WifiSettingsScreenState extends State<WifiSettingsScreen> {
               // Nuovo pulsante "Condividi Wi-Fi"
               ElevatedButton.icon(
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => WifiQRScreen()),
                   );

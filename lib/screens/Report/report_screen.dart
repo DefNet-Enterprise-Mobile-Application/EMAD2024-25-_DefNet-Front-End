@@ -5,6 +5,8 @@ import 'package:intl/intl.dart'; // Per formattare la data
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../Home/home_screen.dart';
+
 class ReportScreen extends StatefulWidget {
   final int userId;
   const ReportScreen({super.key, required this.userId});
@@ -87,82 +89,159 @@ class _ReportScreenState extends State<ReportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Reporting",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.white),
-        ),
-        backgroundColor: Colors.blue.shade700,
-        leading: IconButton(
-          icon: const Icon(
-            FontAwesomeIcons.house, // Usa l'icona di FontAwesome
-            color: Colors.white,
-          ),
-          onPressed: () {
-            // Torna alla pagina precedente senza creare una nuova istanza
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Dati di Report',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      setState(() {
-                        isDailyReport = !isDailyReport;
-                      });
-                      await _fetchReports();
+    return WillPopScope(
+        onWillPop: () async {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(), // Naviga alla HomePage
+            ),
+                (Route<dynamic> route) => false, // Rimuove tutte le rotte precedenti
+          );
+          return false; // Impedisce il comportamento di default (ritorno alla pagina precedente)
+        },
+        child:  Scaffold(
+          appBar: AppBar(
+              title: LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Impostiamo la dimensione del font per il titolo in base alla larghezza dello schermo
+                    double fontSize = constraints.maxWidth > 600 ? 24 : 22; // Maggiore su schermi più ampi
+                    return Text(
+                      "Reporting",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                    );
+                  }
+              ),
+              actions: [
+                Padding(
+                  padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.05),
+                  child: IconButton(
+                    icon: const Icon(
+                      FontAwesomeIcons.house, // Usa l'icona di FontAwesome
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                      );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade700,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Text(
-                      isDailyReport ? 'Settimanale' : 'Giornaliero',
-                      style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05), // Padding dinamico
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                      /// Logo
+                        Image.asset(
+                          'lib/assets/logodiviso.png',
+                          width: 100,
+                          height: 60,
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        /// Titolo "DefNet"
+                        Expanded(
+                          child: Text(
+                            'DefNet',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue.shade700,
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 3.0,
+                                  color: Colors.black.withOpacity(0.3),
+                                  offset: const Offset(2.0, 2.0),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        /// Spazio flessibile per spingere l'icona a destra
+                        Spacer(),
+                      ],
                     ),
                   ),
+
+                  Padding(
+                    padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            double fontSize = constraints.maxWidth > 600 ? 20 : 20;
+                            return Text(
+                              'Dati di Report',
+                              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                            );
+                          },
+                        ),
+                        SizedBox(width: 20),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              setState(() {
+                                isDailyReport = !isDailyReport;
+                              });
+                              await _fetchReports();
+                           },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue.shade700,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  double fontSize = constraints.maxWidth > 600 ? 16 : 14;
+                                  return Text(
+                                    isDailyReport ? 'Settimanale' : 'Giornaliero',
+                                    style: const TextStyle(color: Colors.white),
+                                  );
+                                },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Mostra il caricamento durante la richiesta dei dati
+                  _isLoading
+                      ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 50),
+                        child: Column(
+                          children: [
+                            const CircularProgressIndicator(
+                              color: Colors.blue,
+                              strokeWidth: 5.0,
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              "Caricamento dei report...",
+                              style: TextStyle(fontSize: 18, color: Colors.blue.shade700),
+                            ),
+                          ],
+                        ),
+                      )
+                      : _buildGraphSection(), // Mostra il grafico solo se i dati sono caricati
                 ],
               ),
-              const SizedBox(height: 20),
-
-              // Mostra il caricamento durante la richiesta dei dati
-              _isLoading
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 50),
-                      child: Column(
-                        children: [
-                          const CircularProgressIndicator(
-                            color: Colors.blue,
-                            strokeWidth: 5.0,
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            "Caricamento dei report...",
-                            style: TextStyle(
-                                fontSize: 18, color: Colors.blue.shade700),
-                          ),
-                        ],
-                      ),
-                    )
-                  : _buildGraphSection(), // Mostra il grafico solo se i dati sono caricati
-            ],
+            ),
           ),
         ),
-      ),
     );
   }
 
@@ -177,44 +256,49 @@ class _ReportScreenState extends State<ReportScreen> {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            height: 300,
-            child: PieChart(
-              PieChartData(
-                sections: [
-                  PieChartSectionData(
-                    value: reportData['system']!.toDouble(),
-                    color: Colors.greenAccent,
-                    radius: 60,
-                    titleStyle: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue),
+          LayoutBuilder(
+              builder: (context, constraints) {
+                double height = constraints.maxWidth > 600 ? 350 : 300;
+                return SizedBox(
+                  height: height,
+                  child: PieChart(
+                    PieChartData(
+                      sections: [
+                        PieChartSectionData(
+                          value: reportData['system']!.toDouble(),
+                          color: Colors.greenAccent,
+                          radius: 60,
+                          titleStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue),
+                        ),
+                        PieChartSectionData(
+                          value: reportData['alert']!.toDouble(),
+                          color: Colors.orangeAccent,
+                          radius: 60,
+                          titleStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.redAccent),
+                        ),
+                        PieChartSectionData(
+                          value: reportData['block']!.toDouble(),
+                          color: Colors.redAccent,
+                          radius: 60,
+                          titleStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orangeAccent),
+                        ),
+                      ],
+                      centerSpaceRadius: 40,
+                      sectionsSpace: 4,
+                      borderData: FlBorderData(show: false),
+                    ),
                   ),
-                  PieChartSectionData(
-                    value: reportData['alert']!.toDouble(),
-                    color: Colors.orangeAccent,
-                    radius: 60,
-                    titleStyle: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.redAccent),
-                  ),
-                  PieChartSectionData(
-                    value: reportData['block']!.toDouble(),
-                    color: Colors.redAccent,
-                    radius: 60,
-                    titleStyle: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orangeAccent),
-                  ),
-                ],
-                centerSpaceRadius: 40,
-                sectionsSpace: 4,
-                borderData: FlBorderData(show: false),
-              ),
-            ),
+                );
+              },
           ),
           const SizedBox(height: 20),
           _buildLegend(),
