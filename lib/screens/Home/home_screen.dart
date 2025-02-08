@@ -404,10 +404,14 @@ class _HomeScreenState extends State<HomeScreen> {
       onPressed: () async {
         bool responseLogout = await _logoutService.logout(_storageService);
         if (responseLogout) {
+
           _notificationState.disposeService(userId!);
           _showMessageDialog(context, "Logout Successful!", true);
+        
         } else {
+        
           _showMessageDialog(context, "Logout Error!", false);
+        
         }
       },
     );
