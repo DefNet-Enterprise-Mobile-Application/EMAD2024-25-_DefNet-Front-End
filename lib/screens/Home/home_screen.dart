@@ -335,7 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
             BoxShadow(
               color: Colors.black.withOpacity(0.3),
               spreadRadius: 1,
-              blurRadius: 30,
+              blurRadius: 45,
               offset: Offset(0, 4),
             )
           ]),
@@ -359,8 +359,8 @@ class _HomeScreenState extends State<HomeScreen> {
             BoxShadow(
               color: Colors.black.withOpacity(0.3),
               spreadRadius: 1,
-              blurRadius: 30,
-              offset: Offset(0, 4),
+              blurRadius: 45,
+              offset: Offset(0, 2),
             )
           ]),
           child: Image.asset(
@@ -392,8 +392,8 @@ class _HomeScreenState extends State<HomeScreen> {
             BoxShadow(
               color: Colors.black.withOpacity(0.3),
               spreadRadius: 1,
-              blurRadius: 30,
-              offset: Offset(0, 4),
+              blurRadius: 45,
+              offset: Offset(0, 2),
             )
           ]),
           child: Icon(
@@ -423,8 +423,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     BoxShadow(
                       color: Colors.black.withOpacity(0.3),
                       spreadRadius: 1,
-                      blurRadius: 30,
-                      offset: Offset(0, 4),
+                      blurRadius: 45,
+                      offset: Offset(0, 2),
                     )
                   ]),
                   child: Image.asset(

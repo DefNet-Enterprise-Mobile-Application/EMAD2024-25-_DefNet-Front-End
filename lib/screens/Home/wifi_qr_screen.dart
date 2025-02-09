@@ -162,23 +162,24 @@ class _WifiQRScreenState extends State<WifiQRScreen> {
 
                      /// Spazio flessibile per spingere l'icona a destra
                     Spacer(),
-
-                     Center(
-                      child: qrCodeBase64 == null
-                          ? CircularProgressIndicator()
-                          : LayoutBuilder(
-                            builder: (context, constraints) {
-                              double imageSize = constraints.maxWidth > 600 ? 250 : 200; // Modifica la dimensione dell'immagine
-                              return Image.memory(
-                                base64Decode(qrCodeBase64!),
-                                width: imageSize, // Imposta la larghezza responsiva
-                                height: imageSize, // Imposta l'altezza responsiva
-                              );
-                            }
-                          ),
-                      ),
                   ],
                 ),
+              ),
+
+              const SizedBox(height: 50),
+              Center(
+                child: qrCodeBase64 == null
+                    ? CircularProgressIndicator()
+                      : LayoutBuilder(
+                        builder: (context, constraints) {
+                          double imageSize = constraints.maxWidth > 600 ? 250 : 200; // Modifica la dimensione dell'immagine
+                          return Image.memory(
+                            base64Decode(qrCodeBase64!),
+                            width: imageSize, // Imposta la larghezza responsiva
+                            height: imageSize, // Imposta l'altezza responsiva
+                          );
+                        }
+                     ),
               ),
             ],
           ),
