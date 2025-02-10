@@ -57,6 +57,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
+  // Metodo che rileva il cambio di stato dell'app
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+
+    if (state == AppLifecycleState.resumed) {
+    
+      // Quando l'app torna in primo piano, effettua la riconnessione al WebSocket
+      if (kDebugMode) {
+        print("App tornata in primo piano, riconnessione al WebSocket...");
+      }
+      _notificationState.webSocketService.connect(widget.userId);
+    }
+
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     _notificationState = Provider.of<NotificationState>(context);
