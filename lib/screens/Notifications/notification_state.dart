@@ -91,23 +91,41 @@ class NotificationState extends ChangeNotifier {
     }
 
     await webSocketService.connect(userId); // Connessione WebSocket
-    //await _fetchStatusService(); // Carica lo stato dei servizi
+    //await _fetchStatusService(); // Carica lo stato dei servizi se necessario
 
-    /// Ascolta i messaggi WebSocket
+    /// Ascolta i messaggi in arrivo dal WebSocket
     webSocketService.notificationsStream.listen((message) {
       if (kDebugMode) {
-        print("Ricevuta notifica: $message");
+        print("Messaggio ricevuto: $message");
       }
 
-      // Estraggo i dati base dal messaggio
+      // Gestione del meccanismo heartbeat
+      if (message is Map && message.containsKey("action")) {
+        if (message["action"] == "ping") {
+          if (kDebugMode) {
+            print("Ping ricevuto, invio pong...");
+          }
+          // Rispondi al ping inviando un pong
+          webSocketService.sendMessage(jsonEncode({"action": "pong"}));
+          return; // Interrompe l'elaborazione del messaggio heartbeat
+        } else if (message["action"] == "pong") {
+          if (kDebugMode) {
+            print("Pong ricevuto dal server");
+          }
+          return; // Il pong ricevuto viene ignorato
+        }
+      }
+
+      // Se il messaggio non è relativo al heartbeat, lo tratta come notifica
       String tipo = message['tipo'] ?? 'Sconosciuto';
       String descrizione =
           message['descrizione'] ?? 'Descrizione non disponibile';
       String timestamp =
           message['timestamp'] ?? DateTime.now().toIso8601String();
       bool letto = message['stato'] ?? false;
-      int? user_Id =
-          message.containsKey('user_id') ? message['user_id'] as int? : null;
+      int? user_Id = message.containsKey('user_id')
+          ? message['user_id'] as int?
+          : null;
       int id = message['id'] ?? -1; // Valore di fallback per `id`
 
       switch (tipo) {
@@ -119,20 +137,16 @@ class NotificationState extends ChangeNotifier {
             }
             return;
           }
-
           if (user_Id == userId) {
             addNotification(id, tipo, descrizione, timestamp, letto, user_Id);
           } else {
             if (kDebugMode) {
-              print(
-                  "Notifica di sistema ignorata: non corrisponde all'utente corrente.");
+              print("Notifica di sistema ignorata: non corrisponde all'utente corrente.");
             }
           }
           break;
 
-        
         case "alert":
-        
         case "block":
           // Notifiche globali → Non devono avere user_id
           if (user_Id != null) {
@@ -142,24 +156,21 @@ class NotificationState extends ChangeNotifier {
             return;
           }
           addNotification(id, tipo, descrizione, timestamp, letto, null);
-        break;
+          break;
 
         case "service-changed":
           {
-            // Modifica lo Stato dei Servizi
+            // Modifica lo stato dei servizi
             final serviceName = message['serviceName'];
             final newStatus = message['newStatus'];
             updateServiceStatus(serviceName, newStatus);
 
-            // Aggiungi notifica anche per il cambio di stato del servizio
+            // Aggiungi notifica per il cambio di stato del servizio
             String serviceDescription =
                 'Cambio stato servizio: $serviceName a $newStatus';
-            addNotification(
-                id, tipo, serviceDescription, timestamp, letto, user_Id);
-                return;
+            addNotification(id, tipo, serviceDescription, timestamp, letto, user_Id);
+            return;
           }
-        
-
         default:
           if (kDebugMode) {
             print("Notifica sconosciuta ignorata.");
@@ -169,6 +180,9 @@ class NotificationState extends ChangeNotifier {
     });
   }
 
+
+
+  
   void addNotification(int id, String tipo, String descrizione,
       String timestamp, bool letto, int? userId) {
     Map<String, dynamic> notification = {
