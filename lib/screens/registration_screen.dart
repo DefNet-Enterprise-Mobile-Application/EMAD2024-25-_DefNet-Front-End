@@ -17,9 +17,7 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _usernameController = TextEditingController();
-
   final _passwordController = TextEditingController();
-
   final _emailController = TextEditingController();
 
   bool _isLoading = false;
@@ -29,148 +27,142 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          height: screenHeight,
-          child: Stack(
-            children: <Widget>[
-              EllipseUp(),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const SizedBox(height: 130),
-                  _buildHeader('Registration'),
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.blue.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 15,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
+        body: LayoutBuilder(
+            builder: (context, constraints) {
+              final screenWidth = constraints.maxWidth;
+              final screenHeight = constraints.maxHeight;
+              final isSmallScreen = screenWidth < 600;
+
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                      minHeight: screenHeight, minWidth: double.infinity),
+                  child: Stack(
+                    children: <Widget>[
+                      EllipseUp(context),
+                      Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          // Impedisce alla colonna di superare lo spazio disponibile
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 180), // Spazio superiore
+                            _buildHeader('Registration'),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  top: isSmallScreen ? 10 : 20),
+                              // Adattato per schermi piccoli
+                              child: Container(
+                                width: isSmallScreen ? screenWidth * 0.9 : 500,
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[50],
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.blue.withOpacity(0.3),
+                                      spreadRadius: 2,
+                                      blurRadius: 15,
+                                      offset: const Offset(0, 10),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  // Occupa solo lo spazio necessario
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+
+                                    /// Username Field - Insert text into textField
+                                    UsernameField(
+                                        usernameController: _usernameController),
+                                    const SizedBox(height: 16),
+
+                                    /// Email Field - Insert Email into TextField
+                                    EmailField(
+                                      emailController: _emailController,
+                                      emailErrorMessage: _emailErrorMessage,
+                                      onChanged: _validateEmail,
+                                    ),
+                                    const SizedBox(height: 16),
+
+                                    /// Password Field - Insert Password into TextField and validate that
+                                    PasswordField(
+                                      passwordController: _passwordController,
+                                      isPasswordVisible: _isPasswordVisible,
+                                      onPasswordChanged: _onValidatePassword,
+                                      errorMessage: _passwordErrorMessage,
+                                      onTogglePasswordVisibility: () {
+                                        setState(() {
+                                          _isPasswordVisible =
+                                          !_isPasswordVisible;
+                                        });
+                                      },
+                                    ),
+
+                                    const SizedBox(height: 16),
+
+                                    /// Perform Registration Button
+                                    _buildRegistrationButton(isSmallScreen),
+                                    const SizedBox(height: 16),
+
+                                    /// Login Button to navigation into LoginScreen
+                                    _buildLoginNavigationButton()
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          /// Username Field - Insert text into textField
-                          UsernameField(
-                              usernameController: _usernameController),
-
-                          const SizedBox(height: 16),
-
-                          /// Email Field - Insert Email into TextField
-                          EmailField(
-                            emailController: _emailController,
-                            emailErrorMessage: _emailErrorMessage,
-                            onChanged: _validateEmail,
-                          ),
-                          const SizedBox(height: 16),
-
-                          /// Password Field - Insert Password into TextField and validate that
-                          PasswordField(
-                            passwordController: _passwordController,
-                            isPasswordVisible: _isPasswordVisible,
-                            onPasswordChanged: _onValidatePassword,
-                            errorMessage: _passwordErrorMessage,
-                            onTogglePasswordVisibility: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          /// Perform Registration Button
-                          _buildRegistrationButton(),
-                          const SizedBox(height: 16),
-
-                          /// Login Button to navigation into LoginScreen
-                          _buildLoginNavigationButton()
-                        ],
-                      ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              );
+            }
         ),
-      ),
     );
   }
 
   /// Costruisce il bottone per la registrazione (Sign Up).
-  ///
-  /// Questo metodo crea un bottone di tipo `ElevatedButton`, che se premuto
-  /// esegue la funzione `_handleRegister`. Se il flag `_isLoading` è attivo,
-  /// il bottone mostrerà un indicatore di caricamento (un `CircularProgressIndicator`),
-  /// altrimenti mostrerà il testo "Sign Up". Il bottone ha uno stile personalizzato
-  /// con un bordo arrotondato e uno sfondo blu.
-  ///
-  /// - Restituisce un `Container` che contiene l'`ElevatedButton` per la registrazione.
-  Container _buildRegistrationButton() {
-    return Container(
-      width: double
-          .infinity, // Imposta la larghezza del bottone a quella massima disponibile
+  Widget _buildRegistrationButton(bool isSmallScreen) {
+    return SizedBox(
+      width: double.infinity, // Imposta la larghezza del bottone a quella massima disponibile
       child: ElevatedButton(
-        onPressed: _isLoading
-            ? null
-            : _handleRegister, // Mostra il testo "Sign Up" se il flag è falso
+        onPressed: _isLoading ? null : _handleRegister,
         style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(
-              vertical: 16), // Padding verticale del bottone
-          backgroundColor:
-              Colors.blue[700], // Colore di sfondo blu per il bottone
+          padding: EdgeInsets.symmetric(
+              vertical: isSmallScreen ? 14 : 16), // Variato in base alla larghezza dello schermo
+          backgroundColor: Colors.blue[700],
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(8), // Bordo arrotondato per il bottone
+            borderRadius: BorderRadius.circular(8),
           ),
-        ), // Disabilita il bottone se il flag `_isLoading` è vero
+        ),
         child: _isLoading
-            ? const CircularProgressIndicator() // Mostra l'indicatore di caricamento se `_isLoading` è vero
+            ? const CircularProgressIndicator()
             : const Text('Sign Up'),
       ),
     );
   }
 
   /// Costruisce il bottone per navigare alla schermata di login.
-  ///
-  /// Questo metodo crea un `TextButton` che, quando premuto, naviga alla schermata di login.
-  /// Utilizza la funzione `Navigator.pushReplacement` per sostituire la schermata corrente con
-  /// la `LoginScreen`. Il bottone contiene il testo "To log in click here!" con uno stile
-  /// personalizzato per il colore e la dimensione del testo.
-  ///
-  /// - Restituisce un `Center` che contiene il `TextButton` per la navigazione.
   Center _buildLoginNavigationButton() {
     return Center(
       child: TextButton(
         onPressed: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    LoginScreen()), // Naviga alla schermata di login
+            MaterialPageRoute(builder: (context) => LoginScreen()),
           );
         },
         child: const Text(
-          'To log in click here!', // Testo che indica la possibilità di navigare alla schermata di login
+          'To log in click here!',
           style: TextStyle(
-            color: Colors.blue, // Colore del testo del bottone
-            fontSize: 16, // Dimensione del font
+            color: Colors.blue,
+            fontSize: 16,
           ),
         ),
       ),
@@ -178,30 +170,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   /// Crea l'intestazione della schermata di registrazione con il logo e il titolo.
-  /// Questa funzione viene utilizzata all'interno del metodo `build()` per creare l'header
-  /// della schermata di registrazione.
   Widget _buildHeader(String screenPage) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center, // Centra tutto
       children: <Widget>[
-        // Immagine del logo
+        const SizedBox(height: 12),
         Image.asset(
           'lib/assets/logo.png',
           width: 150,
-          height: 150,
+          height: 120,
         ),
-
-        // Testo "Registration"
-        const SizedBox(height: 5), // Aggiunge spazio tra l'immagine e il testo
         Text(
           screenPage,
-
           style: TextStyle(
-            fontSize: 32,
+            fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: Colors.indigo[800], // Colore scuro per il testo
+            color: Colors.indigo[800],
           ),
         ),
+        const SizedBox(height: 1),
       ],
     );
   }
@@ -226,7 +214,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   size: 50,
                 ),
               if (success) ...[
-
                 Icon(
                   FontAwesomeIcons.check,
                   color: Colors.green,
@@ -257,8 +244,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       }
     });
   }
-
-
 
   void _onValidatePassword(String password) {
     String errorMessage = '';
@@ -329,192 +314,4 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           context, 'Registration failed. Please try again.', false);
     }
   }
-
-
-
-  @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          height: screenHeight,
-          child: Stack(
-            children: <Widget>[
-              EllipseUp(),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const SizedBox(height: 10),
-                  Image.asset(
-                    'lib/assets/logo.png',
-                    width: 200,
-                    height: 160,
-                  ),
-                  Text(
-                    'Registration',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.indigo[800],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.blue.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 15,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'Username',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.indigo[700],
-                            ),
-                          ),
-                          TextField(
-                            controller: _usernameController,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue[800]!),
-                              ),
-                              hintText: 'Enter your username...',
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                              'Email',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.indigo[700],
-                              ),
-                          ),
-                          TextField(
-                              controller: _emailController,
-                              onChanged: _validateEmail,
-                              decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blue[800]!),
-                                  ),
-                                  hintText: 'Enter your email...',
-                              ),
-                          ),
-                          if (_emailErrorMessage.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              _emailErrorMessage,
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                          const SizedBox(height: 16),
-                          Text(
-                            'Password',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.indigo[700],
-                            ),
-                          ),
-                          TextField(
-                            controller: _passwordController,
-                            obscureText: !_isPasswordVisible,
-                            onChanged: _validatePassword,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue[800]!),
-                              ),
-                              hintText: 'Enter your password...',
-                              suffixIcon: IconButton(
-                                icon: _isPasswordVisible
-                                    ? SvgPicture.asset(
-                                        'lib/assets/icons/eye-password-see-view.svg',
-                                      )
-                                    : SvgPicture.asset(
-                                        'lib/assets/icons/eye-password-hide.svg',
-                                      ),
-                                onPressed: () {
-                                  setState(() {
-                                    _isPasswordVisible = !_isPasswordVisible;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                          if (_passwordErrorMessage.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              _passwordErrorMessage,
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                          const SizedBox(height: 16),
-                          Container(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _handleRegister,
-                              child: _isLoading
-                                  ? const CircularProgressIndicator()
-                                  : const Text('Sign Up'),
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                backgroundColor: Colors.blue[700],
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Center(
-                            child: TextButton(
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                                );
-                              },
-                              child: const Text(
-                                'To log in click here!',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
 }

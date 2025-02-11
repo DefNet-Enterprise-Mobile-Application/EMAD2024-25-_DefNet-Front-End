@@ -68,7 +68,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String newPassword = _newPasswordController.text;
     String? userId = LoginService.getUserId();
     if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User is not logged in")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("User is not logged in")));
       return;
     }
     // Controlla che i campi non siano vuoti
@@ -87,22 +88,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
 
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile updated successfully!")));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Profile updated successfully!")));
         setState(() {
           _currentPasswordController.clear();
           _newPasswordController.clear();
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to update profile")));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to update profile")));
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: ${error.toString()}")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: ${error.toString()}")));
     }
   }
 
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery); // Galleria
+    final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery); // Galleria
 
     if (image != null) {
       setState(() {
@@ -114,229 +119,273 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
-            child: Column(
-              children: [
-                // Titolo della schermata con immagine a sinistra
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          double width = constraints.maxWidth;
+          double height = constraints.maxHeight;
+          bool isTablet = width > 600; // Controllo se è un tablet
+
+          return SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: height * 0.02,
+                    horizontal: isTablet ? 32.0 : 16.0),
+                child: Column(
                   children: [
-                    // L'immagine a sinistra (sostituito con Image.asset)
-                    Image.asset(
-                      'lib/assets/icons/edit.png', // Sostituisci con il percorso corretto dell'immagine
-                      width: 40, // Imposta la larghezza dell'immagine
-                      height: 60, // Imposta l'altezza dell'immagine
+                    // Titolo della schermata con immagine a sinistra
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // L'immagine a sinistra (sostituito con Image.asset)
+                        Image.asset(
+                          'lib/assets/icons/edit.png',
+                          // Sostituisci con il percorso corretto dell'immagine
+                          width: 40, // Imposta la larghezza dell'immagine
+                          height: 60, // Imposta l'altezza dell'immagine
+                        ),
+                        SizedBox(width: width * 0.02),
+                        // Spazio tra l'immagine e il testo
+                        // Il testo
+                        Text(
+                          'Edit profile',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
+                            fontSize: width * 0.07, // Font ridotto
+                            color: Colors.blue.shade800,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                blurRadius: 5.0,
+                                color: Colors.blue.shade300.withOpacity(0.6),
+                                offset: const Offset(3.0, 3.0),
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10), // Spazio tra l'immagine e il testo
-                    // Il testo
-                    Text(
-                      'Edit profile',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontSize: 30, // Font ridotto
-                        color: Colors.blue.shade800,
-                        fontWeight: FontWeight.bold,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 5.0,
-                            color: Colors.blue.shade300.withOpacity(0.6),
-                            offset: const Offset(3.0, 3.0),
+                    SizedBox(height: height * 0.02), // Spazio ridotto
+
+                    // Il container per i form
+                    Container(
+                      width: isTablet ? 450 : width * 0.9,
+                      // Ridotto per rendere i form più piccoli
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        // Colore di sfondo grigio chiaro
+                        borderRadius: BorderRadius.circular(16),
+                        // Angoli arrotondati per la box
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade300,
+                            blurRadius: 8,
+                            spreadRadius: 4,
                           ),
                         ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16), // Spazio ridotto
-
-                // Il container per i form
-                Container(
-                  width: 300, // Ridotto per rendere i form più piccoli
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50, // Colore di sfondo grigio chiaro
-                    borderRadius: BorderRadius.circular(16), // Angoli arrotondati per la box
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.shade300,
-                        blurRadius: 8,
-                        spreadRadius: 4,
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0), // Padding ridotto
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Avatar
-                      Stack(
+                      padding: EdgeInsets.symmetric(
+                          vertical: height * 0.015, horizontal: width * 0.05),
+                      // Padding ridotto
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          CircleAvatar(
-                            radius: 40, // Avatar più piccolo
-                            backgroundImage: _imageFile != null
-                                ? FileImage(_imageFile!) // Usa l'immagine selezionata
-                                : AssetImage('lib/assets/avatar/avatar.png') as ImageProvider,
+                          // Avatar
+                          Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: width * 0.12, // Avatar più piccolo
+                                backgroundImage: _imageFile != null
+                                    ? FileImage(
+                                    _imageFile!) // Usa l'immagine selezionata
+                                    : AssetImage(
+                                    'lib/assets/avatar/avatar.png') as ImageProvider,
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0, // Distanza dalla destra
+                                child: GestureDetector(
+                                  onTap: _pickImage,
+                                  // Attiva il metodo per scegliere l'immagine
+                                  child: Image.asset(
+                                    'lib/assets/icons/foto.png',
+                                    // Sostituisci con il percorso corretto dell'immagine
+                                    width: width * 0.12,
+                                    // Imposta la larghezza dell'immagine
+                                    height: width *
+                                        0.12, // Imposta l'altezza dell'immagine
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          Positioned(
-                            top: 40,
-                            left: 40,  // Distanza dalla destra
-                            child: GestureDetector(
-                              onTap: _pickImage, // Attiva il metodo per scegliere l'immagine
-                              child: Image.asset(
-                                'lib/assets/icons/foto.png', // Sostituisci con il percorso corretto dell'immagine
-                                width: 50, // Imposta la larghezza dell'immagine
-                                height: 50, // Imposta l'altezza dell'immagine
+
+                          SizedBox(height: height * 0.02), // Spazio ridotto
+
+                          // Container per il username con box bianco
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              // Bordo più stretto
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.blue.shade800,
+                                  blurRadius: 8,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: TextFormField(
+                              controller: _usernameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Username',
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.all(
+                                    10), // Ridotto padding
+                              ),
+                              enabled: false,
+                            ),
+                          ),
+                          SizedBox(height: height * 0.02), // Spazio ridotto
+
+                          // Container per la password attuale
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              // Bordo più stretto
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.blue.shade800,
+                                  blurRadius: 8,
+                                  //spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: TextFormField(
+                              controller: _currentPasswordController,
+                              decoration: InputDecoration(
+                                labelText: 'Current Password',
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.all(10),
+                                // Ridotto padding
+                                suffixIcon: IconButton(
+                                  icon: _isCurrentPasswordVisible
+                                      ? SvgPicture.asset(
+                                      'lib/assets/icons/eye-password-see-view.svg')
+                                      : SvgPicture.asset(
+                                      'lib/assets/icons/eye-password-hide.svg'),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isCurrentPasswordVisible =
+                                      !_isCurrentPasswordVisible;
+                                    });
+                                  },
+                                ),
+                              ),
+                              obscureText: !_isCurrentPasswordVisible,
+                              onChanged: (value) {
+                                _validatePassword(value, false);
+                              },
+                            ),
+                          ),
+                          if (_currentPasswordErrorMessage.isNotEmpty) ...[
+                            const SizedBox(height: 5),
+                            Text(
+                              _currentPasswordErrorMessage,
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 12),
+                            ),
+                          ],
+                          SizedBox(height: height * 0.02),
+
+                          // Container per la nuova password
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              // Bordo più stretto
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.blue.shade800,
+                                  blurRadius: 8,
+                                  //spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: TextFormField(
+                              controller: _newPasswordController,
+                              decoration: InputDecoration(
+                                labelText: 'New Password',
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.all(10),
+                                // Ridotto padding
+                                suffixIcon: IconButton(
+                                  icon: _isNewPasswordVisible
+                                      ? SvgPicture.asset(
+                                      'lib/assets/icons/eye-password-see-view.svg')
+                                      : SvgPicture.asset(
+                                      'lib/assets/icons/eye-password-hide.svg'),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isNewPasswordVisible =
+                                      !_isNewPasswordVisible;
+                                    });
+                                  },
+                                ),
+                              ),
+                              obscureText: !_isNewPasswordVisible,
+                              onChanged: (value) {
+                                _validatePassword(value, true);
+                              },
+                            ),
+                          ),
+                          if (_newPasswordErrorMessage.isNotEmpty) ...[
+                            const SizedBox(height: 5),
+                            Text(
+                              _newPasswordErrorMessage,
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 12),
+                            ),
+                          ],
+                          SizedBox(height: height * 0.03),
+
+                          // Bottone "Save Settings" con stile applicato
+                          ElevatedButton(
+                            onPressed: _changePassword,
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: height * 0.015,
+                                  horizontal: width * 0.015),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              backgroundColor: Colors.blue
+                                  .shade600, // Colore di sfondo
+                            ),
+                            child: Text(
+                              'Save Settings',
+                              style: TextStyle(
+                                fontSize: width * 0.045,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 16), // Spazio ridotto
-
-                      // Container per il username con box bianco
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8), // Bordo più stretto
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blue.shade800,
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: TextFormField(
-                          controller: _usernameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Username',
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.all(10), // Ridotto padding
-                          ),
-                          enabled: false,
-                        ),
-                      ),
-                      const SizedBox(height: 16), // Spazio ridotto
-
-                      // Container per la password attuale
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8), // Bordo più stretto
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blue.shade800,
-                              blurRadius: 8,
-                              //spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: TextFormField(
-                          controller: _currentPasswordController,
-                          decoration: InputDecoration(
-                            labelText: 'Current Password',
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.all(10), // Ridotto padding
-                            suffixIcon: IconButton(
-                              icon: _isCurrentPasswordVisible
-                                  ? SvgPicture.asset('lib/assets/icons/eye-password-see-view.svg')
-                                  : SvgPicture.asset('lib/assets/icons/eye-password-hide.svg'),
-                              onPressed: () {
-                                setState(() {
-                                  _isCurrentPasswordVisible = !_isCurrentPasswordVisible;
-                                });
-                              },
-                            ),
-                          ),
-                          obscureText: !_isCurrentPasswordVisible,
-                          onChanged: (value) {
-                            _validatePassword(value, false);
-                          },
-                        ),
-                      ),
-                      if (_currentPasswordErrorMessage.isNotEmpty) ...[
-                        const SizedBox(height: 5),
-                        Text(
-                          _currentPasswordErrorMessage,
-                          style: const TextStyle(color: Colors.red, fontSize: 12),
-                        ),
-                      ],
-                      const SizedBox(height: 16),
-
-                      // Container per la nuova password
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8), // Bordo più stretto
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blue.shade800,
-                              blurRadius: 8,
-                              //spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: TextFormField(
-                          controller: _newPasswordController,
-                          decoration: InputDecoration(
-                            labelText: 'New Password',
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.all(10), // Ridotto padding
-                            suffixIcon: IconButton(
-                              icon: _isNewPasswordVisible
-                                  ? SvgPicture.asset('lib/assets/icons/eye-password-see-view.svg')
-                                  : SvgPicture.asset('lib/assets/icons/eye-password-hide.svg'),
-                              onPressed: () {
-                                setState(() {
-                                  _isNewPasswordVisible = !_isNewPasswordVisible;
-                                });
-                              },
-                            ),
-                          ),
-                          obscureText: !_isNewPasswordVisible,
-                          onChanged: (value) {
-                            _validatePassword(value, true);
-                          },
-                        ),
-                      ),
-                      if (_newPasswordErrorMessage.isNotEmpty) ...[
-                        const SizedBox(height: 5),
-                        Text(
-                          _newPasswordErrorMessage,
-                          style: const TextStyle(color: Colors.red, fontSize: 12),
-                        ),
-                      ],
-                      const SizedBox(height: 20),
-
-                      // Bottone "Save Settings" con stile applicato
-                      ElevatedButton(
-                        onPressed: _changePassword,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          backgroundColor: Colors.blue.shade600, // Colore di sfondo
-                        ),
-                        child: const Text(
-                          'Save Settings',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../shared/services/settings_service.dart';
+import '../Notifications/notification_state.dart';
 
 class ServiceScreen extends StatefulWidget {
   const ServiceScreen({Key? key}) : super(key: key);
@@ -8,37 +12,12 @@ class ServiceScreen extends StatefulWidget {
 }
 
 class _ServiceScreenState extends State<ServiceScreen> {
-  final List<Map<String, dynamic>> services = [
-    {
-      'name': 'AD Block',
-      'enabled': true,
-      'modifiable': false,
-      'description': 'Blocks annoying ads on websites, improving the browsing experience and security.'
-    },
-    {
-      'name': 'IDS and IPS',
-      'enabled': true,
-      'modifiable': true,
-      'description': 'Intrusion Detection and Prevention System (IDS/IPS) detects and prevents potential security threats.'
-    },
-    {
-      'name': 'Parental Control',
-      'enabled': true,
-      'modifiable': true,
-      'description': 'Allows parents to monitor and control children\'s internet usage for safety.'
-    },
-    {
-      'name': 'VPN Protection',
-      'enabled': false,
-      'modifiable': false,
-      'comingSoon': true,
-      'description': 'VPN will be available soon. It will secure your internet connection by encrypting your data.'
-    },
-  ];
+  
+  late NotificationState notificationState;
+  final SettingsService settingsService = SettingsService();
 
-  // Funzione per mostrare il dialogo con la descrizione del servizio
+  /// Mostra il dialog con la descrizione del servizio
   void _showServiceInfo(String description) {
-    print("Showing service info: $description"); // Controllo di debug
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -46,12 +25,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
-          child: Container(
+          child: Padding(
             padding: const EdgeInsets.all(20.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -82,14 +57,9 @@ class _ServiceScreenState extends State<ServiceScreen> {
                   ),
                   child: const Text(
                     'Close',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Chiude il dialogo
-                  },
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
@@ -101,157 +71,153 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    notificationState = Provider.of<NotificationState>(context);
+
     return Scaffold(
-      body: Stack(
-        children: [
-          Padding(
-            padding: EdgeInsets.zero,
-            child: SingleChildScrollView(
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 0.0, left: 12.0, right: 12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Image.asset(
-                                'lib/assets/icons/scudo.png', // Percorso immagine
-                                height: 70, // Altezza immagine
-                                width: 120, // Larghezza immagine
-                                fit: BoxFit.contain,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          double width = constraints.maxWidth;
+          double height = constraints.maxHeight;
+          double textScaleFactor = width / 400; // Scala il testo in base alla larghezza
+          bool isTablet = width > 600; // Controllo per tablet
+
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: isTablet ? 24.0 : 12),
+            child: ListView(
+              children: [
+                _buildLogoService(width),
+                SizedBox(height: height * 0.01),
+                Text(
+                  'Protect and manage your connection with the following services:',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: height * 0.02),
+                _buildService(notificationState, width),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Consumer<NotificationState> _buildService(NotificationState notificationState, double width) {
+    return Consumer<NotificationState>(
+      builder: (context, notificationState, child) {
+        return Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 4,
+          color: Colors.grey.shade100,
+          child: Padding(
+            padding: EdgeInsets.all(width * 0.04),
+            child: Column(
+              children: notificationState.services.map((service) {
+                bool enabled = service['enabled'] ?? false;
+                bool modifiable = service['modifiable'] ?? false;
+                bool comingSoon = service['comingSoon'] ?? false;
+
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: width * 0.02),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              service['name'],
+                              style: TextStyle(
+                                fontSize: MediaQuery.of(context).size.width * 0.04,
+                                fontWeight: FontWeight.w600,
+                                color: comingSoon ? Colors.grey : Colors.blueGrey.shade900,
                               ),
-                              Text(
-                                'Services',
-                                style: TextStyle(
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue.shade800,
-                                  shadows: [
-                                    Shadow(
-                                      blurRadius: 4.0,
-                                      color: Colors.blue.shade200,
-                                      offset: const Offset(2.0, 2.0),
-                                    ),
-                                  ],
+                            ),
+                            if (comingSoon)
+                              Padding(
+                                padding: EdgeInsets.only(left: width * 0.02),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: width * 0.02, vertical: width * 0.005 ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.shade200,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    'Coming Soon',
+                                    style: TextStyle(fontSize: width * 0.03, fontWeight: FontWeight.bold, color: Colors.orange),
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            'Protect and manage your connection with the following services:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey.shade700,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            elevation: 4,
-                            color: Colors.grey.shade100,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                children: services.map((service) {
-                                  bool enabled = service['enabled'] ?? false;
-                                  bool modifiable = service['modifiable'] ?? false;
-                                  bool comingSoon = service['comingSoon'] ?? false;
-
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              service['name'],
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                                color: comingSoon
-                                                    ? Colors.grey
-                                                    : Colors.blueGrey.shade900,
-                                              ),
-                                            ),
-                                            if (comingSoon)
-                                              Padding(
-                                                padding: const EdgeInsets.only(left: 8.0),
-                                                child: Container(
-                                                  padding: const EdgeInsets.symmetric(
-                                                    horizontal: 8.0,
-                                                    vertical: 2.0,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.orange.shade200,
-                                                    borderRadius: BorderRadius.circular(8),
-                                                  ),
-                                                  child: const Text(
-                                                    'Coming Soon',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.orange,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                        if (!comingSoon)
-                                          Row(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  _showServiceInfo(service['description']);
-                                                },
-                                                child: Image.asset(
-                                                  'lib/assets/icons/info.png', // Percorso immagine info
-                                                  height: 30,
-                                                  width: 30,
-                                                ),
-                                              ),
-                                              Switch(
-                                                value: enabled,
-                                                onChanged: modifiable
-                                                    ? (bool value) {
-                                                  setState(() {
-                                                    service['enabled'] = value;
-                                                  });
-                                                }
-                                                    : null,
-                                                activeColor: Colors.blueAccent,
-                                                inactiveThumbColor:
-                                                modifiable ? Colors.grey : Colors.grey.shade400,
-                                              ),
-                                            ],
-                                          ),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
+                          ],
+                        ),
+                      ),
+                      if (!comingSoon)
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => _showServiceInfo(service['description']),
+                              child: Image.asset(
+                                'lib/assets/icons/info.png',
+                                height: MediaQuery.of(context).size.width * 0.07,
+                                width: MediaQuery.of(context).size.width * 0.07,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                            Switch(
+                              value: enabled,
+                              onChanged: modifiable
+                                  ? (bool value) async {
+                                bool success = await settingsService.toggleService(service['name'], value);
+                                if (success) {
+                                  notificationState.updateServiceStatus(service['name'], value);
+                                }
+                              }
+                                  : null,
+                              activeColor: Colors.blueAccent,
+                              inactiveThumbColor: modifiable ? Colors.grey : Colors.grey.shade400,
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
           ),
-        ],
-      ),
+        );
+      },
+    );
+  }
+
+  Row _buildLogoService(double width) {
+    return Row(
+      children: [
+        Image.asset(
+          'lib/assets/icons/scudo.png',
+          height: width * 0.15,
+          width: width * 0.25,
+          fit: BoxFit.contain,
+        ),
+        Text(
+          'Services',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: width * 0.08,
+            fontWeight: FontWeight.bold,
+            color: Colors.blue.shade800,
+            shadows: [
+              Shadow(
+                blurRadius: 4.0,
+                color: Colors.blue.shade200,
+                offset: const Offset(2.0, 2.0),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

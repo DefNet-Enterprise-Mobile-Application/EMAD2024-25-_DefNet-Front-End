@@ -1,7 +1,10 @@
+import 'package:defnet_front_end/shared/services/wifi_settings_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:ping_discover_network_forked/ping_discover_network_forked.dart';
 
+import '../../shared/services/secure_storage_service.dart';
 import 'speed_test_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -19,6 +22,12 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   // Lista dinamica di dispositivi connessi
   List<Map<String, String>> _connectedDevices = [];
+
+  String?_userName;
+  final SecureStorageService _storageService = SecureStorageService.instance;
+  int? userId;
+
+  final WifiSettingsService _wifiSettingsService = WifiSettingsService();
 
   // Stato della scansione
   bool isScanning = false;
@@ -39,11 +48,63 @@ class _DashboardScreenState extends State<DashboardScreen>
         parent: _animationController,
         curve: Curves.easeInOut,
       ),
+
+
     );
 
     // Avvia la scansione all'avvio
-    _scanNetwork();
+    _checkLoginStatus();
+    _loadDevices();
   }
+
+  Future<void> _checkLoginStatus() async {
+    final secureStorageService = SecureStorageService.instance;
+    final token = await secureStorageService.getToken();
+
+    if (token == null) {
+      _userName = "Guest";
+    } else {
+      await _loadUserName();
+    }
+  }
+
+  Future<void> _loadUserName() async {
+    try {
+      final user = await _storageService.get();
+      if (user != null) {
+        setState(() {
+          _userName = user.username;
+          if (kDebugMode) {
+            print("User ID: ${user.id}");
+          }
+          userId = user.id;
+        });
+      } else {
+        if (kDebugMode) {
+          print("User or username not found in storage.");
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error loading username: $e");
+      }
+    }
+  }
+
+  void _loadDevices() async {
+    try {
+      List<Map<String, String>> devices =
+          await _wifiSettingsService.fetchConnectedDevices();
+      setState(() {
+        _connectedDevices = devices;
+      });
+    } catch (e) {
+      // Gestisci errori (ad esempio, mostrare un messaggio di errore)
+      print('Error loading devices: $e');
+    }
+  }
+
+
 
   void _editDeviceName(int index) {
     final TextEditingController nameController = TextEditingController(
@@ -89,63 +150,47 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.dispose();
   }
 
-  // Funzione per ottenere il subnet dinamico
-  Future<String?> _getSubnet() async {
-    final info = NetworkInfo();
-    final wifiIP = await info.getWifiIP();
-    if (wifiIP != null) {
-      return wifiIP.substring(0, wifiIP.lastIndexOf('.'));
-    }
-    return null;
-  }
-
-  // Funzione per scansionare la rete
-  Future<void> _scanNetwork() async {
-    setState(() {
-      isScanning = true;
-      _connectedDevices = [];
-    });
-
-    final subnet = await _getSubnet();
-    if (subnet == null) {
-      setState(() {
-        isScanning = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossibile ottenere il subnet.')),
-      );
-      return;
-    }
-
-    final port = 80; // Porta standard
-    final stream = NetworkAnalyzer.discover2(subnet, port);
-
-    stream.listen((NetworkAddress address) {
-      if (address.exists) {
-        setState(() {
-          _connectedDevices.add({
-            "name": "Device ${_connectedDevices.length + 1}", // Nome generico
-            "ip": address.ip,
-          });
-        });
-      }
-    }).onDone(() {
-      setState(() {
-        isScanning = false;
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: SingleChildScrollView(
+        physics: NeverScrollableScrollPhysics(),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.only(top: 0.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
+              if (_userName != null)
+                Padding(
+                  padding: EdgeInsets.only(left: width * 0.0,top: height * 0.0), // Margine sopra e sotto
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Hello ',
+                          style: TextStyle(
+                            fontSize: width * 0.08,
+                            color: Colors.blue.shade900,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          _userName!,
+                          style: TextStyle(
+                            fontSize: width * 0.08,
+                            color: Colors.blue.shade900,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                ),
+              //SizedBox(height: height * 0.0001),
+              SizedBox(height: height * 0.06),// Spostato più in alto
               // Pulsante animato con immagine
               Center(
                 child: ScaleTransition(
@@ -162,7 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.cyanAccent.shade700,
                       shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(40),
+                      padding: EdgeInsets.all(width * 0.1), // Responsivo
                       elevation: 10,
                     ),
                     child: Column(
@@ -171,8 +216,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                         // Logo personalizzato al posto dell'icona
                         Image.asset(
                           "lib/assets/button_image/speedtest.png", // Percorso del logo
-                          width: 50, // Dimensione del logo
-                          height: 50, // Dimensione del logo
+                          width: width * 0.12, // Adatta la dimensione per schermi diversi
+                          height: width * 0.12, // Adatta la dimensione per schermi diversi
                         ),
                       ],
                     ),
@@ -180,43 +225,55 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
               ),
 
-              const SizedBox(height: 30),
+              SizedBox(height: height * 0.07), // Spazio responsivo ridotto
 
               // Titolo dei dispositivi connessi
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Connected Devices",
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.cyanAccent.shade700,
-                      shadows: [
-                        Shadow(
-                        blurRadius: 5.0,
-                        color: Colors.blue.shade500.withOpacity(0.4),
-                        offset: Offset(3.0, 3.0),
-                        ),
-                      ]
+                  Expanded(
+                    child:Text(
+                      "Connected Devices",
+                      style: TextStyle(
+                        fontSize: width * 0.05, // Responsivo
+                        fontWeight: FontWeight.bold,
+                        color: Colors.cyanAccent.shade700,
+                        shadows: [
+                          Shadow(
+                            blurRadius: 5.0,
+                            color: Colors.blue.shade500.withOpacity(0.4),
+                            offset: const Offset(3.0, 3.0),
+                          ),
+                        ],
+                      ),
+                      overflow: TextOverflow.ellipsis, // Evita overflow di testo
                     ),
                   ),
                   if (isScanning)
-                    const CircularProgressIndicator()
+                    const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator()
+                      //const Expanded(
+                      //child: Align(
+                        //alignment: Alignment.centerRight,
+                  )
                   else
+                    //Flexible(
+                      //child:
                     IconButton(
-                      onPressed: _scanNetwork,
+                      onPressed: _loadDevices,
                       icon: Image.asset(
                         "lib/assets/button_image/aggiorna.png", // Percorso del logo
-                        width: 50, // Dimensione del logo
-                        height: 50, // Dimensione del logo
+                        width: width * 0.1, // Adatta la dimensione per schermi diversi
+                        height: width * 0.1, // Adatta la dimensione per schermi diversi
                       ),
-                      color: Colors.cyan,
+                        //color: Colors.cyan,
                     ),
                 ],
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: height * 0.001), // Spazio responsivo ridotto
 
               // Lista dei dispositivi connessi
               ListView.builder(
@@ -233,11 +290,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: ListTile(
                       leading: Image.asset(
                         "lib/assets/button_image/dispositivi.png", // Percorso del logo
-                        width: 50, // Dimensione del logo
-                        height: 50, // Dimensione del logo
+                        width: width * 0.12, // Responsivo
+                        height: width * 0.12, // Responsivo
                       ),
-                      title: Text(device["name"] ?? "Unknown Device"),
-                      subtitle: Text("IP: ${device["ip"]}"),
+                      title: Text(
+                        device["name"] ?? "Unknown Device",
+                        style: TextStyle(fontSize: width * 0.05), // Responsivo
+                      ),
+                      subtitle: Text(
+                        "IP: ${device["ip"]}",
+                        style: TextStyle(fontSize: width * 0.04), // Responsivo
+                      ),
                       onLongPress: () => _editDeviceName(index), // Rileva la pressione prolungata
                     ),
                   );
@@ -245,9 +308,12 @@ class _DashboardScreenState extends State<DashboardScreen>
               ),
 
               if (_connectedDevices.isEmpty && !isScanning)
-                const Text(
+                Text(
                   'Nessun dispositivo trovato.',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: width * 0.05, // Responsivo
+                  ),
                 ),
             ],
           ),
@@ -256,3 +322,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 }
+
+
+
+

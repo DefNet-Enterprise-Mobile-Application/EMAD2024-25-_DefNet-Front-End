@@ -1,12 +1,8 @@
 import 'package:defnet_front_end/screens/Home/home_screen.dart';
-import 'package:defnet_front_end/screens/Notifications/notification_screen.dart';
 import 'package:defnet_front_end/screens/Notifications/notification_state.dart';
-import 'package:defnet_front_end/screens/login_screen.dart';
-import 'package:defnet_front_end/screens/registration_screen.dart';
-import 'package:defnet_front_end/shared/services/websocket_service.dart';
+import 'package:defnet_front_end/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Importa flutter_dotenv
 import 'package:defnet_front_end/shared/services/secure_storage_service.dart';
 import 'package:get_it/get_it.dart';

@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'notification_state.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class NotificationsScreen extends StatefulWidget {
   final int userId;
@@ -19,37 +18,32 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-
+  
   final LogoutService _logoutService = LogoutService();
+
   final SecureStorageService _storageService = SecureStorageService.instance;
 
   late NotificationState _notificationState;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-
-    // Usa Provider per ottenere l'istanza di NotificationState
-
     _notificationState = Provider.of<NotificationState>(context, listen: false);
-
-      _markUnreadNotificationsAsRead(); //Marca automaticamente come lette le notifiche non lette
+    _markUnreadNotificationsAsRead();
   }
 
   void _markUnreadNotificationsAsRead() async {
-    // Ottieni tutte le notifiche con `letto == false`
     final unreadNotifications = _notificationState.notifications
         .where((notification) => notification['letto'] == false)
         .toList();
     if (unreadNotifications.isNotEmpty) {
       for (var notification in unreadNotifications) {
         try {
-          // Chiama il metodo per aggiornare lo stato della notifica nel backend
-           _notificationState.markNotificationAsRead(notification['id']);
+          _notificationState.markNotificationAsRead(notification['id']);
         } catch (e) {
           if (kDebugMode) {
             print(
-              "Errore durante l'aggiornamento della notifica con id ${notification['id']}: $e");
+                "Errore durante l'aggiornamento della notifica con id ${notification['id']}: $e");
           }
         }
       }
@@ -63,118 +57,196 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
+  // Metodo che rileva il cambio di stato dell'app
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+
+    if (state == AppLifecycleState.resumed) {
+    
+      // Quando l'app torna in primo piano, effettua la riconnessione al WebSocket
+      if (kDebugMode) {
+        print("App tornata in primo piano, riconnessione al WebSocket...");
+      }
+      _notificationState.webSocketService.connect(widget.userId);
+    }
+
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     _notificationState = Provider.of<NotificationState>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Notifiche',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-              icon: const Icon(
-                  FontAwesomeIcons.house), // Usa l'icona di FontAwesome
-              onPressed: () {
-                //_notificationState.markNotificationsAsRead();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                );
-              }),
-          IconButton(
-            icon: const Icon(
-                FontAwesomeIcons.signOutAlt), // Icona di logout stilizzata
-            onPressed: () async {
-            bool response =  await _logoutService.logout(_storageService);
-
-            if(response){
-              _notificationState
-                  .disposeService(widget.userId); // Chiudi WebSocket
-              _notificationState.clearNotifications(); // Resetta notifiche
-
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => SplashScreen()),
-                );
-            }
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            // Logo e titolo
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'lib/assets/logodiviso.png',
-                    width: 100,
-                    height: 60,
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'DefNet',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade700,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 3.0,
-                          color: Colors.black.withOpacity(0.3),
-                          offset: const Offset(2.0, 2.0),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+    return WillPopScope(
+        onWillPop: () async {
+          // Quando l'utente preme il tasto indietro nella pagina delle notifiche
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(), // Naviga alla HomePage
             ),
-            const SizedBox(height: 20),
-            // Lista delle notifiche
-            _notificationState.notifications.isEmpty
-                ? const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: Text(
-                        "Nessuna notifica disponibile",
+                (Route<dynamic> route) => false, // Rimuove tutte le rotte precedenti
+          );
+          return false; // Impedisce il comportamento di default (ritorno alla pagina precedente)
+        },
+        child:  Scaffold(
+          appBar: AppBar(
+            title: const Text(
+              'Notifiche',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            actions: [
+              IconButton(
+                  icon: const Icon(
+                      FontAwesomeIcons.house), // Usa l'icona di FontAwesome
+                  onPressed: () {
+                    //_notificationState.markNotificationsAsRead();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
+                  }),
+              IconButton(
+                icon: const Icon(
+                    FontAwesomeIcons.signOutAlt), // Icona di logout stilizzata
+                onPressed: () async {
+                bool response =  await _logoutService.logout(_storageService);
+
+                if(response){
+                  _notificationState
+                      .disposeService(widget.userId); // Chiudi WebSocket
+                  _notificationState.clearNotifications(); // Resetta notifiche
+
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => SplashScreen()),
+                    );
+                }
+                },
+              ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      /// Logo
+                      Image.asset(
+                        'lib/assets/logodiviso.png',
+                        width: 100,
+                        height: 60,
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      /// Titolo "DefNet"
+                      Text(
+                        'DefNet',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.grey,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade700,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 3.0,
+                              color: Colors.black.withOpacity(0.3),
+                              offset: const Offset(2.0, 2.0),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _notificationState.notifications.length,
-                      itemBuilder: (context, index) {
-                        final notification =
-                            _notificationState.notifications[index];
-                        return _buildNotificationCard(notification);
-                      },
-                    ),
+
+                      /// Spazio flessibile per spingere l'icona a destra
+                      Spacer(),
+
+                      /// Cestino per eliminare le notifiche
+                      InkWell(
+                        onTap: () => _showDeleteDialog(context),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Icon(
+                          FontAwesomeIcons.trashCan,
+                          color: Colors.red, // Cestino rosso
+                          size: 28,
+                        ),
+                      ),
+                    ],
                   ),
-          ],
+                ),
+                const SizedBox(height: 20),
+                // Lista delle notifiche
+                _notificationState.notifications.isEmpty
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text(
+                            "Nessuna notifica disponibile",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _notificationState.notifications.length,
+                          itemBuilder: (context, index) {
+                            final notification =
+                                _notificationState.notifications[index];
+                            return _buildNotificationCard(notification);
+                          },
+                        ),
+                      ),
+              ],
+            ),
+          ),
         ),
-      ),
+    );
+  }
+
+
+  /// Funzione per mostrare il `showDialog`
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Elimina notifiche'),
+          content: const Text('Sei sicuro di voler eliminare tutte le notifiche?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Chiudi senza eliminare
+              child: const Text('Annulla'),
+            ),
+            TextButton(
+              onPressed: () {
+                _notificationState.clearNotifications();
+                //_clearNotifications(); // Funzione per eliminare le notifiche
+                Navigator.of(context).pop(); // Chiudi il dialog
+              },
+              child: const Text(
+                'Elimina',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildNotificationCard(Map<String, dynamic> notification) {
-    // Determina il tipo di notifica, ad esempio "error", "warning", "info"
     String tipo = notification['Tipo'] ?? 'Sconosciuto';
     String descrizione = notification['Descrizione'] ?? 'Descrizione non disponibile';
     String timestamp = notification['Timestamp'] ?? DateTime.now().toIso8601String();
@@ -184,80 +256,68 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     Color iconColor;
     Color containerColor;
 
-    // Imposta l'icona e il colore in base al tipo di notifica
     if (tipo.toLowerCase() == 'system') {
-      notificationIcon =
-          FontAwesomeIcons.bell; // Icona di avviso
-      iconColor = Colors.green; // Colore per le notifiche di avviso
-      containerColor = Colors.green.shade100; // Colore verde per il contenitore
+      notificationIcon = FontAwesomeIcons.bell;
+      iconColor = Colors.green;
+      containerColor = Colors.green.shade100;
     } else if (tipo.toLowerCase() == 'block') {
-      notificationIcon = FontAwesomeIcons.timesCircle; // Icona di errore
-      iconColor = Colors.red.shade700; // Colore per le notifiche di errore
-      containerColor = Colors.red.shade100; // Colore rosso per il contenitore
+      notificationIcon = FontAwesomeIcons.timesCircle;
+      iconColor = Colors.red.shade700;
+      containerColor = Colors.red.shade100;
     } else {
-      /// Info System
-      notificationIcon = FontAwesomeIcons.timesCircle; // Icona di notifica generica
+      notificationIcon = FontAwesomeIcons.warning;
       iconColor = Colors.orange;
-      containerColor = Colors.blue.shade100; // Colore blu per il contenitore
+      containerColor = Colors.orange.shade100;
     }
 
     return GestureDetector(
-       /* onTap: () {
-      // Marcare la notifica come letta quando l'utente la seleziona
-      int notificationId = notification['id'];
-      _notificationState.markNotificationAsRead(notificationId);
-      },*/
       child: Card(
-        elevation: 4,
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: containerColor, // Applica il colore al contenitore
+        elevation: 5,  // Moderato
+        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 15), // Moderato
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), // Moderato
+        color: containerColor,
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(15.0),  // Moderato
           child: Row(
             children: [
-              // Icona all'interno di un container
               Container(
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.2), // Colore di sfondo iconico
+                  color: iconColor.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),  // Moderato
                 child: Icon(
                   notificationIcon,
                   color: iconColor,
-                  size: 28,
+                  size: 35,  // Moderato
                 ),
               ),
-              const SizedBox(width: 12),
-              // Dettagli notifica
+              const SizedBox(width: 18),  // Moderato
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       "${tipo.toUpperCase()} Message !",
-                      //notification['Topic'] ?? '',
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,  // Moderato
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),  // Moderato
                     Text(
                       descrizione,
-                      //notification['Message'] ?? '',
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,  // Moderato
                         color: Colors.black54,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 8),  // Moderato
                     Text(
                       timestamp,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,  // Moderato
                         color: Colors.grey.shade600,
                       ),
                     ),
