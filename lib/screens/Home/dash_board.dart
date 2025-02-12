@@ -8,7 +8,12 @@ import '../../shared/services/secure_storage_service.dart';
 import 'speed_test_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final String usernamePerson;
+
+  DashboardScreen({
+    super.key,
+    required this.usernamePerson
+  });
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -53,11 +58,14 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
 
     // Avvia la scansione all'avvio
-    _checkLoginStatus();
+    //_checkLoginStatus();
+    setState(() {
+      _userName = widget.usernamePerson;
+    });
     _loadDevices();
   }
 
-  Future<void> _checkLoginStatus() async {
+  /*Future<void> _checkLoginStatus() async {
     final secureStorageService = SecureStorageService.instance;
     final token = await secureStorageService.getToken();
 
@@ -66,7 +74,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     } else {
       await _loadUserName();
     }
-  }
+  }*/
 
   Future<void> _loadUserName() async {
     try {

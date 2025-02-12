@@ -40,6 +40,7 @@ class WifiSettingsService {
 
         // Estrai la lista dei dispositivi connessi
         List<Map<String, String>> devices = [];
+
         for (var device in data['connected_devices']) {
           devices.add({
             'name':

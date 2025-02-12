@@ -43,6 +43,48 @@ class _SpeedTestWidgetState extends State<SpeedTestWidget> with SingleTickerProv
     super.dispose();
   }
 
+
+
+  Future<void> _fetchLatestSpeedTest() async {
+    final latestSpeedTestUrl = '$baseUrl/latest';
+
+    try {
+      final response = await http.get(Uri.parse(latestSpeedTestUrl));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        if (responseData['success'] == true) {
+          final data = responseData['data'];
+          setState(() {
+            downloadSpeed = (data['download_speed'] ?? 0).toDouble();
+            uploadSpeed = (data['upload_speed'] ?? 0).toDouble();
+            ping = (data['latency'] ?? 0).toDouble().round();
+            isLoading = false;
+            isStart = false;
+          });
+        } else {
+          setState(() {
+            errorMessage = 'Nessun dato precedente disponibile';
+            isLoading = false;
+            isStart = false;
+          });
+        }
+      } else {
+        setState(() {
+          errorMessage = 'Errore nel recupero dello storico: ${response.statusCode}';
+          isLoading = false;
+          isStart = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Errore di connessione al server: $e';
+        isLoading = false;
+        isStart = false;
+      });
+    }
+  }
+
   Future<void> fetchSpeedTestData() async {
     if (isTestRunning) {
       setState(() {
@@ -68,30 +110,18 @@ class _SpeedTestWidgetState extends State<SpeedTestWidget> with SingleTickerProv
           setState(() {
             downloadSpeed = (data['download_speed'] ?? 0).toDouble();
             uploadSpeed = (data['upload_speed'] ?? 0).toDouble();
-            ping = (data['latency'] ?? 0).toDouble().round(); // Converte a double e arrotonda a int
+            ping = (data['latency'] ?? 0).toDouble().round();
             isLoading = false;
             isStart = false;
           });
         } else {
-          setState(() {
-            errorMessage = 'Errore nei dati ricevuti dal server';
-            isLoading = false;
-            isStart = false;
-          });
+          await _fetchLatestSpeedTest();
         }
       } else {
-        setState(() {
-          errorMessage = 'Errore del server: ${response.statusCode} - ${response.body}';
-          isLoading = false;
-          isStart = false;
-        });
+        await _fetchLatestSpeedTest();
       }
     } catch (e) {
-      setState(() {
-        errorMessage = 'Errore durante la richiesta: $e';
-        isLoading = false;
-        isStart = false;
-      });
+      await _fetchLatestSpeedTest();
     }
   }
 

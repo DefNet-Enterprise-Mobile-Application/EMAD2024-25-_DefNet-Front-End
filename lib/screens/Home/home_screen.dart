@@ -5,6 +5,7 @@ import 'package:defnet_front_end/screens/Wifi_Settings/wifi_settings_screen.dart
 import 'package:defnet_front_end/screens/Home/dash_board.dart';
 import 'package:defnet_front_end/screens/Notifications/notification_screen.dart';
 import 'package:defnet_front_end/screens/Notifications/notification_state.dart';
+import '../../shared/components/defnet_custom_loading_bar.dart';
 import '../splash_screen.dart';
 import 'package:defnet_front_end/screens/Report/report_screen.dart';
 import 'wifi_qr_screen.dart'; // Importa la schermata per visualizzare il QR code
@@ -33,24 +34,26 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
   int _currentIndex = 0; // Indice corrente della pagina visualizzata
   int? _previousIndex; // Variabile per memorizzare la pagina precedente
 
-  String?_userName; // Variabile che conterrà il nome utente (inizialmente null)
+  /// Service
   final SecureStorageService _storageService = SecureStorageService.instance;
   final LogoutService _logoutService = LogoutService();
+
+
+  String? _userName;
   int? userId;
 
   late NotificationState _notificationState;
 
   List<int> _navigationStack = []; // Stack per tenere traccia delle pagine visitate
 
-  final List<Widget> _pages = [
-    DashboardScreen(),
-    WifiSettingsScreen(),
-    ServiceScreen(),
-    ProfileScreen(),
-  ];
+  late List<Widget> _pages;
+
+  bool isLoading = true;
+
 
   Future<void> _checkLoginStatus() async {
     final secureStorageService = SecureStorageService.instance;
@@ -127,16 +130,28 @@ class _HomeScreenState extends State<HomeScreen> {
       final user = await _storageService.get();
       if (user != null) {
         setState(() {
+
           _userName = user.username;
-          if (kDebugMode) {
-            print("User ID: ${user.id}");
-          }
+          print("User ID: ${user.id}");
           userId = user.id;
+
+          _pages = [
+            DashboardScreen(usernamePerson: _userName!),
+            WifiSettingsScreen(),
+            ServiceScreen(),
+            ProfileScreen()
+          ];
+
+          isLoading = false;
+
         });
+
       } else {
+
         if (kDebugMode) {
           print("User or username not found in storage.");
         }
+
       }
     } catch (e) {
       if (kDebugMode) {
@@ -148,14 +163,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     _notificationState = Provider.of<NotificationState>(context);
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return WillPopScope(
-      onWillPop: () => _onWillPop(context), // Gestione del tasto "Indietro"
-      child: Scaffold(
-        body: OrientationBuilder(
+    if(isLoading){
+
+      return CustomLoadingIndicator(progress: 0.20,);
+
+    }else {
+      return WillPopScope(
+        onWillPop: () => _onWillPop(context), // Gestione del tasto "Indietro"
+        child: Scaffold(
+          body: OrientationBuilder(
             builder: (context, orientation) {
               return Stack(
                 children: [
@@ -171,8 +192,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         //backgroundColor: const Color.fromARGB(0, 235, 227, 227),
                         elevation: 0,
                         //expandedHeight: screenHeight * 0.30, // Altezza espansa
-                        floating: true, // Scompare quando si scrolla
-                        snap: false, // Riapparizione immediata quando si scrolla verso l'alto
+                        floating: true,
+                        // Scompare quando si scrolla
+                        snap: false,
+                        // Riapparizione immediata quando si scrolla verso l'alto
                         flexibleSpace: FlexibleSpaceBar(
                           background: Stack(
                             children: [
@@ -257,16 +280,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       SliverFillRemaining(
                         //hasScrollBody: true, // Abilita lo scroll
                         //child: Padding(
-                          //padding: EdgeInsets.symmetric(
-                              //horizontal: screenWidth * 0.0,
-                              //vertical: screenHeight * 0),
-                          child: Container(
-                            padding: EdgeInsets.all(screenWidth * 0.09),
-                            child: IndexedStack(
-                              index: _currentIndex,
-                              children: _pages,
-                            ),
+                        //padding: EdgeInsets.symmetric(
+                        //horizontal: screenWidth * 0.0,
+                        //vertical: screenHeight * 0),
+                        child: Container(
+                          padding: EdgeInsets.all(screenWidth * 0.09),
+                          child: IndexedStack(
+                            index: _currentIndex,
+                            children: _pages,
                           ),
+                        ),
                         //),
                       ),
                     ],
@@ -274,57 +297,58 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               );
             },
-        ),
+          ),
 
-        /// Bottom Navigation Bar
-        bottomNavigationBar: CurvedNavigationBar(
-          backgroundColor: Colors.white,
-          color: Colors.blue.shade900,
-          buttonBackgroundColor: Colors.blueAccent.shade100,
-          height: screenHeight * 0.08,
-          animationDuration: const Duration(milliseconds: 300),
-          index: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              if (index == 0) {
-                // Se l'utente torna alla Dashboard, resetta lo stack
-                _navigationStack.clear();
-              } else {
-                // Altrimenti, aggiungi l'indice corrente allo stack
-                _navigationStack.add(_currentIndex);
-              }
-              _currentIndex = index;
-            });
-          },
-          items: [
-            Image.asset(
-              'lib/assets/icons/home.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white,
-            ),
-            Image.asset(
-              'lib/assets/icons/wifi.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white,
-            ),
-            Image.asset(
-              'lib/assets/icons/service.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white,
-            ),
-            Image.asset(
-              'lib/assets/icons/profile.png',
-              width: screenWidth * 0.08,
-              height: screenWidth * 0.08,
-              color: Colors.white,
-            ),
-          ],
+          /// Bottom Navigation Bar
+          bottomNavigationBar: CurvedNavigationBar(
+            backgroundColor: Colors.white,
+            color: Colors.blue.shade900,
+            buttonBackgroundColor: Colors.blueAccent.shade100,
+            height: screenHeight * 0.08,
+            animationDuration: const Duration(milliseconds: 300),
+            index: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                if (index == 0) {
+                  // Se l'utente torna alla Dashboard, resetta lo stack
+                  _navigationStack.clear();
+                } else {
+                  // Altrimenti, aggiungi l'indice corrente allo stack
+                  _navigationStack.add(_currentIndex);
+                }
+                _currentIndex = index;
+              });
+            },
+            items: [
+              Image.asset(
+                'lib/assets/icons/home.png',
+                width: screenWidth * 0.08,
+                height: screenWidth * 0.08,
+                color: Colors.white,
+              ),
+              Image.asset(
+                'lib/assets/icons/wifi.png',
+                width: screenWidth * 0.08,
+                height: screenWidth * 0.08,
+                color: Colors.white,
+              ),
+              Image.asset(
+                'lib/assets/icons/service.png',
+                width: screenWidth * 0.08,
+                height: screenWidth * 0.08,
+                color: Colors.white,
+              ),
+              Image.asset(
+                'lib/assets/icons/profile.png',
+                width: screenWidth * 0.08,
+                height: screenWidth * 0.08,
+                color: Colors.white,
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   // (Mantieni la funzione _buildQRCodeButton se in futuro serve)

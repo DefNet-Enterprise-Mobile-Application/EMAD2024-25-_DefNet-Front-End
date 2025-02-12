@@ -52,6 +52,7 @@ dependencies:
   flutter_speedtest: any
   syncfusion_flutter_gauges: any
   flutter_lints: ^5.0.0
+  flutter_spinkit: any
   dio: any
   wave: any
   flutter_launcher_icons: any
